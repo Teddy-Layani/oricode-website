@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oricode AI - AI-Powered Coding Assistant for SAP Developers</title>
+    <meta
+      name="description"
+      content="Write ABAP, CDS, RAP, and Fiori code 10x faster with AI. The first AI coding assistant built specifically for SAP developers."
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --bg-card: #1a1a24;
+        --text-primary: #ffffff;
+        --text-secondary: #8b8b9e;
+        --accent: #00d4aa;
+        --accent-glow: rgba(0, 212, 170, 0.3);
+        --sap-blue: #0a6ed1;
+        --gradient-1: linear-gradient(135deg, #00d4aa 0%, #0a6ed1 100%);
+        --gradient-2: linear-gradient(135deg, #0a6ed1 0%, #6b5ce7 100%);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Animated background */
+      .bg-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            rgba(0, 212, 170, 0.03) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .glow-orb {
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .glow-orb-1 {
+        background: var(--accent);
+        top: -200px;
+        right: -200px;
+        animation: float 20s ease-in-out infinite;
+      }
+
+      .glow-orb-2 {
+        background: var(--sap-blue);
+        bottom: -300px;
+        left: -200px;
+        animation: float 25s ease-in-out infinite reverse;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(30px, -30px) scale(1.05);
+        }
+        66% {
+          transform: translate(-20px, 20px) scale(0.95);
+        }
+      }
+
+      /* Navigation */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+        background: rgba(10, 10, 15, 0.8);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 1.5rem;
+        text-decoration: none;
+        color: var(--text-primary);
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+
+      .nav-badge {
+        background: var(--bg-card);
+        border: 1px solid rgba(0, 212, 170, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 100px;
+        font-size: 0.85rem;
+        color: var(--accent);
+        font-weight: 500;
+      }
+
+      /* Main content */
+      main {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8rem 2rem 4rem;
+        text-align: center;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 100px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .pill-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.2);
+        }
+      }
+
+      h1 {
+        font-size: clamp(2.5rem, 8vw, 5rem);
+        font-weight: 700;
+        line-height: 1.1;
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 0.8s ease-out 0.1s backwards;
+      }
+
+      .gradient-text {
+        background: var(--gradient-1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+        color: var(--text-secondary);
+        max-width: 600px;
+        line-height: 1.6;
+        margin-bottom: 3rem;
+        animation: fadeInUp 0.8s ease-out 0.2s backwards;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Email signup form */
+      .signup-form {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out 0.3s backwards;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .signup-form input {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+        font-family: inherit;
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: var(--text-primary);
+        width: 300px;
+        transition: all 0.3s ease;
+      }
+
+      .signup-form input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-glow);
+      }
+
+      .signup-form input::placeholder {
+        color: var(--text-secondary);
+      }
+
+      .signup-form button {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        font-family: inherit;
+        font-weight: 600;
+        background: var(--gradient-1);
+        border: none;
+        border-radius: 12px;
+        color: #000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .signup-form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px var(--accent-glow);
+      }
+
+      .form-note {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        animation: fadeInUp 0.8s ease-out 0.4s backwards;
+      }
+
+      /* Features */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        max-width: 1000px;
+        margin-top: 5rem;
+        animation: fadeInUp 0.8s ease-out 0.5s backwards;
+      }
+
+      .feature-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 2rem;
+        text-align: left;
+        transition: all 0.3s ease;
+      }
+
+      .feature-card:hover {
+        border-color: rgba(0, 212, 170, 0.3);
+        transform: translateY(-4px);
+      }
+
+      .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(0, 212, 170, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .feature-card h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .feature-card p {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+      }
+
+      /* Code preview */
+      .code-preview {
+        margin-top: 5rem;
+        background: var(--bg-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+        max-width: 700px;
+        width: 100%;
+        animation: fadeInUp 0.8s ease-out 0.6s backwards;
+      }
+
+      .code-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        background: var(--bg-card);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .code-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .code-dot-red {
+        background: #ff5f57;
+      }
+      .code-dot-yellow {
+        background: #febc2e;
+      }
+      .code-dot-green {
+        background: #28c840;
+      }
+
+      .code-title {
+        margin-left: 1rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+
+      .code-body {
+        padding: 1.5rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9rem;
+        line-height: 1.8;
+        text-align: left;
+        overflow-x: auto;
+      }
+
+      .code-comment {
+        color: #6a9955;
+      }
+      .code-keyword {
+        color: #569cd6;
+      }
+      .code-string {
+        color: #ce9178;
+      }
+      .code-type {
+        color: #4ec9b0;
+      }
+      .code-method {
+        color: #dcdcaa;
+      }
+
+      /* Footer */
+      footer {
+        position: relative;
+        z-index: 1;
+        padding: 3rem 2rem;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      footer p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        nav {
+          padding: 1rem 1.5rem;
+        }
+
+        .nav-badge {
+          display: none;
+        }
+
+        main {
+          padding: 7rem 1.5rem 3rem;
+        }
+
+        .signup-form input {
+          width: 100%;
+        }
+
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Success message */
+      .success-message {
+        display: none;
+        background: rgba(0, 212, 170, 0.1);
+        border: 1px solid var(--accent);
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        color: var(--accent);
+        margin-bottom: 2rem;
+      }
+
+      .success-message.show {
+        display: block;
+        animation: fadeInUp 0.5s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+
+    <nav>
+      <a href="/" class="logo">
+        <div class="logo-icon">{}</div>
+        Oricode
+      </a>
+      <div class="nav-badge">🚀 Coming Soon</div>
+    </nav>
+
+    <main>
+      <div class="pill">
+        <span class="pill-dot"></span>
+        Built for SAP Developers
+      </div>
+
+      <h1>
+        Write <span class="gradient-text">ABAP</span> code<br />
+        10x faster with AI
+      </h1>
+
+      <p class="subtitle">
+        The first AI coding assistant built specifically for SAP developers.
+        ABAP, CDS, RAP, Fiori/UI5 — all in your favorite IDE.
+      </p>
+
+      <div class="success-message" id="successMessage">
+        ✅ You're on the list! We'll notify you when we launch.
+      </div>
+
+      <form class="signup-form" id="signupForm">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          required
+          id="emailInput"
+        />
+        <button type="submit">Get Early Access</button>
+      </form>
+
+      <p class="form-note">
+        Join 100+ SAP developers waiting for launch. No spam, ever.
+      </p>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>AI-Powered ABAP</h3>
+          <p>
+            Generate classes, methods, and entire programs with natural
+            language. Claude understands SAP context.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔧</div>
+          <h3>MCP Integration</h3>
+          <p>
+            Create, modify, and activate ABAP objects directly from chat. No
+            copy-paste needed.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>IDE Integration</h3>
+          <p>
+            Works in Eclipse ADT and VS Code. Seamless integration with your
+            existing workflow.
+          </p>
+        </div>
+      </div>
+
+      <div class="code-preview">
+        <div class="code-header">
+          <span class="code-dot code-dot-red"></span>
+          <span class="code-dot code-dot-yellow"></span>
+          <span class="code-dot code-dot-green"></span>
+          <span class="code-title">zcl_sales_order.clas.abap</span>
+        </div>
+        <div class="code-body">
+          <span class="code-comment">" Generated by Oricode AI</span><br />
+          <span class="code-keyword">CLASS</span>
+          <span class="code-type">zcl_sales_order</span>
+          <span class="code-keyword">DEFINITION PUBLIC</span>.<br />
+          &nbsp;&nbsp;<span class="code-keyword">PUBLIC SECTION</span>.<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">METHODS</span>
+          <span class="code-method">create_order</span><br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword"
+            >IMPORTING</span
+          >
+          iv_customer <span class="code-keyword">TYPE</span> kunnr<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword"
+            >RETURNING VALUE</span
+          >(rv_order) <span class="code-keyword">TYPE</span> vbeln.<br />
+          <span class="code-keyword">ENDCLASS</span>.
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2025 Oricode AI, LLC. Built with ❤️ for SAP developers.</p>
+      <p style="margin-top: 0.5rem">
+        <a href="mailto:teddy@oricode.ai">teddy@oricode.ai</a>
+      </p>
+    </footer>
+
+    <script>
+      const API_URL = "https://oricode-backend-production.up.railway.app";
+
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("emailInput").value;
+          const button = e.target.querySelector("button");
+
+          button.textContent = "Joining...";
+          button.disabled = true;
+
+          try {
+            const response = await fetch(`${API_URL}/api/user/waitlist`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, source: "landing_page" }),
+            });
+
+            if (response.ok) {
+              document.getElementById("signupForm").style.display = "none";
+              document.getElementById("successMessage").classList.add("show");
+            } else {
+              throw new Error("Failed to join");
+            }
+          } catch (error) {
+            // Fallback: store locally if API fails
+            console.log("API unavailable, storing locally");
+            const emails = JSON.parse(
+              localStorage.getItem("oricode_emails") || "[]"
+            );
+            emails.push({ email, timestamp: new Date().toISOString() });
+            localStorage.setItem("oricode_emails", JSON.stringify(emails));
+
+            document.getElementById("signupForm").style.display = "none";
+            document.getElementById("successMessage").classList.add("show");
+          }
+        });
+    </script>
+  </body>
+</html>
