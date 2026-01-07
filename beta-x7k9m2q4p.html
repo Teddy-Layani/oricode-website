@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oricode AI - Beta</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="description" content="Oricode AI Beta - AI-Powered Coding Assistant for SAP Developers" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/oricode-favicon.svg" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --bg-card: #1a1a24;
+        --text-primary: #ffffff;
+        --text-secondary: #8b8b9e;
+        --accent: #00d4aa;
+        --accent-glow: rgba(0, 212, 170, 0.3);
+        --sap-blue: #0a6ed1;
+        --gradient-1: linear-gradient(135deg, #00d4aa 0%, #0a6ed1 100%);
+        --orange: #f97316;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      /* Background */
+      .bg-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .glow-orb {
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.3;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .glow-orb-1 {
+        background: var(--accent);
+        top: -200px;
+        right: -200px;
+      }
+
+      .glow-orb-2 {
+        background: var(--sap-blue);
+        bottom: -300px;
+        left: -200px;
+      }
+
+      /* Navigation */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem 3rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+        background: rgba(10, 10, 15, 0.8);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .beta-badge {
+        background: var(--orange);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.35rem 0.75rem;
+        border-radius: 100px;
+        letter-spacing: 0.05em;
+      }
+
+      /* Container */
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 7rem 2rem 4rem;
+      }
+
+      /* Hero */
+      .hero {
+        text-align: center;
+        padding: 2rem 0 3rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .hero h1 {
+        font-size: clamp(2rem, 6vw, 3rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .gradient-text {
+        background: var(--gradient-1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        max-width: 500px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      /* Sections */
+      section {
+        padding: 2.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      section:last-of-type {
+        border-bottom: none;
+      }
+
+      h2 {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+      }
+
+      /* Steps */
+      .steps {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .step {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .step-number {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-1);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .step-content h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .step-content p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-block;
+        padding: 0.7rem 1.4rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: var(--gradient-1);
+        color: #000;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px var(--accent-glow);
+      }
+
+      .btn-secondary {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--accent);
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+      }
+
+      .btn-outline:hover {
+        background: rgba(0, 212, 170, 0.1);
+      }
+
+      /* Installation */
+      .installation ol {
+        padding-left: 1.5rem;
+        color: var(--text-secondary);
+        line-height: 2.2;
+      }
+
+      .installation strong {
+        color: var(--text-primary);
+      }
+
+      /* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
+
+      th, td {
+        text-align: left;
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      th {
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
+
+      td {
+        color: var(--text-primary);
+      }
+
+      code {
+        background: var(--bg-card);
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        color: var(--accent);
+      }
+
+      .note {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-style: italic;
+        margin-top: 0.5rem;
+      }
+
+      /* Features */
+      .features ul {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .features li {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        padding: 0.5rem 0;
+      }
+
+      /* Feedback */
+      .feedback {
+        text-align: center;
+        padding: 3rem 0;
+      }
+
+      .feedback p {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 2rem 0;
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .confidential {
+        color: var(--orange);
+        font-weight: 500;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        nav {
+          padding: 1rem 1.5rem;
+        }
+
+        .container {
+          padding: 6rem 1.5rem 3rem;
+        }
+
+        table {
+          font-size: 0.8rem;
+        }
+
+        th, td {
+          padding: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+
+    <nav>
+      <div class="logo">
+        <img src="/oricode-logo.svg" alt="Oricode AI" height="40" />
+        <span class="beta-badge">BETA</span>
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Hero -->
+      <section class="hero">
+        <h1>Welcome to <span class="gradient-text">Oricode AI</span> Beta</h1>
+        <p class="subtitle">
+          AI-powered coding assistant for SAP ABAP developers.<br />
+          Thank you for being an early tester!
+        </p>
+      </section>
+
+      <!-- Quick Start -->
+      <section>
+        <h2>🚀 Quick Start</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Create Account</h3>
+              <p>Sign up for free with email and password</p>
+              <a href="https://app.oricode.ai/signup" class="btn btn-primary" target="_blank">
+                Sign Up →
+              </a>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Download Plugin</h3>
+              <p>Install the Eclipse plugin for ADT</p>
+              <a href="/downloads/oricode-ai-plugin.zip" class="btn btn-secondary" download>
+                Download Plugin
+              </a>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Get API Key</h3>
+              <p>Copy your API key from the dashboard</p>
+              <a href="https://app.oricode.ai/dashboard" class="btn btn-outline" target="_blank">
+                Go to Dashboard
+              </a>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Start Coding</h3>
+              <p>Open Eclipse, configure API key, and use AI assistance!</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Installation Guide -->
+      <section class="installation">
+        <h2>📦 Plugin Installation</h2>
+        <ol>
+          <li>Download the plugin ZIP file above</li>
+          <li>In Eclipse: <strong>Help</strong> → <strong>Install New Software</strong></li>
+          <li>Click <strong>Add</strong> → <strong>Archive</strong> → Select the ZIP</li>
+          <li>Check "Oricode AI" and complete installation</li>
+          <li>Restart Eclipse</li>
+          <li>Go to <strong>Window</strong> → <strong>Preferences</strong> → <strong>Oricode AI</strong></li>
+          <li>Enter your API key and save</li>
+        </ol>
+      </section>
+
+      <!-- Test Payment -->
+      <section>
+        <h2>💳 Testing Payments (Stripe Test Mode)</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">Use these test card numbers to test subscription:</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Card Type</th>
+              <th>Number</th>
+              <th>CVC</th>
+              <th>Expiry</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Visa (Success)</td>
+              <td><code>4242 4242 4242 4242</code></td>
+              <td>Any 3 digits</td>
+              <td>Any future date</td>
+            </tr>
+            <tr>
+              <td>Visa (Decline)</td>
+              <td><code>4000 0000 0000 0002</code></td>
+              <td>Any 3 digits</td>
+              <td>Any future date</td>
+            </tr>
+            <tr>
+              <td>Mastercard</td>
+              <td><code>5555 5555 5555 4444</code></td>
+              <td>Any 3 digits</td>
+              <td>Any future date</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">Use any name, any ZIP code (5 digits), any future expiry date.</p>
+      </section>
+
+      <!-- Features to Test -->
+      <section class="features">
+        <h2>🧪 What to Test</h2>
+        <ul>
+          <li>✅ Sign up / Login flow</li>
+          <li>✅ 2FA setup with authenticator app</li>
+          <li>✅ Plugin installation on Eclipse</li>
+          <li>✅ AI code generation in ABAP editor</li>
+          <li>✅ Subscription flow with test cards</li>
+          <li>✅ API key management</li>
+          <li>✅ Account settings & deletion</li>
+        </ul>
+      </section>
+
+      <!-- Feedback -->
+      <section class="feedback">
+        <h2>📣 Feedback</h2>
+        <p>Found a bug? Have suggestions? Contact us:</p>
+        <a href="mailto:beta@oricode.ai" class="btn btn-primary">
+          beta@oricode.ai
+        </a>
+      </section>
+
+      <!-- Footer -->
+      <footer>
+        <p>© 2025 Oricode AI, LLC.</p>
+        <p class="confidential" style="margin-top: 0.5rem;">⚠️ Confidential Beta - Do not share this link</p>
+      </footer>
+    </div>
+  </body>
+</html>
