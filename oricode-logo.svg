@@ -1,37 +1,9 @@
-<svg width="200" height="50" viewBox="0 0 200 50" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="neuralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ff6b35"/>
-      <stop offset="100%" style="stop-color:#f7931e"/>
-    </linearGradient>
-  </defs>
+<svg width="180" height="40" viewBox="0 0 180 40" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hexagon Icon -->
+  <text x="20" y="30" font-family="Arial, sans-serif" font-size="32" fill="#f97316" text-anchor="middle">⬡</text>
   
-  <!-- Logo Mark -->
-  <g transform="translate(25, 25)">
-    <circle cx="0" cy="0" r="6" fill="url(#neuralGrad)"/>
-    <line x1="0" y1="0" x2="0" y2="-14" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="14" y2="0" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="0" y2="14" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="-14" y2="0" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="10" y2="-10" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="-10" y2="10" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="10" y2="10" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <line x1="0" y1="0" x2="-10" y2="-10" stroke="url(#neuralGrad)" stroke-width="2"/>
-    <circle cx="0" cy="-14" r="3" fill="url(#neuralGrad)"/>
-    <circle cx="14" cy="0" r="3" fill="url(#neuralGrad)"/>
-    <circle cx="0" cy="14" r="3" fill="url(#neuralGrad)"/>
-    <circle cx="-14" cy="0" r="3" fill="url(#neuralGrad)"/>
-    <circle cx="10" cy="-10" r="2" fill="url(#neuralGrad)" opacity="0.7"/>
-    <circle cx="-10" cy="10" r="2" fill="url(#neuralGrad)" opacity="0.7"/>
-    <circle cx="10" cy="10" r="2" fill="url(#neuralGrad)" opacity="0.7"/>
-    <circle cx="-10" cy="-10" r="2" fill="url(#neuralGrad)" opacity="0.7"/>
-  </g>
-  
-  <!-- Wordmark -->
-  <text x="55" y="33" 
-        font-family="Segoe UI, system-ui, -apple-system, sans-serif" 
-        font-size="24" 
-        font-weight="600" 
-        fill="url(#neuralGrad)" 
-        letter-spacing="0.05em">ORICODE</text>
+  <!-- Text -->
+  <text x="110" y="27" font-family="Outfit, Arial, sans-serif" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="0.5">
+    Oricode AI
+  </text>
 </svg>
