@@ -189,13 +189,13 @@ function isAnsweredPill(pillId) {
 
 ### Updated Parameters
 
-| Parameter | Old Value | New Value | Reason |
-|-----------|-----------|-----------|--------|
-| Chunk Size | 3,000 chars | 15,000 chars | Reduce API calls, prevent truncation |
-| Max Code Size | 200,000 chars | 500,000 chars | Support larger ABAP classes |
-| Method Size Threshold | N/A | 15,000 chars | Decision point for chunking vs direct update |
-| Chunks Per Response | All in one | 2-3 batches | Prevent response truncation |
-| **Max Tokens (API)** | **4096** | **8192** | **Prevent mid-response truncation** |
+| Parameter | Old Value | New Value | Final Value | Reason |
+|-----------|-----------|-----------|-------------|--------|
+| Chunk Size | 3,000 chars | 15,000 chars | **8,000 chars** | **Fit in 8192 token limit** |
+| Max Code Size | 200,000 chars | 500,000 chars | 500,000 chars | Support larger ABAP classes |
+| Method Size Threshold | N/A | 15,000 chars | **10,000 chars** | Decision point for chunking vs direct update |
+| Chunks Per Message | All in one | 1-2 chunks | **1 chunk ONLY** | **Prevent tool call truncation** |
+| **Max Tokens (API)** | **4096** | **8192** | **8192** | **Prevent mid-response truncation** |
 
 ### Decision Tree for Code Deployment
 
@@ -332,6 +332,10 @@ function isAnsweredPill(pillId) {
 
 ### Backend (oricode-backend)
 ```
+eff477e - CRITICAL: Add explicit 8000-char chunk size to CHECK SYNTAX section, update examples
+ad7272f - Fix system prompt inconsistencies: Use 8K chunks consistently, ONE chunk per message
+0629c88 - CRITICAL: Reduce chunk size from 15K to 8K and send ONE chunk per message
+c885983 - Fix chunking: Send max 1-2 chunks per message to avoid truncation
 b8b855e - Increase max_tokens from 4096 to 8192 for larger responses
 904f428 - Update threshold: 15K for mcp_modify_class_method, chunking for larger
 513d46f - Fix: Use mcp_get_class for large methods that need chunking
@@ -342,6 +346,7 @@ d0d6735 - Force mcp_deploy_stored_code call immediately after chunking
 
 ### Eclipse (oricode-poc)
 ```
+f376c7b - Fix scroll behavior: Always focus on end of chat (UX improvement)
 c5b0fdf - Fix syntax error: missing + operator after isAnsweredPill function
 3202167 - Fix pill button state persistence in Eclipse using localStorage
 ```
