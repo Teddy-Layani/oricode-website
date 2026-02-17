@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"C:/Users/teddy.layani/eclipse-workspace/trading-dashboard-frontend\" commit -m \"$\\(cat <<''EOF''\nReduce sentiment refresh frequency to prevent server overload\n\n- Remove sentiment from 30s auto-refresh interval\n- Sentiment now refreshes every 5 minutes instead\n- Prevents blocking server workers with external API calls\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

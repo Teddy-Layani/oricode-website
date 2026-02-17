@@ -1,6 +1,6 @@
 # Oricode AI - Product Backlog
 
-*Last updated: January 28, 2026*
+*Last updated: January 31, 2026*
 
 ## Architecture
 
@@ -47,7 +47,6 @@ Supabase (PostgreSQL) → Railway (oricode-backend) → Clients
 
 ### Recommended Focus Order
 1. **Finish RAP OData V4** → unlocks new use cases for customers
-2. **Code obfuscation** → protect IP before wider release
 
 ---
 
@@ -94,6 +93,9 @@ Supabase (PostgreSQL) → Railway (oricode-backend) → Clients
 | 2.5 | RAP OData V4 investigation | 3-4 hr | 🔍 In Progress |
 |     | - ADT-based OData service creation | | ⬜ |
 |     | - System prompt style for RAP OData V4 generation | | ⬜ |
+| 2.6 | Code obfuscation | 2-3 hr | ✅ Done (Jan 28) |
+|     | - Eclipse plugin (ProGuard) | | ✅ |
+|     | - VS Code extension (webpack + terser) | | ✅ |
 
 ---
 
@@ -114,6 +116,20 @@ Supabase (PostgreSQL) → Railway (oricode-backend) → Clients
 | 4.1 | CodeLlama / On-Prem LLM support | 6-8 hr | ⬜ |
 | 4.2 | SSO/SAML integration | 4-6 hr | ⬜ |
 | 4.3 | Air-gapped deployment docs | 2-3 hr | ⬜ |
+| 4.4 | License system backend API | 4-6 hr | ⬜ |
+|     | - POST /api/license/generate | | ⬜ |
+|     | - GET /api/license/download | | ⬜ |
+|     | - Stripe webhook integration | | ⬜ |
+| 4.5 | License dashboard UI (oricode-app) | 3-4 hr | ⬜ |
+|     | - My Licenses page | | ⬜ |
+|     | - Download button | | ⬜ |
+|     | - Regenerate if lost | | ⬜ |
+| 4.6 | Rust MCP rewrite (maximum protection) | 2-3 weeks | ⬜ |
+|     | - Rewrite adt-client.ts in Rust | | ⬜ |
+|     | - Native binary (harder to reverse) | | ⬜ |
+|     | - Smaller binary (~5MB vs 37MB) | | ⬜ |
+
+**Note:** MCP server now protected with bytecode + license validation (Jan 31, 2026). Rust rewrite would provide maximum protection against reverse engineering.
 
 ---
 
@@ -198,8 +214,12 @@ Supabase (PostgreSQL) → Railway (oricode-backend) → Clients
 ### Security Features
 | Task | Date |
 |------|------|
+| Code obfuscation (ProGuard + webpack/terser) | Jan 28, 2026 |
 | Email verification on signup | Jan 28, 2026 |
 | Help center (6 pages) | Jan 28, 2026 |
+| MCP bytecode protection (pkg --bytecode) | Jan 31, 2026 |
+| RSA license signing system | Jan 31, 2026 |
+| License validation in MCP server | Jan 31, 2026 |
 
 ---
 

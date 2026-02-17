@@ -7,6 +7,7 @@
 | **MCP Server (SOURCE OF TRUTH)** | `mcp-abap-adt-crud/src/index.ts` | `CreateTable`, `DDIC CREATE TOOLS` |
 | **Eclipse - DDIC Tools** | `oricode-poc/src/com/oricode/eclipse/ai/tools/EclipseTools.java` | `mcp_create_table`, `getToolDefinitionsJson` |
 | **Eclipse - MCP Tools** | `oricode-poc/src/com/oricode/eclipse/ai/mcp/McpAbapClient.java` | `mcp_search`, `getToolDefinitionsJson` |
+| **Eclipse - Tool Input Forwarding** | `oricode-poc/src/com/oricode/eclipse/ai/api/OricodeApiClient.java` | `DDIC TOOLS`, `mcp_create_table`, `parseFieldsArray` |
 | **VS Code** | `oricode-vs-code/src/tools/ToolRouter.ts` | `getVsCodeToolDefinitions`, `TOOL_NAME_MAP` |
 
 ## 🏗️ Architectural Problem
@@ -472,6 +473,9 @@ grep -B5 -A20 "mcp_create_table" --include="*.java" --include="*.ts" | grep -A15
 
 **Key Files to Check:**
 - `mcp-abap-adt-crud/src/index.ts` - MCP Server (SOURCE OF TRUTH)
-- `oricode-poc/.../tools/EclipseTools.java` - Eclipse DDIC tools
-- `oricode-poc/.../mcp/McpAbapClient.java` - Eclipse MCP tools
+- `oricode-poc/.../tools/EclipseTools.java` - Eclipse DDIC tool definitions
+- `oricode-poc/.../mcp/McpAbapClient.java` - Eclipse MCP tool definitions
+- `oricode-poc/.../api/OricodeApiClient.java` - Eclipse tool INPUT FORWARDING (extracts params from Claude and sends to MCP)
 - `oricode-vs-code/src/tools/ToolRouter.ts` - VS Code tools
+
+**CRITICAL:** OricodeApiClient.java is where tool inputs are FORWARDED to MCP. If a parameter is defined in EclipseTools.java but not extracted in OricodeApiClient.java, it will NOT reach the MCP server!
