@@ -128,6 +128,11 @@ Supabase (PostgreSQL) → Railway (oricode-backend) → Clients
 |     | - Rewrite adt-client.ts in Rust | | ⬜ |
 |     | - Native binary (harder to reverse) | | ⬜ |
 |     | - Smaller binary (~5MB vs 37MB) | | ⬜ |
+| 4.7 | Environment landscape (dev/test/prod) | 3-4 hr | ⬜ |
+|     | - Currently only production environment exists | | ⬜ |
+|     | - Set up separate dev environment for testing | | ⬜ |
+|     | - Set up staging/test environment | | ⬜ |
+|     | - Environment-specific configs (DATABASE_URL, API keys) | | ⬜ |
 
 **Note:** MCP server now protected with bytecode + license validation (Jan 31, 2026). Rust rewrite would provide maximum protection against reverse engineering.
 
