@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Investor Onboarding | Oricode</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="oricode-favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous" />
+    <style>
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #12121a;
+        --bg-card: #1a1a24;
+        --text-primary: #ffffff;
+        --text-secondary: #8b8b9e;
+        --accent: #00d4aa;
+        --accent-glow: rgba(0, 212, 170, 0.3);
+        --sap-blue: #0a6ed1;
+        --gradient-1: linear-gradient(135deg, #00d4aa 0%, #0a6ed1 100%);
+        --red: #ef4444;
+        --green: #22c55e;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: "Outfit", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        min-height: 100vh;
+      }
+      .bg-grid {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-image: linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+        background-size: 60px 60px; pointer-events: none; z-index: 0;
+      }
+
+      /* Nav */
+      nav {
+        position: fixed; top: 0; left: 0; right: 0; padding: 1.5rem 3rem;
+        display: flex; justify-content: space-between; align-items: center;
+        z-index: 100; background: rgba(10,10,15,0.8); backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+      }
+      .logo {
+        display: flex; align-items: center; gap: 0.75rem;
+        font-weight: 700; font-size: 1.5rem; text-decoration: none; color: var(--text-primary);
+      }
+      .logo img { height: 36px; }
+      .nav-badge {
+        background: var(--bg-card); border: 1px solid var(--accent-glow);
+        padding: 0.5rem 1rem; border-radius: 100px; font-size: 0.85rem;
+        color: var(--accent); font-weight: 500;
+      }
+
+      /* Container */
+      .container {
+        position: relative; z-index: 1; max-width: 560px; margin: 0 auto;
+        padding: 8rem 1.5rem 3rem;
+      }
+      h1 {
+        font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; text-align: center;
+      }
+      .subtitle {
+        color: var(--text-secondary); text-align: center; margin-bottom: 2.5rem; font-size: 0.95rem;
+      }
+
+      /* Steps */
+      .steps {
+        display: flex; gap: 0; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+      }
+      .step-tab {
+        flex: 1; padding: 0.75rem; text-align: center; font-size: 0.8rem; font-weight: 500;
+        color: var(--text-secondary); cursor: default; position: relative;
+        border-bottom: 2px solid transparent; transition: all 0.2s;
+      }
+      .step-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+      .step-tab.done { color: var(--green); }
+      .step-num {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; font-weight: 700;
+        margin-right: 0.4rem; background: rgba(255,255,255,0.08); vertical-align: middle;
+      }
+      .step-tab.active .step-num { background: var(--accent); color: #000; }
+      .step-tab.done .step-num { background: var(--green); color: #fff; }
+
+      /* Card */
+      .card {
+        background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px; padding: 2rem;
+      }
+      .card h2 { font-size: 1.1rem; margin-bottom: 1.25rem; }
+
+      /* Form */
+      .field { margin-bottom: 1rem; }
+      .field label {
+        display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
+        margin-bottom: 0.4rem;
+      }
+      .field input {
+        width: 100%; padding: 0.7rem 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);
+        background: var(--bg-secondary); color: var(--text-primary); font-family: inherit;
+        font-size: 0.9rem; outline: none; transition: border-color 0.2s;
+      }
+      .field input:focus { border-color: var(--accent); }
+      .field input::placeholder { color: rgba(139,139,158,0.5); }
+
+      /* Buttons */
+      .btn {
+        width: 100%; padding: 0.75rem; border: none; border-radius: 10px;
+        font-family: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+        transition: all 0.2s; margin-top: 0.5rem;
+      }
+      .btn-primary { background: var(--gradient-1); color: #000; }
+      .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+      .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+      .btn-secondary {
+        background: transparent; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.12);
+      }
+      .btn-secondary:hover { border-color: rgba(255,255,255,0.3); color: var(--text-primary); }
+
+      /* Alert */
+      .alert {
+        padding: 0.75rem 1rem; border-radius: 10px; font-size: 0.85rem; margin-bottom: 1rem;
+        display: none;
+      }
+      .alert.error { display: block; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; }
+      .alert.success { display: block; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #86efac; }
+
+      /* QR */
+      .qr-container { text-align: center; margin: 1.5rem 0; }
+      .qr-container img { border-radius: 12px; background: #fff; padding: 8px; }
+      .secret-key {
+        font-family: "JetBrains Mono", monospace; font-size: 0.8rem; background: var(--bg-secondary);
+        padding: 0.5rem 1rem; border-radius: 8px; color: var(--accent); text-align: center;
+        margin-top: 0.75rem; word-break: break-all;
+      }
+      .verify-code { display: flex; gap: 0.75rem; align-items: flex-end; }
+      .verify-code .field { flex: 1; margin-bottom: 0; }
+      .verify-code .btn { width: auto; padding: 0.7rem 1.5rem; margin-top: 0; }
+
+      /* Passkey */
+      .passkey-icon {
+        width: 80px; height: 80px; margin: 1.5rem auto; background: rgba(0,212,170,0.1);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      }
+      .passkey-icon svg { width: 40px; height: 40px; color: var(--accent); }
+
+      /* Done */
+      .done-check {
+        width: 80px; height: 80px; margin: 1rem auto; background: rgba(34,197,94,0.1);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      }
+      .done-check svg { width: 40px; height: 40px; color: var(--green); }
+      .done-info { text-align: center; margin: 1rem 0; }
+      .done-info p { color: var(--text-secondary); font-size: 0.9rem; margin: 0.25rem 0; }
+      .done-info strong { color: var(--text-primary); }
+      .portal-link {
+        display: inline-block; margin-top: 1.5rem; padding: 0.6rem 1.5rem; border-radius: 10px;
+        background: var(--gradient-1); color: #000; font-weight: 600; text-decoration: none;
+        font-size: 0.9rem;
+      }
+
+      .hidden { display: none !important; }
+
+      @media (max-width: 640px) {
+        nav { padding: 1rem 1.5rem; }
+        .container { padding-top: 6rem; }
+        .step-tab { font-size: 0.7rem; padding: 0.5rem 0.25rem; }
+        .step-num { width: 18px; height: 18px; font-size: 0.6rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+
+    <nav>
+      <a href="/" class="logo">
+        <img src="public/oricode-logo-white.svg" alt="Oricode" />
+      </a>
+      <span class="nav-badge">Investor Onboarding</span>
+    </nav>
+
+    <div class="container">
+      <h1>Investor Account Setup</h1>
+      <p class="subtitle">Create your secure portal account in 3 steps</p>
+
+      <!-- Steps indicator -->
+      <div class="steps">
+        <div class="step-tab active" id="tab-1"><span class="step-num">1</span>Account</div>
+        <div class="step-tab" id="tab-2"><span class="step-num">2</span>Authenticator</div>
+        <div class="step-tab" id="tab-3"><span class="step-num">3</span>Passkey</div>
+      </div>
+
+      <!-- Step 1: Create Account -->
+      <div class="card" id="step-1">
+        <h2>Create Account</h2>
+        <div id="alert-1" class="alert"></div>
+        <form id="register-form" autocomplete="off">
+          <div class="field">
+            <label for="reg-name">Full Name</label>
+            <input type="text" id="reg-name" placeholder="John Smith" required />
+          </div>
+          <div class="field">
+            <label for="reg-email">Email Address</label>
+            <input type="email" id="reg-email" placeholder="john@example.com" required />
+          </div>
+          <div class="field">
+            <label for="reg-password">Password</label>
+            <input type="password" id="reg-password" placeholder="Min 8 chars, mixed case + number" required minlength="8" />
+          </div>
+          <div class="field">
+            <label for="reg-confirm">Confirm Password</label>
+            <input type="password" id="reg-confirm" placeholder="Repeat password" required />
+          </div>
+          <button type="submit" class="btn btn-primary" id="btn-register">Create Account</button>
+        </form>
+      </div>
+
+      <!-- Step 2: 2FA Setup -->
+      <div class="card hidden" id="step-2">
+        <h2>Set Up Authenticator App</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">
+          Scan this QR code with Google Authenticator, Authy, or any TOTP app.
+        </p>
+        <div id="alert-2" class="alert"></div>
+        <div class="qr-container">
+          <img id="qr-code" src="" alt="QR Code" width="200" height="200" />
+        </div>
+        <div class="secret-key" id="secret-display"></div>
+        <div style="margin-top: 1.25rem;">
+          <div class="verify-code">
+            <div class="field">
+              <label for="totp-code">Enter 6-digit code</label>
+              <input type="text" id="totp-code" placeholder="123456" maxlength="6" inputmode="numeric" style="text-align:center; letter-spacing:0.3em;" />
+            </div>
+            <button class="btn btn-primary" id="btn-verify-2fa" style="white-space:nowrap;">Verify</button>
+          </div>
+        </div>
+        <button class="btn btn-secondary" id="btn-skip-2fa" style="margin-top: 0.75rem;">Skip for now</button>
+      </div>
+
+      <!-- Step 3: Passkey -->
+      <div class="card hidden" id="step-3">
+        <h2>Register Passkey</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">
+          Use your fingerprint, face, or device PIN for fast, passwordless sign-in.
+        </p>
+        <div id="alert-3" class="alert"></div>
+        <div class="passkey-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+          </svg>
+        </div>
+        <button class="btn btn-primary" id="btn-register-passkey">Register Passkey</button>
+        <button class="btn btn-secondary" id="btn-skip-passkey" style="margin-top: 0.75rem;">Skip for now</button>
+      </div>
+
+      <!-- Step 4: Done -->
+      <div class="card hidden" id="step-done">
+        <div class="done-check">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div class="done-info">
+          <h2 style="margin-bottom: 0.75rem;">Account Ready</h2>
+          <p><strong id="done-name"></strong></p>
+          <p id="done-email"></p>
+          <p id="done-2fa-status"></p>
+          <p id="done-passkey-status"></p>
+          <a href="https://portal.oricode.ai" class="portal-link" target="_blank">Open Investor Portal</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const AUTH_URL = "https://api.oricode.ai";
+      let authToken = null;
+      let userName = "";
+      let userEmail = "";
+      let has2FA = false;
+      let hasPasskey = false;
+
+      // Helpers
+      function showAlert(stepNum, msg, type) {
+        const el = document.getElementById("alert-" + stepNum);
+        if (!el) return;
+        el.className = "alert " + type;
+        el.textContent = msg;
+      }
+      function clearAlert(stepNum) {
+        const el = document.getElementById("alert-" + stepNum);
+        if (el) el.className = "alert";
+      }
+      function goToStep(num) {
+        ["1", "2", "3"].forEach(function(n) {
+          document.getElementById("step-" + n).classList.add("hidden");
+          document.getElementById("tab-" + n).classList.remove("active");
+        });
+        document.getElementById("step-done").classList.add("hidden");
+
+        if (num === "done") {
+          document.getElementById("step-done").classList.remove("hidden");
+          ["1", "2", "3"].forEach(function(n) {
+            document.getElementById("tab-" + n).classList.add("done");
+          });
+        } else {
+          document.getElementById("step-" + num).classList.remove("hidden");
+          document.getElementById("tab-" + num).classList.add("active");
+          // Mark previous steps as done
+          for (var i = 1; i < parseInt(num); i++) {
+            document.getElementById("tab-" + i).classList.add("done");
+          }
+        }
+      }
+
+      // Step 1: Register
+      document.getElementById("register-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        clearAlert("1");
+        var name = document.getElementById("reg-name").value.trim();
+        var email = document.getElementById("reg-email").value.trim();
+        var pw = document.getElementById("reg-password").value;
+        var pw2 = document.getElementById("reg-confirm").value;
+
+        if (pw !== pw2) {
+          showAlert("1", "Passwords do not match", "error");
+          return;
+        }
+
+        var btn = document.getElementById("btn-register");
+        btn.disabled = true;
+        btn.textContent = "Creating account...";
+
+        try {
+          var res = await fetch(AUTH_URL + "/api/auth/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email, password: pw, name: name })
+          });
+          var data = await res.json();
+          if (!res.ok) {
+            showAlert("1", data.error || "Registration failed", "error");
+            btn.disabled = false;
+            btn.textContent = "Create Account";
+            return;
+          }
+          authToken = data.token;
+          userName = name;
+          userEmail = email;
+          // Move to step 2: set up 2FA
+          setup2FA();
+        } catch (err) {
+          showAlert("1", "Network error. Please try again.", "error");
+          btn.disabled = false;
+          btn.textContent = "Create Account";
+        }
+      });
+
+      // Step 2: 2FA Setup
+      async function setup2FA() {
+        goToStep("2");
+        try {
+          var res = await fetch(AUTH_URL + "/api/2fa/setup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + authToken
+            }
+          });
+          var data = await res.json();
+          if (res.ok) {
+            document.getElementById("qr-code").src = data.qrCode;
+            document.getElementById("secret-display").textContent = "Manual key: " + data.secret;
+          } else {
+            showAlert("2", data.error || "Failed to set up 2FA", "error");
+          }
+        } catch (err) {
+          showAlert("2", "Failed to load QR code", "error");
+        }
+      }
+
+      // Verify 2FA code
+      document.getElementById("btn-verify-2fa").addEventListener("click", async function() {
+        clearAlert("2");
+        var code = document.getElementById("totp-code").value.trim();
+        if (code.length !== 6) {
+          showAlert("2", "Enter the 6-digit code from your authenticator app", "error");
+          return;
+        }
+        this.disabled = true;
+        this.textContent = "Verifying...";
+        try {
+          var res = await fetch(AUTH_URL + "/api/2fa/verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + authToken
+            },
+            body: JSON.stringify({ code: code })
+          });
+          var data = await res.json();
+          if (res.ok) {
+            has2FA = true;
+            goToStep("3");
+          } else {
+            showAlert("2", data.error || "Invalid code. Try again.", "error");
+          }
+        } catch (err) {
+          showAlert("2", "Verification failed", "error");
+        }
+        this.disabled = false;
+        this.textContent = "Verify";
+      });
+
+      // Skip 2FA
+      document.getElementById("btn-skip-2fa").addEventListener("click", function() {
+        goToStep("3");
+      });
+
+      // Step 3: Passkey
+      document.getElementById("btn-register-passkey").addEventListener("click", async function() {
+        clearAlert("3");
+        this.disabled = true;
+        this.textContent = "Waiting for biometric...";
+        try {
+          // Get registration options
+          var optRes = await fetch(AUTH_URL + "/api/webauthn/register-options", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + authToken
+            },
+            body: JSON.stringify({ friendlyName: "Investor Portal" })
+          });
+          var options = await optRes.json();
+          if (!optRes.ok) throw new Error(options.error || "Failed to get options");
+
+          // Trigger browser WebAuthn
+          var credential = await navigator.credentials.create({ publicKey: decodeOptions(options) });
+
+          // Verify with backend
+          var verRes = await fetch(AUTH_URL + "/api/webauthn/register-verify", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + authToken
+            },
+            body: JSON.stringify({ response: encodeCredential(credential), friendlyName: "Investor Portal" })
+          });
+          var verData = await verRes.json();
+          if (verRes.ok) {
+            hasPasskey = true;
+            finishOnboarding();
+          } else {
+            showAlert("3", verData.error || "Passkey registration failed", "error");
+          }
+        } catch (err) {
+          if (err.name === "NotAllowedError") {
+            showAlert("3", "Biometric prompt was cancelled. Try again.", "error");
+          } else {
+            showAlert("3", err.message || "Passkey registration failed", "error");
+          }
+        }
+        this.disabled = false;
+        this.textContent = "Register Passkey";
+      });
+
+      // Skip passkey
+      document.getElementById("btn-skip-passkey").addEventListener("click", function() {
+        finishOnboarding();
+      });
+
+      // Done
+      function finishOnboarding() {
+        document.getElementById("done-name").textContent = userName;
+        document.getElementById("done-email").textContent = userEmail;
+        document.getElementById("done-2fa-status").textContent = "2FA: " + (has2FA ? "Enabled" : "Not set up");
+        document.getElementById("done-passkey-status").textContent = "Passkey: " + (hasPasskey ? "Registered" : "Not set up");
+        goToStep("done");
+      }
+
+      // WebAuthn encoding helpers
+      function decodeOptions(opts) {
+        var pk = Object.assign({}, opts);
+        pk.challenge = base64ToBuffer(pk.challenge);
+        pk.user.id = base64ToBuffer(pk.user.id);
+        if (pk.excludeCredentials) {
+          pk.excludeCredentials = pk.excludeCredentials.map(function(c) {
+            return Object.assign({}, c, { id: base64ToBuffer(c.id) });
+          });
+        }
+        return pk;
+      }
+      function encodeCredential(cred) {
+        return {
+          id: cred.id,
+          rawId: bufferToBase64(cred.rawId),
+          type: cred.type,
+          response: {
+            attestationObject: bufferToBase64(cred.response.attestationObject),
+            clientDataJSON: bufferToBase64(cred.response.clientDataJSON)
+          }
+        };
+      }
+      function base64ToBuffer(b64) {
+        var s = b64.replace(/-/g, "+").replace(/_/g, "/");
+        var raw = atob(s);
+        var arr = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+        return arr.buffer;
+      }
+      function bufferToBase64(buf) {
+        var bytes = new Uint8Array(buf);
+        var s = "";
+        for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+        return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+      }
+    </script>
+  </body>
+</html>
