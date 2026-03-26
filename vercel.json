@@ -1,5 +1,12 @@
 {
   "outputDirectory": ".",
   "buildCommand": null,
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "oracle.oricode.ai" }],
+      "destination": "/oracle/$1"
+    }
+  ]
 }

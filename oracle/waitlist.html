@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle - Waitlist</title>
+    <link rel="icon" type="image/svg+xml" href="/oricode-favicon.svg">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #08080c;
+            --bg-secondary: #0e0e14;
+            --border: #1a1a2e;
+            --amber: #d4a017;
+            --amber-dim: #8b6914;
+            --amber-glow: rgba(212, 160, 23, 0.08);
+            --text-primary: #e8e6e3;
+            --text-secondary: #8a8a9a;
+            --text-dim: #555566;
+            --green: #22c55e;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .oracle-mark {
+            width: 80px; height: 80px;
+            border: 2px solid var(--amber);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px;
+            color: var(--amber);
+            font-weight: 600;
+            margin: 0 auto 32px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .tagline {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 20px;
+            color: var(--amber);
+            font-weight: 500;
+        }
+        .stat-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="email"]:focus {
+            border-color: var(--amber-dim);
+        }
+        input[type="email"]::placeholder {
+            color: var(--text-dim);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            font-family: inherit;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .submit-btn:hover {
+            background: var(--amber-glow);
+        }
+        .submit-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 16px;
+            font-size: 12px;
+            min-height: 18px;
+        }
+        .message.success { color: var(--green); }
+        .message.error { color: #ef4444; }
+
+        .features {
+            margin-top: 48px;
+            text-align: left;
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+        }
+        .feature {
+            margin-bottom: 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding-left: 20px;
+            position: relative;
+        }
+        .feature::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 7px;
+            width: 6px; height: 6px;
+            background: var(--amber-dim);
+            border-radius: 50%;
+        }
+
+        .back-link {
+            margin-top: 32px;
+            font-size: 11px;
+        }
+        .back-link a {
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+        .back-link a:hover {
+            color: var(--amber-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="oracle-mark">O</div>
+        <h1>Oracle</h1>
+        <p class="tagline">
+            Prophecy powered by real market execution.<br>
+            Not signals. Not analysis. Prophecy.
+        </p>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value">20</div>
+                <div class="stat-label">Founding seats</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">17</div>
+                <div class="stat-label">Exchanges</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">41K+</div>
+                <div class="stat-label">Decisions</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <input type="email" id="emailInput" placeholder="your@email.com" onkeydown="if(event.key==='Enter')joinWaitlist()">
+        </div>
+        <button class="submit-btn" id="submitBtn" onclick="joinWaitlist()">Join the Waitlist</button>
+        <div class="message" id="message"></div>
+
+        <div class="features">
+            <div class="feature">Ask any question about a symbol, direction, or market condition</div>
+            <div class="feature">Answers from real execution history, not training data</div>
+            <div class="feature">4 asset classes: stocks, crypto, forex, commodities</div>
+            <div class="feature">Live regime awareness and adaptive factor weights</div>
+            <div class="feature">Founding members lock in their rate for life</div>
+        </div>
+
+        <div class="back-link">
+            <a href="/oracle/">Already have a seat key? Enter Oracle</a>
+        </div>
+    </div>
+
+<script>
+async function joinWaitlist() {
+    const email = document.getElementById('emailInput').value.trim();
+    const msg = document.getElementById('message');
+    const btn = document.getElementById('submitBtn');
+
+    if (!email || !email.includes('@')) {
+        msg.className = 'message error';
+        msg.textContent = 'Please enter a valid email.';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+        const res = await fetch('https://api-trading.oricode.ai/api/oracle/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        const d = await res.json();
+
+        if (res.ok) {
+            msg.className = 'message success';
+            msg.textContent = 'You are on the list. We will reach out.';
+            btn.textContent = 'On the list';
+            document.getElementById('emailInput').disabled = true;
+        } else {
+            msg.className = 'message error';
+            msg.textContent = d.error || 'Something went wrong.';
+            btn.disabled = false;
+            btn.textContent = 'Join the Waitlist';
+        }
+    } catch(e) {
+        msg.className = 'message error';
+        msg.textContent = 'Connection failed. Try again.';
+        btn.disabled = false;
+        btn.textContent = 'Join the Waitlist';
+    }
+}
+</script>
+</body>
+</html>
