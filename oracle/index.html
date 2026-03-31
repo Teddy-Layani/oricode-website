@@ -777,8 +777,9 @@ async function loadHistory(append) {
         var list = document.getElementById('historyList');
         var existing = document.getElementById('loadMoreBtn');
         if (existing) existing.parentElement.remove();
-        for (var i = 0; i < d.history.length; i++) {
-            var h = d.history[i];
+        var items = d.history || d.queries || [];
+        for (var i = 0; i < items.length; i++) {
+            var h = items[i];
             h.response = h.response || h.preview;
             var item = document.createElement('div');
             item.className = 'history-item';
@@ -793,7 +794,7 @@ async function loadHistory(append) {
                 + '<span>' + ds + '</span></div>';
             list.appendChild(item);
         }
-        if (d.history.length >= 20 && (historyOffset + 20) < d.total) {
+        if (items.length >= 20 && d.total && (historyOffset + 20) < d.total) {
             historyOffset += 20;
             var more = document.createElement('div');
             more.className = 'history-load-more';
