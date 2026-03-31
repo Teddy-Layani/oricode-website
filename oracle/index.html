@@ -374,6 +374,13 @@
             opacity: 0.3;
             cursor: not-allowed;
         }
+        .send-btn.stop {
+            border-color: var(--red);
+            color: var(--red);
+        }
+        .send-btn.stop:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
 
         /* === MOBILE === */
         @media (max-width: 640px) {
@@ -444,6 +451,7 @@
 const API = 'https://api-trading.oricode.ai/api/oracle';
 let seatKey = localStorage.getItem('oracle_seat_key') || '';
 let isQuerying = false;
+let abortController = null;
 
 // === INIT ===
 async function init() {
@@ -528,6 +536,28 @@ function askExample(el) {
     sendQuery();
 }
 
+function stopQuery() {
+    if (abortController) {
+        abortController.abort();
+        abortController = null;
+    }
+}
+
+function setButtonMode(mode) {
+    const btn = document.getElementById('sendBtn');
+    if (mode === 'stop') {
+        btn.innerHTML = '&#x25A0;';
+        btn.classList.add('stop');
+        btn.disabled = false;
+        btn.onclick = stopQuery;
+    } else {
+        btn.innerHTML = '&#x27A4;';
+        btn.classList.remove('stop');
+        btn.disabled = !document.getElementById('queryInput').value.trim();
+        btn.onclick = sendQuery;
+    }
+}
+
 async function sendQuery() {
     const input = document.getElementById('queryInput');
     const text = input.value.trim();
@@ -542,11 +572,12 @@ async function sendQuery() {
     input.value = '';
     input.style.height = 'auto';
     document.getElementById('charCount').textContent = '0';
-    document.getElementById('sendBtn').disabled = true;
 
-    // Show loading
+    // Show loading + stop button
     const loadingEl = addLoading();
     isQuerying = true;
+    abortController = new AbortController();
+    setButtonMode('stop');
 
     try {
         const res = await fetch(API + '/query', {
@@ -556,6 +587,7 @@ async function sendQuery() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ query: text }),
+            signal: abortController.signal,
         });
 
         const d = await res.json();
@@ -577,10 +609,16 @@ async function sendQuery() {
         }
     } catch(e) {
         loadingEl.remove();
-        addError('Connection failed. Please try again.');
+        if (e.name === 'AbortError') {
+            addError('Query stopped.');
+        } else {
+            addError('Connection failed. Please try again.');
+        }
     }
 
     isQuerying = false;
+    abortController = null;
+    setButtonMode('send');
 }
 
 // === RENDER ===
