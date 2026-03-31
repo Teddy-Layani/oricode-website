@@ -309,6 +309,68 @@
             color: var(--text-primary);
         }
 
+        /* === STYLE PICKER === */
+        .style-picker {
+            align-self: center;
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 520px;
+            animation: fadeIn 0.4s ease;
+        }
+        .style-picker h3 {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .style-picker p {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+        .style-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .style-option {
+            padding: 14px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .style-option:hover {
+            border-color: var(--amber-dim);
+        }
+        .style-option .style-icon {
+            width: 36px; height: 36px;
+            border: 1px solid var(--amber-dim);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px;
+            color: var(--amber);
+            flex-shrink: 0;
+        }
+        .style-option .style-label {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .style-option .style-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
         /* === INPUT ZONE === */
         .input-zone {
             padding: 16px 24px;
@@ -427,14 +489,43 @@
     <!-- CHAT CONTAINER -->
     <div class="chat-container" id="chatContainer">
         <div class="feed" id="feed">
-            <div class="welcome" id="welcome">
+            <!-- Style picker: shown once if no preference saved -->
+            <div class="style-picker" id="stylePicker" style="display:none;">
+                <h3>Before we begin</h3>
+                <p>How do you trade? This helps the Oracle tailor its answers to your timeframe.</p>
+                <div class="style-options">
+                    <div class="style-option" onclick="pickStyle('scalper')">
+                        <div class="style-icon">S</div>
+                        <div>
+                            <div class="style-label">Scalper / Intraday</div>
+                            <div class="style-desc">Minutes to 1-2 hours. Quick entries, tight stops.</div>
+                        </div>
+                    </div>
+                    <div class="style-option" onclick="pickStyle('day_trader')">
+                        <div class="style-icon">D</div>
+                        <div>
+                            <div class="style-label">Day Trader</div>
+                            <div class="style-desc">Hours. Close by end of day, no overnight risk.</div>
+                        </div>
+                    </div>
+                    <div class="style-option" onclick="pickStyle('swing')">
+                        <div class="style-icon">W</div>
+                        <div>
+                            <div class="style-label">Swing / Position</div>
+                            <div class="style-desc">Days to weeks. Ride trends, wider stops.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Welcome with examples: shown after style is picked -->
+            <div class="welcome" id="welcome" style="display:none;">
                 <h3>Ask the Oracle</h3>
                 <p>Ask any question about a symbol, direction, or market condition. The Oracle answers from its own trading history.</p>
                 <div class="examples">
                     <div class="example" onclick="askExample(this)">What is the edge on BTC right now?</div>
                     <div class="example" onclick="askExample(this)">Should I go long AAPL?</div>
-                    <div class="example" onclick="askExample(this)">Is SOL a good short?</div>
-                    <div class="example" onclick="askExample(this)">MSFT outlook for today?</div>
+                    <div class="example" onclick="askExample(this)">How does forex perform when VIX is high?</div>
+                    <div class="example" onclick="askExample(this)">What should I trade today?</div>
                 </div>
             </div>
         </div>
@@ -452,6 +543,7 @@ const API = 'https://api-trading.oricode.ai/api/oracle';
 let seatKey = localStorage.getItem('oracle_seat_key') || '';
 let isQuerying = false;
 let abortController = null;
+let tradingStyle = localStorage.getItem('oracle_trading_style') || '';
 
 // === INIT ===
 async function init() {
@@ -513,7 +605,72 @@ async function validateSeat() {
 function enterChat() {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('chatContainer').classList.add('active');
+    if (!tradingStyle) {
+        document.getElementById('stylePicker').style.display = '';
+    } else {
+        document.getElementById('welcome').style.display = '';
+    }
     document.getElementById('queryInput').focus();
+}
+
+const STYLE_LABELS = { scalper: 'Scalper / Intraday', day_trader: 'Day Trader', swing: 'Swing / Position' };
+
+function pickStyle(style) {
+    tradingStyle = style;
+    localStorage.setItem('oracle_trading_style', style);
+    // Hide any style picker (initial or inline)
+    const sp = document.getElementById('stylePicker');
+    if (sp) sp.style.display = 'none';
+    document.querySelectorAll('.inline-style-picker').forEach(el => el.remove());
+    // Show welcome if first time
+    const welcome = document.getElementById('welcome');
+    if (welcome) welcome.style.display = '';
+    // Confirmation
+    addProphecy({
+        prophecy: 'Got it -- ' + STYLE_LABELS[style] + ' mode. I will tailor my answers to your timeframe.\n\nType "change style" anytime to switch.',
+        match_count: '-',
+        win_rate: '-',
+        avg_pnl: '-',
+        regime: 'ready',
+        low_confidence: false,
+    });
+    document.getElementById('queryInput').focus();
+}
+
+function showStylePickerInline() {
+    const feed = document.getElementById('feed');
+    const el = document.createElement('div');
+    el.className = 'style-picker inline-style-picker';
+    el.style.display = '';
+    el.innerHTML = `
+        <h3>Change trading style</h3>
+        <p>Current: <strong>${STYLE_LABELS[tradingStyle] || 'Not set'}</strong></p>
+        <div class="style-options">
+            <div class="style-option" onclick="pickStyle('scalper')">
+                <div class="style-icon">S</div>
+                <div>
+                    <div class="style-label">Scalper / Intraday</div>
+                    <div class="style-desc">Minutes to 1-2 hours. Quick entries, tight stops.</div>
+                </div>
+            </div>
+            <div class="style-option" onclick="pickStyle('day_trader')">
+                <div class="style-icon">D</div>
+                <div>
+                    <div class="style-label">Day Trader</div>
+                    <div class="style-desc">Hours. Close by end of day, no overnight risk.</div>
+                </div>
+            </div>
+            <div class="style-option" onclick="pickStyle('swing')">
+                <div class="style-icon">W</div>
+                <div>
+                    <div class="style-label">Swing / Position</div>
+                    <div class="style-desc">Days to weeks. Ride trends, wider stops.</div>
+                </div>
+            </div>
+        </div>
+    `;
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
 }
 
 // === QUERY ===
@@ -563,6 +720,16 @@ async function sendQuery() {
     const text = input.value.trim();
     if (!text || isQuerying) return;
 
+    // "change style" command: re-show the style picker
+    if (text.toLowerCase().replace(/[^a-z ]/g, '').match(/^(change style|switch style|change mode|trading style)$/)) {
+        input.value = '';
+        document.getElementById('charCount').textContent = '0';
+        document.getElementById('sendBtn').disabled = true;
+        addBubble(text);
+        showStylePickerInline();
+        return;
+    }
+
     // Remove welcome
     const welcome = document.getElementById('welcome');
     if (welcome) welcome.remove();
@@ -586,7 +753,7 @@ async function sendQuery() {
                 'Authorization': 'Bearer ' + seatKey,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ query: text }),
+            body: JSON.stringify({ query: text, trading_style: tradingStyle || 'day_trader' }),
             signal: abortController.signal,
         });
 
