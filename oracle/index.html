@@ -674,6 +674,11 @@ let queryCount = parseInt(sessionStorage.getItem('oracle_query_count') || '0');
 let lastQueryId = null;
 var historyOffset = 0;
 var historySearchTimeout = null;
+var conversationId = sessionStorage.getItem('oracle_conversation_id');
+if (!conversationId) {
+    conversationId = 'conv-' + Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 8);
+    sessionStorage.setItem('oracle_conversation_id', conversationId);
+}
 
 // === INIT ===
 async function init() {
@@ -745,6 +750,7 @@ function logout() {
     localStorage.removeItem('oracle_seat_key');
     localStorage.removeItem('oracle_trading_style');
     sessionStorage.removeItem('oracle_query_count');
+    sessionStorage.removeItem('oracle_conversation_id');
     seatKey = '';
     tradingStyle = '';
     userProfile = null;
@@ -773,9 +779,10 @@ async function loadHistory(append) {
         if (existing) existing.parentElement.remove();
         for (var i = 0; i < d.history.length; i++) {
             var h = d.history[i];
+            h.response = h.response || h.preview;
             var item = document.createElement('div');
             item.className = 'history-item';
-            item.onclick = (function(q) { return function() { replayQuery(q); }; })(h.query);
+            item.onclick = (function(hist) { return function() { showHistoryItem(hist); }; })(h);
             var dt = new Date(h.created_at);
             var ds = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
             item.innerHTML = '<div class="hi-query">' + escapeHtml(h.query) + '</div>'
@@ -807,6 +814,21 @@ function replayQuery(query) {
     document.getElementById('sendBtn').disabled = false;
     toggleHistory();
     document.getElementById('queryInput').focus();
+}
+
+function showHistoryItem(h) {
+    toggleHistory();
+    var welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+    addBubble(h.query);
+    addProphecy({
+        prophecy: h.response || h.preview || 'No response recorded.',
+        match_count: h.match_count || 0,
+        win_rate: h.win_rate || '-',
+        avg_pnl: '-',
+        regime: h.regime || 'unknown',
+        low_confidence: false
+    });
 }
 
 // === PROFILE & ONBOARDING ===
@@ -1163,7 +1185,7 @@ async function sendQuery() {
                 'Authorization': 'Bearer ' + seatKey,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ query: text, trading_style: tradingStyle || 'day_trader' }),
+            body: JSON.stringify({ query: text, trading_style: tradingStyle || 'day_trader', conversation_id: conversationId }),
             signal: abortController.signal
         });
 
