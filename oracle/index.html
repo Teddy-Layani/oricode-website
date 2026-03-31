@@ -845,6 +845,13 @@ function showOnboardingStep(stepIdx) {
         finishOnboarding();
         return;
     }
+    // Prevent duplicate: if this step already exists, skip
+    if (document.getElementById('onboarding-step-' + stepIdx)) return;
+    // Disable all previous onboarding cards (no more clicks)
+    document.querySelectorAll('.onboarding-card').forEach(function(c) {
+        c.style.pointerEvents = 'none';
+        c.style.opacity = '0.5';
+    });
     var step = ONBOARDING_STEPS[stepIdx];
     var feed = document.getElementById('feed');
     var card = document.createElement('div');
@@ -982,6 +989,8 @@ async function finishOnboarding() {
 }
 
 function showProfileEdit() {
+    // Remove all existing onboarding cards
+    document.querySelectorAll('.onboarding-card').forEach(function(c) { c.remove(); });
     onboardingData = {};
     startOnboarding(0);
 }
