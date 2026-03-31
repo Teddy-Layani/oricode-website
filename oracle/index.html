@@ -309,68 +309,6 @@
             color: var(--text-primary);
         }
 
-        /* === STYLE PICKER === */
-        .style-picker {
-            align-self: center;
-            text-align: center;
-            padding: 40px 20px;
-            max-width: 520px;
-            animation: fadeIn 0.4s ease;
-        }
-        .style-picker h3 {
-            font-size: 14px;
-            font-weight: 400;
-            color: var(--text-secondary);
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .style-picker p {
-            font-size: 12px;
-            color: var(--text-dim);
-            line-height: 1.8;
-            margin-bottom: 24px;
-        }
-        .style-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .style-option {
-            padding: 14px 20px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .style-option:hover {
-            border-color: var(--amber-dim);
-        }
-        .style-option .style-icon {
-            width: 36px; height: 36px;
-            border: 1px solid var(--amber-dim);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
-            color: var(--amber);
-            flex-shrink: 0;
-        }
-        .style-option .style-label {
-            font-size: 13px;
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        .style-option .style-desc {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-top: 2px;
-        }
-
         /* === INPUT ZONE === */
         .input-zone {
             padding: 16px 24px;
@@ -444,12 +382,197 @@
             background: rgba(239, 68, 68, 0.08);
         }
 
+        /* === ONBOARDING CARD === */
+        .onboarding-card {
+            max-width: 85%;
+            align-self: flex-start;
+            border-left: 3px solid var(--amber);
+            background: var(--bg-card);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            animation: fadeIn 0.4s ease;
+            margin-bottom: 4px;
+        }
+        .onboarding-card h4 {
+            font-size: 13px;
+            color: var(--amber);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .onboarding-card p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chip {
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .chip:hover {
+            border-color: var(--amber-dim);
+            color: var(--text-primary);
+        }
+        .chip.selected {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: var(--amber-glow);
+        }
+        .chip-confirm {
+            margin-top: 12px;
+            padding: 8px 20px;
+            background: transparent;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            font-family: inherit;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .chip-confirm:hover {
+            background: var(--amber-glow);
+        }
+        .skip-link {
+            display: inline-block;
+            margin-top: 8px;
+            margin-left: 12px;
+            font-size: 11px;
+            color: var(--text-dim);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* === WATCHLIST INPUT === */
+        .watchlist-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+            margin-bottom: 8px;
+        }
+        .watchlist-input:focus {
+            border-color: var(--amber-dim);
+        }
+        .watchlist-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        /* === FEEDBACK WIDGET === */
+        .feedback-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-dim);
+            transition: opacity 0.3s;
+        }
+        .feedback-row.submitted {
+            opacity: 0.5;
+        }
+        .fb-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 10px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+        .fb-btn:hover {
+            border-color: var(--amber-dim);
+            color: var(--text-primary);
+        }
+        .fb-btn.active {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+        .fb-stars {
+            display: flex;
+            gap: 4px;
+        }
+        .fb-star {
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-dim);
+            transition: color 0.15s;
+        }
+        .fb-star:hover, .fb-star.lit {
+            color: var(--amber);
+        }
+        .fb-note {
+            font-size: 11px;
+            color: var(--amber-dim);
+            animation: fadeIn 0.3s;
+        }
+
+        /* === GREETING CARD === */
+        .greeting-card {
+            max-width: 85%;
+            align-self: flex-start;
+            border-left: 3px solid var(--amber);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(212, 160, 23, 0.04) 100%);
+            border-radius: 0 8px 8px 0;
+            padding: 16px 20px;
+            animation: fadeIn 0.4s ease;
+        }
+        .greeting-card .greeting-text {
+            font-size: 13px;
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* === STREAK BADGE & GEAR === */
+        .streak-badge {
+            font-size: 11px;
+            color: var(--amber-dim);
+            padding: 2px 8px;
+            border: 1px solid var(--amber-dim);
+            border-radius: 12px;
+        }
+        .gear-btn {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .gear-btn:hover {
+            color: var(--amber);
+        }
+
         /* === MOBILE === */
         @media (max-width: 640px) {
             .header { padding: 12px 16px; }
             .feed { padding: 16px; }
             .input-zone { padding: 12px 16px; }
-            .prophecy-card, .query-bubble { max-width: 95%; }
+            .prophecy-card, .query-bubble, .onboarding-card, .greeting-card { max-width: 95%; }
             .welcome { padding: 30px 10px; }
         }
     </style>
@@ -466,6 +589,8 @@
             </div>
         </div>
         <div style="display:flex;align-items:center;gap:16px;">
+            <span class="streak-badge" id="streakBadge" style="display:none;"></span>
+            <button class="gear-btn" id="gearBtn" onclick="showProfileEdit()" title="Edit profile" style="display:none;">&#9881;</button>
             <div class="seat-info" id="seatInfo"></div>
             <div class="status-dot" id="statusDot"></div>
         </div>
@@ -489,35 +614,7 @@
     <!-- CHAT CONTAINER -->
     <div class="chat-container" id="chatContainer">
         <div class="feed" id="feed">
-            <!-- Style picker: shown once if no preference saved -->
-            <div class="style-picker" id="stylePicker" style="display:none;">
-                <h3>Before we begin</h3>
-                <p>How do you trade? This helps the Oracle tailor its answers to your timeframe.</p>
-                <div class="style-options">
-                    <div class="style-option" onclick="pickStyle('scalper')">
-                        <div class="style-icon">S</div>
-                        <div>
-                            <div class="style-label">Scalper / Intraday</div>
-                            <div class="style-desc">Minutes to 1-2 hours. Quick entries, tight stops.</div>
-                        </div>
-                    </div>
-                    <div class="style-option" onclick="pickStyle('day_trader')">
-                        <div class="style-icon">D</div>
-                        <div>
-                            <div class="style-label">Day Trader</div>
-                            <div class="style-desc">Hours. Close by end of day, no overnight risk.</div>
-                        </div>
-                    </div>
-                    <div class="style-option" onclick="pickStyle('swing')">
-                        <div class="style-icon">W</div>
-                        <div>
-                            <div class="style-label">Swing / Position</div>
-                            <div class="style-desc">Days to weeks. Ride trends, wider stops.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Welcome with examples: shown after style is picked -->
+            <!-- Welcome with examples: controlled by JS -->
             <div class="welcome" id="welcome" style="display:none;">
                 <h3>Ask the Oracle</h3>
                 <p>Ask any question about a symbol, direction, or market condition. The Oracle answers from its own trading history.</p>
@@ -544,6 +641,9 @@ let seatKey = localStorage.getItem('oracle_seat_key') || '';
 let isQuerying = false;
 let abortController = null;
 let tradingStyle = localStorage.getItem('oracle_trading_style') || '';
+let userProfile = null;
+let queryCount = parseInt(sessionStorage.getItem('oracle_query_count') || '0');
+let lastQueryId = null;
 
 // === INIT ===
 async function init() {
@@ -605,72 +705,273 @@ async function validateSeat() {
 function enterChat() {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('chatContainer').classList.add('active');
-    if (!tradingStyle) {
-        document.getElementById('stylePicker').style.display = '';
-    } else {
-        document.getElementById('welcome').style.display = '';
+    loadGreeting();
+    loadProfile();
+}
+
+// === PROFILE & ONBOARDING ===
+async function loadProfile() {
+    try {
+        const res = await fetch(API + '/profile', {
+            headers: { 'Authorization': 'Bearer ' + seatKey }
+        });
+        const d = await res.json();
+        userProfile = d;
+        if (!d.completed) {
+            startOnboarding(d.step || 0);
+        } else {
+            // Show welcome examples if no greeting loaded
+            var welcome = document.getElementById('welcome');
+            if (welcome) welcome.style.display = '';
+            // Show gear
+            document.getElementById('gearBtn').style.display = '';
+            // Sync localStorage trading_style from DB
+            if (d.trading_style) {
+                tradingStyle = d.trading_style;
+                localStorage.setItem('oracle_trading_style', d.trading_style);
+            }
+        }
+    } catch(e) {
+        // Fallback: show welcome
+        var welcome = document.getElementById('welcome');
+        if (welcome) welcome.style.display = '';
     }
     document.getElementById('queryInput').focus();
 }
 
-const STYLE_LABELS = { scalper: 'Scalper / Intraday', day_trader: 'Day Trader', swing: 'Swing / Position' };
+async function loadGreeting() {
+    try {
+        const res = await fetch(API + '/greeting', {
+            headers: { 'Authorization': 'Bearer ' + seatKey }
+        });
+        const d = await res.json();
+        if (d.needs_onboarding) return; // onboarding handles it
+        if (d.greeting) {
+            addGreetingCard(d.greeting);
+        }
+        if (d.streak && d.streak > 1) {
+            var badge = document.getElementById('streakBadge');
+            badge.textContent = 'Day ' + d.streak;
+            badge.style.display = '';
+        }
+    } catch(e) {}
+}
 
-function pickStyle(style) {
-    tradingStyle = style;
-    localStorage.setItem('oracle_trading_style', style);
-    // Hide any style picker (initial or inline)
-    const sp = document.getElementById('stylePicker');
-    if (sp) sp.style.display = 'none';
-    document.querySelectorAll('.inline-style-picker').forEach(el => el.remove());
-    // Show welcome if first time
-    const welcome = document.getElementById('welcome');
-    if (welcome) welcome.style.display = '';
-    // Confirmation
+function addGreetingCard(text) {
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
+    el.className = 'greeting-card';
+    el.innerHTML = '<div class="greeting-text">' + escapeHtml(text) + '</div>';
+    feed.insertBefore(el, feed.firstChild);
+}
+
+// === ONBOARDING ===
+var ONBOARDING_STEPS = [
+    {
+        title: 'How do you trade?',
+        desc: 'This shapes how I frame every answer -- entry speed, hold duration, risk mindset.',
+        type: 'single',
+        field: 'trading_style',
+        options: [
+            { value: 'scalper', label: 'Scalper / Intraday', desc: 'Minutes to 1-2 hours' },
+            { value: 'day_trader', label: 'Day Trader', desc: 'Hours, close by EOD' },
+            { value: 'swing', label: 'Swing / Position', desc: 'Days to weeks' }
+        ]
+    },
+    {
+        title: 'Which exchanges are your battlefield?',
+        desc: 'I will prioritize these when scanning for opportunities.',
+        type: 'multi',
+        field: 'preferred_exchanges',
+        options: ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX']
+    },
+    {
+        title: 'What assets speak to you?',
+        desc: 'I trade all of them -- but I will lean into what matters to you.',
+        type: 'multi',
+        field: 'preferred_asset_classes',
+        options: ['Stocks', 'Crypto', 'Forex', 'Commodities']
+    },
+    {
+        title: 'Name your watchlist',
+        desc: 'Symbols you always have an eye on. I will watch them for you too.',
+        type: 'text',
+        field: 'watchlist',
+        placeholder: 'AAPL, BTC, EURUSD, LEUMI-TASE...'
+    },
+    {
+        title: 'How much heat can you take?',
+        desc: 'This calibrates how I frame risk and position sizing advice.',
+        type: 'single',
+        field: 'risk_tolerance',
+        options: [
+            { value: 'conservative', label: 'Conservative', desc: 'Preserve capital, tight stops' },
+            { value: 'moderate', label: 'Moderate', desc: 'Balanced risk/reward' },
+            { value: 'aggressive', label: 'Aggressive', desc: 'Full throttle, wider stops' }
+        ]
+    },
+    {
+        title: 'Your timezone?',
+        desc: 'So I know when your trading day starts.',
+        type: 'timezone',
+        field: 'timezone'
+    }
+];
+
+var onboardingData = {};
+
+function startOnboarding(fromStep) {
+    // Hide existing welcome
+    var welcome = document.getElementById('welcome');
+    if (welcome) welcome.style.display = 'none';
+
+    showOnboardingStep(fromStep || 0);
+}
+
+function showOnboardingStep(stepIdx) {
+    if (stepIdx >= ONBOARDING_STEPS.length) {
+        finishOnboarding();
+        return;
+    }
+    var step = ONBOARDING_STEPS[stepIdx];
+    var feed = document.getElementById('feed');
+    var card = document.createElement('div');
+    card.className = 'onboarding-card';
+    card.id = 'onboarding-step-' + stepIdx;
+
+    var inner = '<h4>' + escapeHtml(step.title) + '</h4>';
+    inner += '<p>' + escapeHtml(step.desc) + '</p>';
+
+    if (step.type === 'single') {
+        inner += '<div class="chip-group">';
+        for (var i = 0; i < step.options.length; i++) {
+            var opt = step.options[i];
+            inner += '<div class="chip" data-value="' + opt.value + '" onclick="selectSingleChip(this, ' + stepIdx + ')">';
+            inner += '<strong>' + escapeHtml(opt.label) + '</strong>';
+            if (opt.desc) inner += '<br><span style="font-size:10px;color:var(--text-dim)">' + escapeHtml(opt.desc) + '</span>';
+            inner += '</div>';
+        }
+        inner += '</div>';
+    } else if (step.type === 'multi') {
+        inner += '<div class="chip-group" id="multi-chips-' + stepIdx + '">';
+        for (var i = 0; i < step.options.length; i++) {
+            var opt = step.options[i];
+            var val = (typeof opt === 'string') ? opt : opt.value;
+            var lbl = (typeof opt === 'string') ? opt : opt.label;
+            inner += '<div class="chip" data-value="' + val + '" onclick="toggleMultiChip(this)">';
+            inner += escapeHtml(lbl);
+            inner += '</div>';
+        }
+        inner += '</div>';
+        inner += '<button class="chip-confirm" onclick="confirmMultiStep(' + stepIdx + ')">Continue</button>';
+    } else if (step.type === 'text') {
+        inner += '<input class="watchlist-input" id="watchlist-input" placeholder="' + escapeHtml(step.placeholder || '') + '" onkeydown="if(event.key===\'Enter\')confirmTextStep(' + stepIdx + ')">';
+        inner += '<button class="chip-confirm" onclick="confirmTextStep(' + stepIdx + ')">Continue</button>';
+    } else if (step.type === 'timezone') {
+        var detected = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+        inner += '<div class="chip-group">';
+        inner += '<div class="chip selected" data-value="' + detected + '" onclick="selectSingleChip(this, ' + stepIdx + ')">' + escapeHtml(detected) + '</div>';
+        var alts = ['America/New_York','Europe/London','Asia/Jerusalem','Asia/Tokyo','Asia/Hong_Kong','Australia/Sydney'].filter(function(t) { return t !== detected; });
+        for (var i = 0; i < Math.min(alts.length, 4); i++) {
+            inner += '<div class="chip" data-value="' + alts[i] + '" onclick="selectSingleChip(this, ' + stepIdx + ')">' + escapeHtml(alts[i]) + '</div>';
+        }
+        inner += '</div>';
+    }
+
+    inner += '<span class="skip-link" onclick="skipOnboardingStep(' + stepIdx + ')">skip</span>';
+
+    card.innerHTML = inner;
+    feed.appendChild(card);
+    feed.scrollTop = feed.scrollHeight;
+}
+
+function selectSingleChip(chip, stepIdx) {
+    chip.parentElement.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('selected'); });
+    chip.classList.add('selected');
+    var step = ONBOARDING_STEPS[stepIdx];
+    onboardingData[step.field] = chip.dataset.value;
+    setTimeout(function() {
+        saveOnboardingStep(stepIdx);
+        showOnboardingStep(stepIdx + 1);
+    }, 300);
+}
+
+function toggleMultiChip(chip) {
+    chip.classList.toggle('selected');
+}
+
+function confirmMultiStep(stepIdx) {
+    var step = ONBOARDING_STEPS[stepIdx];
+    var container = document.getElementById('multi-chips-' + stepIdx);
+    var selected = Array.from(container.querySelectorAll('.chip.selected')).map(function(c) { return c.dataset.value.toLowerCase(); });
+    onboardingData[step.field] = selected;
+    saveOnboardingStep(stepIdx);
+    showOnboardingStep(stepIdx + 1);
+}
+
+function confirmTextStep(stepIdx) {
+    var step = ONBOARDING_STEPS[stepIdx];
+    var input = document.getElementById('watchlist-input');
+    var val = input.value.trim();
+    var symbols = val.split(/[,\s]+/).map(function(s) { return s.trim().toUpperCase(); }).filter(function(s) { return s.length > 0 && s.length <= 30; });
+    onboardingData[step.field] = symbols;
+    saveOnboardingStep(stepIdx);
+    showOnboardingStep(stepIdx + 1);
+}
+
+function skipOnboardingStep(stepIdx) {
+    saveOnboardingStep(stepIdx);
+    showOnboardingStep(stepIdx + 1);
+}
+
+async function saveOnboardingStep(stepIdx) {
+    var payload = Object.assign({}, onboardingData, { onboarding_step: stepIdx + 1 });
+    try {
+        await fetch(API + '/profile', {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + seatKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    } catch(e) {}
+}
+
+async function finishOnboarding() {
+    var payload = Object.assign({}, onboardingData, { onboarding_completed: true, onboarding_step: ONBOARDING_STEPS.length });
+    try {
+        await fetch(API + '/profile', {
+            method: 'PUT',
+            headers: { 'Authorization': 'Bearer ' + seatKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    } catch(e) {}
+
+    // Sync trading style to localStorage
+    if (onboardingData.trading_style) {
+        tradingStyle = onboardingData.trading_style;
+        localStorage.setItem('oracle_trading_style', onboardingData.trading_style);
+    }
+
+    // Show completion card
     addProphecy({
-        prophecy: 'Got it -- ' + STYLE_LABELS[style] + ' mode. I will tailor my answers to your timeframe.\n\nType "change style" anytime to switch.',
+        prophecy: 'The Oracle now sees through your eyes. Every answer will be shaped by who you are, how you trade, and what you watch. Ask me anything.',
         match_count: '-',
         win_rate: '-',
         avg_pnl: '-',
         regime: 'ready',
-        low_confidence: false,
+        low_confidence: false
     });
+
+    // Show gear + welcome examples
+    document.getElementById('gearBtn').style.display = '';
+    var welcome = document.getElementById('welcome');
+    if (welcome) welcome.style.display = '';
+
     document.getElementById('queryInput').focus();
 }
 
-function showStylePickerInline() {
-    const feed = document.getElementById('feed');
-    const el = document.createElement('div');
-    el.className = 'style-picker inline-style-picker';
-    el.style.display = '';
-    el.innerHTML = `
-        <h3>Change trading style</h3>
-        <p>Current: <strong>${STYLE_LABELS[tradingStyle] || 'Not set'}</strong></p>
-        <div class="style-options">
-            <div class="style-option" onclick="pickStyle('scalper')">
-                <div class="style-icon">S</div>
-                <div>
-                    <div class="style-label">Scalper / Intraday</div>
-                    <div class="style-desc">Minutes to 1-2 hours. Quick entries, tight stops.</div>
-                </div>
-            </div>
-            <div class="style-option" onclick="pickStyle('day_trader')">
-                <div class="style-icon">D</div>
-                <div>
-                    <div class="style-label">Day Trader</div>
-                    <div class="style-desc">Hours. Close by end of day, no overnight risk.</div>
-                </div>
-            </div>
-            <div class="style-option" onclick="pickStyle('swing')">
-                <div class="style-icon">W</div>
-                <div>
-                    <div class="style-label">Swing / Position</div>
-                    <div class="style-desc">Days to weeks. Ride trends, wider stops.</div>
-                </div>
-            </div>
-        </div>
-    `;
-    feed.appendChild(el);
-    feed.scrollTop = feed.scrollHeight;
+function showProfileEdit() {
+    onboardingData = {};
+    startOnboarding(0);
 }
 
 // === QUERY ===
@@ -701,7 +1002,7 @@ function stopQuery() {
 }
 
 function setButtonMode(mode) {
-    const btn = document.getElementById('sendBtn');
+    var btn = document.getElementById('sendBtn');
     if (mode === 'stop') {
         btn.innerHTML = '&#x25A0;';
         btn.classList.add('stop');
@@ -716,22 +1017,22 @@ function setButtonMode(mode) {
 }
 
 async function sendQuery() {
-    const input = document.getElementById('queryInput');
-    const text = input.value.trim();
+    var input = document.getElementById('queryInput');
+    var text = input.value.trim();
     if (!text || isQuerying) return;
 
-    // "change style" command: re-show the style picker
-    if (text.toLowerCase().replace(/[^a-z ]/g, '').match(/^(change style|switch style|change mode|trading style)$/)) {
+    // "change style/profile" command
+    if (text.toLowerCase().replace(/[^a-z ]/g, '').match(/^(change style|switch style|change mode|trading style|change profile|my profile|edit profile|preferences)$/)) {
         input.value = '';
         document.getElementById('charCount').textContent = '0';
         document.getElementById('sendBtn').disabled = true;
         addBubble(text);
-        showStylePickerInline();
+        showProfileEdit();
         return;
     }
 
     // Remove welcome
-    const welcome = document.getElementById('welcome');
+    var welcome = document.getElementById('welcome');
     if (welcome) welcome.remove();
 
     // Show user bubble
@@ -741,24 +1042,28 @@ async function sendQuery() {
     document.getElementById('charCount').textContent = '0';
 
     // Show loading + stop button
-    const loadingEl = addLoading();
+    var loadingEl = addLoading();
     isQuerying = true;
     abortController = new AbortController();
     setButtonMode('stop');
 
     try {
-        const res = await fetch(API + '/query', {
+        var res = await fetch(API + '/query', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + seatKey,
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ query: text, trading_style: tradingStyle || 'day_trader' }),
-            signal: abortController.signal,
+            signal: abortController.signal
         });
 
-        const d = await res.json();
+        var d = await res.json();
         loadingEl.remove();
+
+        lastQueryId = d.query_id || null;
+        queryCount++;
+        sessionStorage.setItem('oracle_query_count', queryCount);
 
         if (res.status === 401) {
             addError('Session expired. Please refresh and re-enter your seat key.');
@@ -790,8 +1095,8 @@ async function sendQuery() {
 
 // === RENDER ===
 function addBubble(text) {
-    const feed = document.getElementById('feed');
-    const el = document.createElement('div');
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
     el.className = 'query-bubble';
     el.textContent = text;
     feed.appendChild(el);
@@ -799,8 +1104,8 @@ function addBubble(text) {
 }
 
 function addLoading() {
-    const feed = document.getElementById('feed');
-    const el = document.createElement('div');
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
     el.className = 'prophecy-loading';
     el.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
     feed.appendChild(el);
@@ -809,30 +1114,59 @@ function addLoading() {
 }
 
 function addProphecy(data) {
-    const feed = document.getElementById('feed');
-    const el = document.createElement('div');
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
     el.className = 'prophecy-card';
 
-    const regimeClass = 'regime-' + (data.regime || 'unknown').toLowerCase();
-    const lowConf = data.low_confidence ? '<span class="tag" style="color:var(--red)">low confidence</span>' : '';
+    var regimeClass = 'regime-' + (data.regime || 'unknown').toLowerCase();
+    var lowConf = data.low_confidence ? '<span class="tag" style="color:var(--red)">low confidence</span>' : '';
 
-    el.innerHTML = `
-        <div class="prophecy-text">${escapeHtml(data.prophecy)}</div>
-        <div class="prophecy-meta">
-            <span class="tag">${data.match_count} trades</span>
-            <span class="tag">WR ${data.win_rate}</span>
-            <span class="tag">avg ${data.avg_pnl}</span>
-            <span class="tag ${regimeClass}">${data.regime}</span>
-            ${lowConf}
-        </div>
-    `;
+    var feedbackHtml = '';
+    if (lastQueryId && data.regime !== 'ready') {
+        var qid = lastQueryId;
+        var isRich = (queryCount % 5 === 0);
+        if (isRich) {
+            feedbackHtml = '<div class="feedback-row" id="fb-' + qid + '">'
+                + '<span>How close was I?</span>'
+                + '<div class="fb-stars">'
+                + '<span class="fb-star" data-n="1" onclick="submitRating(\'' + qid + '\',1)">&#9734;</span>'
+                + '<span class="fb-star" data-n="2" onclick="submitRating(\'' + qid + '\',2)">&#9734;</span>'
+                + '<span class="fb-star" data-n="3" onclick="submitRating(\'' + qid + '\',3)">&#9734;</span>'
+                + '<span class="fb-star" data-n="4" onclick="submitRating(\'' + qid + '\',4)">&#9734;</span>'
+                + '<span class="fb-star" data-n="5" onclick="submitRating(\'' + qid + '\',5)">&#9734;</span>'
+                + '</div>'
+                + '<span style="margin-left:4px">Acted?</span>'
+                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',true)">Yes</button>'
+                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',false)">No</button>'
+                + '</div>';
+        } else {
+            feedbackHtml = '<div class="feedback-row" id="fb-' + qid + '">'
+                + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',1)">&#9650; Useful</button>'
+                + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',-1)">&#9660; Not useful</button>'
+                + '<span style="margin-left:8px">Acted?</span>'
+                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',true)">Yes</button>'
+                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',false)">No</button>'
+                + '</div>';
+        }
+    }
+
+    el.innerHTML = '<div class="prophecy-text">' + escapeHtml(data.prophecy) + '</div>'
+        + '<div class="prophecy-meta">'
+        + '<span class="tag">' + data.match_count + ' trades</span>'
+        + '<span class="tag">WR ' + data.win_rate + '</span>'
+        + '<span class="tag">avg ' + data.avg_pnl + '</span>'
+        + '<span class="tag ' + regimeClass + '">' + data.regime + '</span>'
+        + lowConf
+        + '</div>'
+        + feedbackHtml;
+
     feed.appendChild(el);
     feed.scrollTop = feed.scrollHeight;
 }
 
 function addError(msg) {
-    const feed = document.getElementById('feed');
-    const el = document.createElement('div');
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
     el.className = 'prophecy-card';
     el.style.borderLeftColor = 'var(--red)';
     el.innerHTML = '<div class="prophecy-text" style="color:var(--red)">' + escapeHtml(msg) + '</div>';
@@ -840,8 +1174,60 @@ function addError(msg) {
     feed.scrollTop = feed.scrollHeight;
 }
 
+// === FEEDBACK ===
+async function submitThumbs(qid, val) {
+    var row = document.getElementById('fb-' + qid);
+    if (!row) return;
+    try {
+        await fetch(API + '/feedback', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + seatKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query_id: qid, thumbs: val })
+        });
+    } catch(e) {}
+    row.innerHTML = '<span class="fb-note">Oracle learns from you. Next time will be sharper.</span>';
+    row.classList.add('submitted');
+}
+
+async function submitRating(qid, stars) {
+    var row = document.getElementById('fb-' + qid);
+    if (!row) return;
+    row.querySelectorAll('.fb-star').forEach(function(s) {
+        var n = parseInt(s.dataset.n);
+        s.classList.toggle('lit', n <= stars);
+        s.innerHTML = n <= stars ? '&#9733;' : '&#9734;';
+    });
+    try {
+        await fetch(API + '/feedback', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + seatKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query_id: qid, rating: stars })
+        });
+    } catch(e) {}
+    setTimeout(function() {
+        row.innerHTML = '<span class="fb-note">Oracle learns from you. Next time will be sharper.</span>';
+        row.classList.add('submitted');
+    }, 800);
+}
+
+async function submitActed(qid, yes) {
+    try {
+        await fetch(API + '/feedback', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + seatKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query_id: qid, acted_on: yes })
+        });
+    } catch(e) {}
+    var row = document.getElementById('fb-' + qid);
+    if (row) {
+        row.querySelectorAll('.fb-btn').forEach(function(b) {
+            if (b.textContent === (yes ? 'Yes' : 'No')) b.classList.add('active');
+        });
+    }
+}
+
 function escapeHtml(str) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
