@@ -800,7 +800,7 @@ async function loadHistory(append) {
             more.innerHTML = '<button id="loadMoreBtn" onclick="loadHistory(true)">Load more (' + (d.total - historyOffset) + ')</button>';
             list.appendChild(more);
         }
-    } catch(e) {}
+    } catch(e) { console.error('[History]', e); }
 }
 
 function searchHistory(val) {
