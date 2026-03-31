@@ -592,6 +592,7 @@
             <span class="streak-badge" id="streakBadge" style="display:none;"></span>
             <button class="gear-btn" id="gearBtn" onclick="showProfileEdit()" title="Edit profile" style="display:none;">&#9881;</button>
             <div class="seat-info" id="seatInfo"></div>
+            <button class="gear-btn" id="logoutBtn" onclick="logout()" title="Logout" style="display:none;">&#x2715;</button>
             <div class="status-dot" id="statusDot"></div>
         </div>
     </div>
@@ -705,8 +706,19 @@ async function validateSeat() {
 function enterChat() {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('chatContainer').classList.add('active');
+    document.getElementById('logoutBtn').style.display = '';
     loadGreeting();
     loadProfile();
+}
+
+function logout() {
+    localStorage.removeItem('oracle_seat_key');
+    localStorage.removeItem('oracle_trading_style');
+    sessionStorage.removeItem('oracle_query_count');
+    seatKey = '';
+    tradingStyle = '';
+    userProfile = null;
+    location.reload();
 }
 
 // === PROFILE & ONBOARDING ===
