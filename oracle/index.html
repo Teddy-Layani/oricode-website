@@ -1046,8 +1046,11 @@ async function showOnboardingStep(stepIdx) {
             return { value: e.code, label: e.code + ' - ' + e.name };
         });
         step.type = 'multi_labeled';
-    } else if (step.field === 'preferred_exchanges' && oracleExchanges.length > 0) {
-        step.options = oracleExchanges;
+    } else if (step.field === 'preferred_exchanges') {
+        // Fallback if API didn't load
+        if (!step.options || step.options.length === 0) {
+            step.options = ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX','CRYPTO'];
+        }
     }
     var feed = document.getElementById('feed');
     var card = document.createElement('div');
