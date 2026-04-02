@@ -643,7 +643,7 @@
         <div class="auth-box">
             <div class="oracle-mark">O</div>
             <h2>Oracle</h2>
-            <p>Prophecy powered by real market execution across 17 exchanges and 4 asset classes.</p>
+            <p id="authTagline">Prophecy powered by real market execution.</p>
             <input type="text" class="auth-input" id="seatKeyInput" placeholder="Enter your seat key" autocomplete="off" spellcheck="false">
             <button class="auth-btn" id="unlockBtn" onclick="unlockOracle()">Unlock Oracle</button>
             <div class="auth-error" id="authError"></div>
@@ -712,12 +712,26 @@ async function init() {
     });
 }
 
+var oracleExchanges = [];
+var oracleExchangeDetails = [];
 async function checkStatus() {
     try {
-        const res = await fetch(API + '/status');
-        const d = await res.json();
+        var res = await fetch(API + '/status');
+        var d = await res.json();
         if (d.status === 'ok') {
             document.getElementById('statusDot').classList.add('online');
+            // Dynamic tagline
+            var tag = document.getElementById('authTagline');
+            if (tag && d.exchanges) {
+                tag.textContent = 'Prophecy powered by real market execution across ' + d.exchanges + ' exchanges and ' + d.asset_classes + ' asset classes.';
+            }
+            // Store exchange list for onboarding
+            if (d.exchange_list) {
+                oracleExchanges = d.exchange_list;
+            }
+            if (d.exchange_details) {
+                oracleExchangeDetails = d.exchange_details;
+            }
         }
     } catch(e) {}
 }
@@ -942,7 +956,7 @@ var ONBOARDING_STEPS = [
         desc: 'I will prioritize these when scanning for opportunities.',
         type: 'multi',
         field: 'preferred_exchanges',
-        options: ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX','BME','MIL','WSE','ATH','VIE','PRA','BUD','HEL','CPH','STO','OSE','ISE','TAL','RIG','SET','IDX','TWSE','NZX','PSE','BMV','BVMF','TSX','JSE','TADAWUL','QSE','ADX','VIL','ZAG','BUC','LJU']
+        options: []  // Populated dynamically from /status endpoint
     },
     {
         title: 'What assets speak to you?',
@@ -1026,6 +1040,15 @@ function showOnboardingStep(stepIdx) {
         c.style.opacity = '0.5';
     });
     var step = ONBOARDING_STEPS[stepIdx];
+    // Dynamic exchange list from /status (with names)
+    if (step.field === 'preferred_exchanges' && oracleExchangeDetails && oracleExchangeDetails.length > 0) {
+        step.options = oracleExchangeDetails.map(function(e) {
+            return { value: e.code, label: e.code + ' - ' + e.name };
+        });
+        step.type = 'multi_labeled';
+    } else if (step.field === 'preferred_exchanges' && oracleExchanges.length > 0) {
+        step.options = oracleExchanges;
+    }
     var feed = document.getElementById('feed');
     var card = document.createElement('div');
     card.className = 'onboarding-card';
@@ -1044,7 +1067,7 @@ function showOnboardingStep(stepIdx) {
             inner += '</div>';
         }
         inner += '</div>';
-    } else if (step.type === 'multi') {
+    } else if (step.type === 'multi' || step.type === 'multi_labeled') {
         inner += '<div class="chip-group" id="multi-chips-' + stepIdx + '">';
         for (var i = 0; i < step.options.length; i++) {
             var opt = step.options[i];
