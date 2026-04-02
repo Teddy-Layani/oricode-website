@@ -942,7 +942,7 @@ var ONBOARDING_STEPS = [
         desc: 'I will prioritize these when scanning for opportunities.',
         type: 'multi',
         field: 'preferred_exchanges',
-        options: ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX']
+        options: ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX','BME','MIL','WSE','ATH','VIE','PRA','BUD','HEL','CPH','STO','OSE','ISE','TAL','RIG','SET','IDX','TWSE','NZX','PSE','BMV','BVMF','TSX','JSE','TADAWUL','QSE','ADX','VIL','ZAG','BUC','LJU']
     },
     {
         title: 'What assets speak to you?',
@@ -1127,7 +1127,10 @@ async function saveOnboardingStep(stepIdx) {
     } catch(e) {}
 }
 
+var _onboardingFinished = false;
 async function finishOnboarding() {
+    if (_onboardingFinished) return;
+    _onboardingFinished = true;
     var payload = Object.assign({}, onboardingData, { onboarding_completed: true, onboarding_step: ONBOARDING_STEPS.length });
     try {
         await fetch(API + '/profile', {
@@ -1162,9 +1165,9 @@ async function finishOnboarding() {
 }
 
 function showProfileEdit() {
-    // Remove all existing onboarding cards
     document.querySelectorAll('.onboarding-card').forEach(function(c) { c.remove(); });
     onboardingData = {};
+    _onboardingFinished = false;
     startOnboarding(0);
 }
 
