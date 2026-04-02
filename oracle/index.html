@@ -905,6 +905,28 @@ function addGreetingCard(text) {
 // === ONBOARDING ===
 var ONBOARDING_STEPS = [
     {
+        title: 'What language do you speak?',
+        desc: 'The Oracle will speak your language.',
+        type: 'single',
+        field: 'preferred_language',
+        options: [
+            { value: 'en', label: 'English', desc: '' },
+            { value: 'he', label: 'Hebrew', desc: '' },
+            { value: 'ar', label: 'Arabic', desc: '' },
+            { value: 'fr', label: 'French', desc: '' },
+            { value: 'de', label: 'German', desc: '' },
+            { value: 'es', label: 'Spanish', desc: '' },
+            { value: 'pt', label: 'Portuguese', desc: '' },
+            { value: 'it', label: 'Italian', desc: '' },
+            { value: 'ru', label: 'Russian', desc: '' },
+            { value: 'zh', label: 'Chinese', desc: '' },
+            { value: 'ja', label: 'Japanese', desc: '' },
+            { value: 'ko', label: 'Korean', desc: '' },
+            { value: 'tr', label: 'Turkish', desc: '' },
+            { value: 'nl', label: 'Dutch', desc: '' },
+        ]
+    },
+    {
         title: 'How do you trade?',
         desc: 'This shapes how I frame every answer -- entry speed, hold duration, risk mindset.',
         type: 'single',
@@ -945,6 +967,32 @@ var ONBOARDING_STEPS = [
             { value: 'conservative', label: 'Conservative', desc: 'Preserve capital, tight stops' },
             { value: 'moderate', label: 'Moderate', desc: 'Balanced risk/reward' },
             { value: 'aggressive', label: 'Aggressive', desc: 'Full throttle, wider stops' }
+        ]
+    },
+    {
+        title: 'What is your portfolio size?',
+        desc: 'So I can size the trade cards to your capital.',
+        type: 'single',
+        field: 'portfolio_size',
+        options: [
+            { value: '1000', label: '$1K - $10K', desc: 'Starting out' },
+            { value: '10000', label: '$10K - $50K', desc: 'Growing' },
+            { value: '50000', label: '$50K - $250K', desc: 'Serious capital' },
+            { value: '250000', label: '$250K - $1M', desc: 'Professional' },
+            { value: '1000000', label: '$1M - $10M', desc: 'High net worth' },
+            { value: '10000000', label: '$10M+', desc: 'Institutional' },
+        ]
+    },
+    {
+        title: 'How much do you risk per trade?',
+        desc: 'Percentage of your portfolio on each position.',
+        type: 'single',
+        field: 'position_size_pct',
+        options: [
+            { value: '1', label: '1%', desc: 'Conservative' },
+            { value: '2', label: '2%', desc: 'Standard' },
+            { value: '5', label: '5%', desc: 'Aggressive' },
+            { value: '10', label: '10%', desc: 'Very aggressive' },
         ]
     },
     {
@@ -1280,8 +1328,8 @@ function addProphecy(data) {
         var edgeClass = data.edge > 0 ? 'positive' : 'negative';
         metrics += '<div class="metric"><span class="metric-value ' + edgeClass + '">' + (data.edge > 0 ? '+' : '') + data.edge + 'R</span><span class="metric-label">Edge</span></div>';
     }
-    if (data.risk_10k) metrics += '<div class="metric"><span class="metric-value negative">-$' + Math.round(data.risk_10k) + '</span><span class="metric-label">Risk/10K</span></div>';
-    if (data.reward_10k) metrics += '<div class="metric"><span class="metric-value positive">+$' + Math.round(data.reward_10k) + '</span><span class="metric-label">Reward/10K</span></div>';
+    if (data.risk_dollars) metrics += '<div class="metric"><span class="metric-value negative">-$' + Math.round(data.risk_dollars) + '</span><span class="metric-label">Risk</span></div>';
+    if (data.reward_dollars) metrics += '<div class="metric"><span class="metric-value positive">+$' + Math.round(data.reward_dollars) + '</span><span class="metric-label">Reward</span></div>';
     metrics += '<div class="metric"><span class="metric-value">' + (data.match_count || 0) + '</span><span class="metric-label">Trades</span></div>';
     if (data.confidence) metrics += '<div class="metric"><span class="metric-value">' + data.confidence + '</span><span class="metric-label">Confidence</span></div>';
     metrics += '</div>';
