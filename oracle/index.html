@@ -1027,7 +1027,7 @@ function startOnboarding(fromStep) {
     showOnboardingStep(fromStep || 0);
 }
 
-function showOnboardingStep(stepIdx) {
+async function showOnboardingStep(stepIdx) {
     if (stepIdx >= ONBOARDING_STEPS.length) {
         finishOnboarding();
         return;
@@ -1054,8 +1054,22 @@ function showOnboardingStep(stepIdx) {
     card.className = 'onboarding-card';
     card.id = 'onboarding-step-' + stepIdx;
 
-    var inner = '<h4>' + escapeHtml(step.title) + '</h4>';
-    inner += '<p>' + escapeHtml(step.desc) + '</p>';
+    // Translate step text if user chose a non-English language
+    var stepTitle = step.title;
+    var stepDesc = step.desc;
+    var chosenLang = onboardingData.preferred_language;
+    if (chosenLang && chosenLang !== 'en' && step.field !== 'preferred_language') {
+        try {
+            var tRes = await fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(step.title + '|||' + step.desc) + '&lang=' + chosenLang);
+            var tData = await tRes.json();
+            if (tData.translated) {
+                var parts = tData.translated.split('|||');
+                if (parts.length >= 2) { stepTitle = parts[0].trim(); stepDesc = parts[1].trim(); }
+            }
+        } catch(e) {}
+    }
+    var inner = '<h4>' + escapeHtml(stepTitle) + '</h4>';
+    inner += '<p>' + escapeHtml(stepDesc) + '</p>';
 
     if (step.type === 'single') {
         inner += '<div class="chip-group">';
@@ -1093,7 +1107,17 @@ function showOnboardingStep(stepIdx) {
         inner += '</div>';
     }
 
-    inner += '<span class="skip-link" onclick="skipOnboardingStep(' + stepIdx + ')">skip</span>';
+    var skipText = 'skip';
+    var continueText = 'Continue';
+    if (chosenLang && chosenLang !== 'en' && step.field !== 'preferred_language') {
+        try {
+            var sRes = await fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent('skip|||Continue') + '&lang=' + chosenLang);
+            var sData = await sRes.json();
+            if (sData.translated) { var sp = sData.translated.split('|||'); skipText = (sp[0] || 'skip').trim(); continueText = (sp[1] || 'Continue').trim(); }
+        } catch(e) {}
+    }
+    inner = inner.replace('>Continue<', '>' + escapeHtml(continueText) + '<');
+    inner += '<span class="skip-link" onclick="skipOnboardingStep(' + stepIdx + ')">' + escapeHtml(skipText) + '</span>';
 
     card.innerHTML = inner;
     feed.appendChild(card);
