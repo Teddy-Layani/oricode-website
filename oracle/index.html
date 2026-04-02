@@ -242,6 +242,20 @@
         .prophecy-meta .regime-orange { color: #f97316; }
         .prophecy-meta .regime-red { color: var(--red); }
 
+        /* === TRADE ACTION BADGE === */
+        .trade-action { display:inline-block; padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+        .trade-action.long { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; }
+        .trade-action.short { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid #ef4444; }
+        .trade-action.skip { background:rgba(138,138,154,0.15); color:#8a8a9a; border:1px solid #555566; }
+        .trade-action.caution { background:rgba(234,179,8,0.15); color:#eab308; border:1px solid #eab308; }
+        .trade-metrics { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+        .metric { display:flex; flex-direction:column; align-items:center; gap:2px; }
+        .metric-value { font-size:13px; font-weight:600; color:var(--text-primary); }
+        .metric-label { font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; }
+        .metric-value.positive { color:#22c55e; }
+        .metric-value.negative { color:#ef4444; }
+        .metric-value.amber { color:#d4a017; }
+
         /* Loading */
         .prophecy-loading {
             max-width: 85%;
@@ -1250,11 +1264,31 @@ function addProphecy(data) {
     var el = document.createElement('div');
     el.className = 'prophecy-card';
 
-    var regimeClass = 'regime-' + (data.regime || 'unknown').toLowerCase();
-    var lowConf = data.low_confidence ? '<span class="tag" style="color:var(--red)">low confidence</span>' : '';
+    // Trade action badge
+    var action = (data.trade_action || '').toLowerCase();
+    var actionHtml = action ? '<span class="trade-action ' + action + '">' + escapeHtml(data.trade_action) + '</span> ' : '';
 
+    // Oracle score color
+    var score = data.oracle_score || 0;
+    var scoreClass = score >= 7 ? 'positive' : score >= 4 ? 'amber' : 'negative';
+
+    // Build metrics row
+    var metrics = '<div class="trade-metrics">';
+    if (data.oracle_score) metrics += '<div class="metric"><span class="metric-value ' + scoreClass + '">' + data.oracle_score + '/10</span><span class="metric-label">Score</span></div>';
+    if (data.risk_reward) metrics += '<div class="metric"><span class="metric-value">1:' + data.risk_reward + '</span><span class="metric-label">R:R</span></div>';
+    if (data.edge !== undefined && data.edge !== null) {
+        var edgeClass = data.edge > 0 ? 'positive' : 'negative';
+        metrics += '<div class="metric"><span class="metric-value ' + edgeClass + '">' + (data.edge > 0 ? '+' : '') + data.edge + 'R</span><span class="metric-label">Edge</span></div>';
+    }
+    if (data.risk_10k) metrics += '<div class="metric"><span class="metric-value negative">-$' + Math.round(data.risk_10k) + '</span><span class="metric-label">Risk/10K</span></div>';
+    if (data.reward_10k) metrics += '<div class="metric"><span class="metric-value positive">+$' + Math.round(data.reward_10k) + '</span><span class="metric-label">Reward/10K</span></div>';
+    metrics += '<div class="metric"><span class="metric-value">' + (data.match_count || 0) + '</span><span class="metric-label">Trades</span></div>';
+    if (data.confidence) metrics += '<div class="metric"><span class="metric-value">' + data.confidence + '</span><span class="metric-label">Confidence</span></div>';
+    metrics += '</div>';
+
+    // Feedback widget (keep existing logic)
     var feedbackHtml = '';
-    if (lastQueryId && data.regime !== 'ready') {
+    if (lastQueryId && data.trade_action !== undefined) {
         var qid = lastQueryId;
         var isRich = (queryCount % 5 === 0);
         if (isRich) {
@@ -1282,14 +1316,9 @@ function addProphecy(data) {
         }
     }
 
-    el.innerHTML = '<div class="prophecy-text">' + escapeHtml(data.prophecy) + '</div>'
-        + '<div class="prophecy-meta">'
-        + '<span class="tag">' + data.match_count + ' trades</span>'
-        + '<span class="tag">WR ' + data.win_rate + '</span>'
-        + '<span class="tag">avg ' + data.avg_pnl + '</span>'
-        + '<span class="tag ' + regimeClass + '">' + data.regime + '</span>'
-        + lowConf
-        + '</div>'
+    el.innerHTML = actionHtml
+        + '<div class="prophecy-text">' + escapeHtml(data.prophecy) + '</div>'
+        + metrics
         + feedbackHtml;
 
     feed.appendChild(el);
