@@ -1169,21 +1169,24 @@ async function finishOnboarding() {
         localStorage.setItem('oracle_trading_style', onboardingData.trading_style);
     }
 
-    // Show completion card
-    addProphecy({
-        prophecy: 'The Oracle now sees through your eyes. Every answer will be shaped by who you are, how you trade, and what you watch. Ask me anything.',
-        match_count: '-',
-        win_rate: '-',
-        avg_pnl: '-',
-        regime: 'ready',
-        low_confidence: false
-    });
-
-    // Show gear + welcome examples
+    // Show greeting in user's language (from backend, translated)
     document.getElementById('gearBtn').style.display = '';
+    try {
+        var gRes = await fetch(API + '/greeting', {
+            headers: { 'Authorization': 'Bearer ' + seatKey }
+        });
+        var gData = await gRes.json();
+        if (gData.greeting) {
+            addGreetingCard(gData.greeting);
+        } else {
+            addGreetingCard('Ask me anything.');
+        }
+    } catch(e) {
+        addGreetingCard('Ask me anything.');
+    }
+
     var welcome = document.getElementById('welcome');
     if (welcome) welcome.style.display = '';
-
     document.getElementById('queryInput').focus();
 }
 
