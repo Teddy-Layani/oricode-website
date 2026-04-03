@@ -1366,12 +1366,16 @@ async function finishOnboarding() {
         localStorage.setItem('oracle_trading_style', onboardingData.trading_style);
     }
 
-    // Show greeting in user's language (from backend, translated)
+    // Show greeting in user's language (with 5s timeout)
     document.getElementById('gearBtn').style.display = '';
     try {
+        var gController = new AbortController();
+        var gTimeout = setTimeout(function() { gController.abort(); }, 5000);
         var gRes = await fetch(API + '/greeting', {
-            headers: { 'Authorization': 'Bearer ' + seatKey }
+            headers: { 'Authorization': 'Bearer ' + seatKey },
+            signal: gController.signal
         });
+        clearTimeout(gTimeout);
         var gData = await gRes.json();
         if (gData.greeting) {
             addGreetingCard(gData.greeting);
