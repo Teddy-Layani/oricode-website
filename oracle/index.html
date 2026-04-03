@@ -1751,6 +1751,7 @@ function showAlertBar(alert) {
     var existing = document.querySelector('.alert-bar');
     if (existing) existing.remove();
 
+    // Show notification bar at top
     var bar = document.createElement('div');
     bar.className = 'alert-bar';
     bar.onclick = function() {
@@ -1760,12 +1761,41 @@ function showAlertBar(alert) {
         document.getElementById('sendBtn').disabled = false;
         sendQuery();
     };
+    var actionClass = (alert.action || 'buy').toLowerCase();
     bar.innerHTML = '<span class="alert-icon">INCOMING</span>'
-        + '<span class="alert-text">' + escapeHtml(alert.symbol) + ' ' + escapeHtml(alert.action)
-        + ' <span class="alert-score">Score: ' + alert.score + '/10</span>'
-        + ' @ $' + alert.price + '</span>'
+        + '<span class="alert-text">' + escapeHtml(alert.symbol) + ' '
+        + '<span class="trade-action ' + actionClass + '" style="display:inline;padding:2px 6px;font-size:10px;">' + escapeHtml(alert.action) + '</span> '
+        + '</span>'
+        + renderScoreGauge(alert.score)
+        + '<span class="alert-text"> @ $' + alert.price + '</span>'
         + '<button class="alert-dismiss" onclick="event.stopPropagation(); this.parentElement.remove();">&#x2715;</button>';
     document.body.appendChild(bar);
+
+    // Also add a trade card in the feed
+    var feed = document.getElementById('feed');
+    var card = document.createElement('div');
+    card.className = 'prophecy-card';
+    card.style.borderLeftColor = '#22c55e';
+    card.style.cursor = 'pointer';
+    card.onclick = function() {
+        document.getElementById('queryInput').value = alert.symbol;
+        document.getElementById('charCount').textContent = alert.symbol.length;
+        document.getElementById('sendBtn').disabled = false;
+        sendQuery();
+    };
+    var scoreHtml = renderScoreGauge(alert.score);
+    var badge = '<span class="trade-action ' + actionClass + '">' + escapeHtml(alert.action) + '</span>';
+    card.innerHTML = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'
+        + '<span style="color:var(--green);font-weight:700;font-size:11px;letter-spacing:1px;">INCOMING</span>'
+        + badge + scoreHtml + '</div>'
+        + '<div class="prophecy-text">' + escapeHtml(alert.symbol) + ' @ $' + alert.price
+        + ' -- Score ' + alert.score + '/10. Tap for full trade card.</div>'
+        + '<div class="trade-metrics">'
+        + '<div class="metric-pill"><span class="mp-label">Score</span><span class="mp-value" style="color:' + (alert.score >= 7 ? '#22c55e' : '#d4a017') + '">' + alert.score + '/10</span></div>'
+        + '<div class="metric-pill"><span class="mp-label">Price</span><span class="mp-value">$' + alert.price + '</span></div>'
+        + '</div>';
+    feed.appendChild(card);
+    feed.scrollTop = feed.scrollHeight;
 
     setTimeout(function() { if (bar.parentElement) bar.remove(); }, 30000);
 }
