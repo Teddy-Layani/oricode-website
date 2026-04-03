@@ -1180,6 +1180,16 @@ var ONBOARDING_STEPS = [
         desc: 'So I know when your trading day starts.',
         type: 'timezone',
         field: 'timezone'
+    },
+    {
+        title: 'Live alerts?',
+        desc: 'The Oracle can notify you when a high-score setup appears on your watchlist.',
+        type: 'single',
+        field: 'alerts_enabled',
+        options: [
+            { value: 'true', label: 'Yes, alert me', desc: 'INCOMING notifications for Score 7+ setups' },
+            { value: 'false', label: 'No, I will ask', desc: 'Silent mode — Oracle speaks only when asked' }
+        ]
     }
 ];
 
