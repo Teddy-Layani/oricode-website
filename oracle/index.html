@@ -732,9 +732,9 @@
         <div class="feed" id="feed">
             <!-- Welcome with examples: controlled by JS -->
             <div class="welcome" id="welcome" style="display:none;">
-                <h3>Ask the Oracle</h3>
-                <p>Ask any question about a symbol, direction, or market condition. The Oracle answers from its own trading history.</p>
-                <div class="examples">
+                <h3 id="welcomeTitle">Ask the Oracle</h3>
+                <p id="welcomeDesc">Ask any question about a symbol, direction, or market condition. The Oracle answers from its own trading history.</p>
+                <div class="examples" id="welcomeExamples">
                     <div class="example" onclick="askExample(this)">What is the edge on BTC right now?</div>
                     <div class="example" onclick="askExample(this)">Should I go long AAPL?</div>
                     <div class="example" onclick="askExample(this)">How does forex perform when VIX is high?</div>
@@ -802,6 +802,35 @@ function applyRTL(lang) {
         document.body.classList.remove('rtl');
     }
 }
+var _welcomeTranslated = false;
+async function translateWelcome() {
+    if (_welcomeTranslated) return;
+    var lang = (userProfile && userProfile.preferred_language) || onboardingData.preferred_language;
+    if (!lang || lang === 'en') return;
+    _welcomeTranslated = true;
+    try {
+        var texts = 'Ask the Oracle|||Ask any question about a symbol, direction, or market condition.|||What is the edge on BTC right now?|||Should I go long AAPL?|||How does forex perform when VIX is high?|||What should I trade today?';
+        var res = await fetch(API + '/translate?text=' + encodeURIComponent(texts) + '&lang=' + lang);
+        var d = await res.json();
+        if (d.translated) {
+            var parts = d.translated.split('|||');
+            if (parts.length >= 6) {
+                var t = document.getElementById('welcomeTitle');
+                var p = document.getElementById('welcomeDesc');
+                var ex = document.getElementById('welcomeExamples');
+                if (t) t.textContent = parts[0].trim();
+                if (p) p.textContent = parts[1].trim();
+                if (ex) {
+                    var examples = ex.querySelectorAll('.example');
+                    for (var i = 0; i < examples.length && i + 2 < parts.length; i++) {
+                        examples[i].textContent = parts[i + 2].trim();
+                    }
+                }
+            }
+        }
+    } catch(e) {}
+}
+
 var oracleExchangeDetails = [];
 async function checkStatus() {
     try {
@@ -962,9 +991,9 @@ async function loadProfile() {
         if (!d.completed) {
             startOnboarding(d.step || 0);
         } else {
-            // Show welcome examples if no greeting loaded
+            // Show welcome examples (translated if needed)
             var welcome = document.getElementById('welcome');
-            if (welcome) welcome.style.display = '';
+            if (welcome) { welcome.style.display = ''; translateWelcome(); }
             // Show gear
             document.getElementById('gearBtn').style.display = '';
             // Sync localStorage trading_style from DB
