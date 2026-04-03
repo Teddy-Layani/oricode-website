@@ -1215,7 +1215,7 @@ async function showOnboardingStep(stepIdx) {
     } else if (step.field === 'preferred_exchanges') {
         // Fallback if API didn't load
         if (!step.options || step.options.length === 0) {
-            step.options = ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX','CRYPTO'];
+            step.options = ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX','BME','MIL','WSE','ATH','VIE','PRA','BUD','HEL','CPH','STO','OSE','ISE','TAL','RIG','SET','IDX','TWSE','NZX','PSE','BMV','BVMF','TSX','JSE','TADAWUL','QSE','ADX','VIL','ZAG','BUC','LJU','CRYPTO'];
         }
     }
     var feed = document.getElementById('feed');
@@ -1351,6 +1351,11 @@ var _onboardingFinished = false;
 async function finishOnboarding() {
     if (_onboardingFinished) return;
     _onboardingFinished = true;
+    // Grey out all remaining onboarding cards
+    document.querySelectorAll('.onboarding-card').forEach(function(c) {
+        c.style.pointerEvents = 'none';
+        c.style.opacity = '0.5';
+    });
     var payload = Object.assign({}, onboardingData, { onboarding_completed: true, onboarding_step: ONBOARDING_STEPS.length });
     try {
         await fetch(API + '/profile', {
