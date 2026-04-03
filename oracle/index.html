@@ -261,18 +261,74 @@
         .prophecy-meta .regime-red { color: var(--red); }
 
         /* === TRADE ACTION BADGE === */
-        .trade-action { display:inline-block; padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
-        .trade-action.long { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; }
-        .trade-action.short { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid #ef4444; }
+        .trade-action { display:inline-block; padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+        .trade-action.long { background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; box-shadow: 0 0 8px rgba(34,197,94,0.2); }
+        .trade-action.short { background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.2); }
         .trade-action.skip { background:rgba(138,138,154,0.15); color:#8a8a9a; border:1px solid #555566; }
-        .trade-action.caution { background:rgba(234,179,8,0.15); color:#eab308; border:1px solid #eab308; }
-        .trade-metrics { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
-        .metric { display:flex; flex-direction:column; align-items:center; gap:2px; }
-        .metric-value { font-size:13px; font-weight:600; color:var(--text-primary); }
-        .metric-label { font-size:9px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; }
-        .metric-value.positive { color:#22c55e; }
-        .metric-value.negative { color:#ef4444; }
-        .metric-value.amber { color:#d4a017; }
+        .trade-action.caution { background:rgba(234,179,8,0.15); color:#eab308; border:1px solid #eab308; box-shadow: 0 0 8px rgba(234,179,8,0.2); }
+
+        /* === SCORE GAUGE === */
+        .score-gauge {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .score-gauge svg {
+            position: absolute;
+            top: 0; left: 0;
+            transform: rotate(-90deg);
+        }
+        .score-gauge .score-num {
+            font-size: 14px;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        /* === R:R BAR === */
+        .rr-bar {
+            display: flex;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            width: 80px;
+            background: var(--bg-secondary);
+        }
+        .rr-bar .rr-risk { background: #ef4444; }
+        .rr-bar .rr-reward { background: #22c55e; }
+
+        /* === METRIC PILLS === */
+        .trade-metrics {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .metric-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        .metric-pill .mp-label {
+            color: var(--text-dim);
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+        .metric-pill .mp-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .metric-pill .mp-value.positive { color: #22c55e; }
+        .metric-pill .mp-value.negative { color: #ef4444; }
+        .metric-pill .mp-value.amber { color: #d4a017; }
 
         /* Loading */
         .prophecy-loading {
@@ -567,7 +623,7 @@
             max-width: 85%;
             align-self: flex-start;
             border-left: 3px solid var(--amber);
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(212, 160, 23, 0.04) 100%);
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(212, 160, 23, 0.06) 100%);
             border-radius: 0 8px 8px 0;
             padding: 16px 20px;
             animation: fadeIn 0.4s ease;
@@ -1402,6 +1458,25 @@ function addLoading() {
     return el;
 }
 
+function renderScoreGauge(score) {
+    var pct = (score || 0) / 10;
+    var r = 20, circ = 2 * 3.14159 * r;
+    var offset = circ * (1 - pct);
+    var color = score >= 7 ? '#22c55e' : score >= 4 ? '#d4a017' : '#ef4444';
+    return '<div class="score-gauge">'
+        + '<svg width="48" height="48"><circle cx="24" cy="24" r="' + r + '" fill="none" stroke="#1a1a2e" stroke-width="3"/>'
+        + '<circle cx="24" cy="24" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="3" stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '" stroke-linecap="round"/></svg>'
+        + '<span class="score-num" style="color:' + color + '">' + (score || 0) + '</span></div>';
+}
+
+function renderRRBar(rr) {
+    if (!rr || rr <= 0) return '';
+    var total = 1 + rr;
+    var riskPct = (1 / total) * 100;
+    var rewPct = (rr / total) * 100;
+    return '<div class="rr-bar"><div class="rr-risk" style="width:' + riskPct + '%"></div><div class="rr-reward" style="width:' + rewPct + '%"></div></div>';
+}
+
 function addProphecy(data) {
     var feed = document.getElementById('feed');
     var el = document.createElement('div');
@@ -1409,25 +1484,29 @@ function addProphecy(data) {
 
     // Trade action badge
     var action = (data.trade_action || '').toLowerCase();
-    var actionHtml = action ? '<span class="trade-action ' + action + '">' + escapeHtml(data.trade_action) + '</span> ' : '';
+    var actionBadge = action ? '<span class="trade-action ' + action + '">' + escapeHtml(data.trade_action) + '</span>' : '';
 
-    // Oracle score color
-    var score = data.oracle_score || 0;
-    var scoreClass = score >= 7 ? 'positive' : score >= 4 ? 'amber' : 'negative';
+    // Score gauge
+    var scoreHtml = data.oracle_score ? renderScoreGauge(data.oracle_score) : '';
 
-    // Build metrics row
-    var metrics = '<div class="trade-metrics">';
-    if (data.oracle_score) metrics += '<div class="metric"><span class="metric-value ' + scoreClass + '">' + data.oracle_score + '/10</span><span class="metric-label">Score</span></div>';
-    if (data.risk_reward) metrics += '<div class="metric"><span class="metric-value">1:' + data.risk_reward + '</span><span class="metric-label">R:R</span></div>';
+    // Metrics as pills
+    var pills = '<div class="trade-metrics">';
+    if (data.risk_reward) pills += '<div class="metric-pill"><span class="mp-label">R:R</span>' + renderRRBar(data.risk_reward) + '<span class="mp-value">1:' + data.risk_reward + '</span></div>';
     if (data.edge !== undefined && data.edge !== null) {
-        var edgeClass = data.edge > 0 ? 'positive' : 'negative';
-        metrics += '<div class="metric"><span class="metric-value ' + edgeClass + '">' + (data.edge > 0 ? '+' : '') + data.edge + 'R</span><span class="metric-label">Edge</span></div>';
+        var ec = data.edge > 0 ? 'positive' : data.edge < 0 ? 'negative' : 'amber';
+        pills += '<div class="metric-pill"><span class="mp-label">Edge</span><span class="mp-value ' + ec + '">' + (data.edge > 0 ? '+' : '') + data.edge + 'R</span></div>';
     }
-    if (data.risk_dollars) metrics += '<div class="metric"><span class="metric-value negative">-$' + Math.round(data.risk_dollars) + '</span><span class="metric-label">Risk</span></div>';
-    if (data.reward_dollars) metrics += '<div class="metric"><span class="metric-value positive">+$' + Math.round(data.reward_dollars) + '</span><span class="metric-label">Reward</span></div>';
-    metrics += '<div class="metric"><span class="metric-value">' + (data.match_count || 0) + '</span><span class="metric-label">Trades</span></div>';
-    if (data.confidence) metrics += '<div class="metric"><span class="metric-value">' + data.confidence + '</span><span class="metric-label">Confidence</span></div>';
-    metrics += '</div>';
+    if (data.risk_dollars || data.risk_10k) {
+        var rv = Math.round(data.risk_dollars || data.risk_10k || 0);
+        pills += '<div class="metric-pill"><span class="mp-label">Risk</span><span class="mp-value negative">-$' + rv + '</span></div>';
+    }
+    if (data.reward_dollars || data.reward_10k) {
+        var rw = Math.round(data.reward_dollars || data.reward_10k || 0);
+        pills += '<div class="metric-pill"><span class="mp-label">Reward</span><span class="mp-value positive">+$' + rw + '</span></div>';
+    }
+    pills += '<div class="metric-pill"><span class="mp-label">Trades</span><span class="mp-value">' + (data.match_count || 0) + '</span></div>';
+    if (data.confidence) pills += '<div class="metric-pill"><span class="mp-label">Conf</span><span class="mp-value">' + data.confidence + '</span></div>';
+    pills += '</div>';
 
     // Feedback widget (keep existing logic)
     var feedbackHtml = '';
@@ -1459,9 +1538,11 @@ function addProphecy(data) {
         }
     }
 
-    el.innerHTML = actionHtml
+    el.innerHTML = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'
+        + actionBadge + scoreHtml
+        + '</div>'
         + '<div class="prophecy-text">' + escapeHtml(data.prophecy) + '</div>'
-        + metrics
+        + pills
         + feedbackHtml;
 
     feed.appendChild(el);
