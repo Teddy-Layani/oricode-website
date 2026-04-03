@@ -25,6 +25,21 @@
             --red: #ef4444;
         }
 
+        body.light {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #eeeef0;
+            --bg-card: #ffffff;
+            --border: #d4d4d8;
+            --amber: #b8860b;
+            --amber-dim: #8b6914;
+            --amber-glow: rgba(184, 134, 11, 0.08);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555566;
+            --text-dim: #8a8a9a;
+            --green: #16a34a;
+            --red: #dc2626;
+        }
+
         body {
             font-family: 'JetBrains Mono', monospace;
             background: var(--bg-primary);
@@ -725,6 +740,40 @@
             padding: 0 4px;
         }
 
+        /* === LIGHT MODE OVERRIDES === */
+        /* Score gauge bg circle */
+        body.light .score-gauge svg circle:first-child { stroke: #d4d4d8; }
+
+        /* Trade action badges -- reduce glow in light mode */
+        body.light .trade-action.buy, body.light .trade-action.long { box-shadow: 0 0 4px rgba(22,163,74,0.2); }
+        body.light .trade-action.sell, body.light .trade-action.short { box-shadow: 0 0 4px rgba(220,38,38,0.2); }
+        body.light .trade-action.watch, body.light .trade-action.caution { box-shadow: 0 0 4px rgba(184,134,11,0.2); }
+
+        /* Scrollbar */
+        body.light .feed::-webkit-scrollbar-thumb { background: #d4d4d8; }
+
+        /* History panel */
+        body.light .history-panel { background: #eeeef0; }
+        body.light .history-item:hover { background: #f5f5f7; }
+
+        /* Alert bar */
+        body.light .alert-bar { background: linear-gradient(135deg, rgba(184,134,11,0.1) 0%, rgba(22,163,74,0.1) 100%); border-color: #b8860b; }
+
+        /* Greeting card */
+        body.light .greeting-card { background: linear-gradient(135deg, #ffffff 0%, rgba(184,134,11,0.06) 100%); }
+
+        /* Onboarding chips */
+        body.light .chip { background: #f5f5f7; border-color: #d4d4d8; }
+        body.light .chip:hover { border-color: #8b6914; }
+        body.light .chip.selected { background: rgba(184,134,11,0.08); }
+
+        /* Input */
+        body.light .input-wrap textarea { background: #eeeef0; border-color: #d4d4d8; color: #1a1a2e; }
+        body.light .auth-input { background: #eeeef0; border-color: #d4d4d8; color: #1a1a2e; }
+
+        /* Metric pills */
+        body.light .metric-pill { background: #eeeef0; }
+
     </style>
 </head>
 <body>
@@ -740,6 +789,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:16px;">
             <button class="history-toggle" id="historyToggle" onclick="toggleHistory()" style="display:none;">History</button>
+            <button class="gear-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">&#9788;</button>
             <span class="streak-badge" id="streakBadge" style="display:none;"></span>
             <button class="gear-btn" id="gearBtn" onclick="showProfileEdit()" title="Edit profile" style="display:none;">&#9881;</button>
             <div class="seat-info" id="seatInfo"></div>
@@ -797,6 +847,35 @@
     </div>
 
 <script>
+// Theme: respect system preference, save to localStorage
+function initTheme() {
+    var saved = localStorage.getItem('oracle_theme');
+    if (saved === 'light') {
+        document.body.classList.add('light');
+    } else if (saved === 'dark') {
+        document.body.classList.remove('light');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        document.body.classList.add('light');
+    }
+    updateThemeIcon();
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('light');
+    var isLight = document.body.classList.contains('light');
+    localStorage.setItem('oracle_theme', isLight ? 'light' : 'dark');
+    updateThemeIcon();
+}
+
+function updateThemeIcon() {
+    var btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.innerHTML = document.body.classList.contains('light') ? '&#9790;' : '&#9788;';
+    }
+}
+
+initTheme();
+
 const API = 'https://api-trading.oricode.ai/api/oracle';
 let seatKey = localStorage.getItem('oracle_seat_key') || '';
 let isQuerying = false;
