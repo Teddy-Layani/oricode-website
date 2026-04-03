@@ -680,6 +680,51 @@
         .history-item .hi-meta .hi-symbol { color:var(--amber-dim); }
         .history-load-more { text-align:center; padding:12px; }
         .history-load-more button { background:none; border:1px solid var(--border); color:var(--text-dim); padding:6px 16px; border-radius:4px; cursor:pointer; font-family:inherit; font-size:11px; }
+        /* === ALERT BAR === */
+        .alert-bar {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            background: linear-gradient(135deg, rgba(212,160,23,0.15) 0%, rgba(34,197,94,0.15) 100%);
+            border: 1px solid var(--amber);
+            border-radius: 8px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.4s ease;
+            cursor: pointer;
+            max-width: 90%;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        .alert-bar .alert-icon {
+            font-size: 16px;
+            color: var(--amber);
+            font-weight: 700;
+        }
+        .alert-bar .alert-text {
+            font-size: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        .alert-bar .alert-score {
+            font-weight: 700;
+            color: var(--green);
+        }
+        .alert-bar .alert-dismiss {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 4px;
+        }
+
     </style>
 </head>
 <body>
@@ -890,6 +935,7 @@ function enterChat() {
     document.getElementById('historyToggle').style.display = '';
     loadGreeting();
     loadProfile();
+    startAlertPolling();
 }
 
 function logout() {
@@ -1638,6 +1684,58 @@ async function submitActed(qid, yes) {
             if (b.textContent === (yes ? 'Yes' : 'No')) b.classList.add('active');
         });
     }
+}
+
+// === ALERT POLLING ===
+var _lastAlertCheck = 0;
+var _seenAlerts = {};
+
+function startAlertPolling() {
+    setInterval(checkAlerts, 60000);
+}
+
+async function checkAlerts() {
+    if (!seatKey) return;
+    try {
+        var res = await fetch(API + '/alerts', {
+            headers: { 'Authorization': 'Bearer ' + seatKey }
+        });
+        var d = await res.json();
+        if (d.alerts && d.alerts.length > 0) {
+            for (var i = 0; i < d.alerts.length; i++) {
+                var a = d.alerts[i];
+                var key = a.symbol + '_' + a.time;
+                if (!_seenAlerts[key]) {
+                    _seenAlerts[key] = true;
+                    showAlertBar(a);
+                    break;
+                }
+            }
+        }
+    } catch(e) {}
+}
+
+function showAlertBar(alert) {
+    var existing = document.querySelector('.alert-bar');
+    if (existing) existing.remove();
+
+    var bar = document.createElement('div');
+    bar.className = 'alert-bar';
+    bar.onclick = function() {
+        bar.remove();
+        document.getElementById('queryInput').value = alert.symbol;
+        document.getElementById('charCount').textContent = alert.symbol.length;
+        document.getElementById('sendBtn').disabled = false;
+        sendQuery();
+    };
+    bar.innerHTML = '<span class="alert-icon">INCOMING</span>'
+        + '<span class="alert-text">' + escapeHtml(alert.symbol) + ' ' + escapeHtml(alert.action)
+        + ' <span class="alert-score">Score: ' + alert.score + '/10</span>'
+        + ' @ $' + alert.price + '</span>'
+        + '<button class="alert-dismiss" onclick="event.stopPropagation(); this.parentElement.remove();">&#x2715;</button>';
+    document.body.appendChild(bar);
+
+    setTimeout(function() { if (bar.parentElement) bar.remove(); }, 30000);
 }
 
 function escapeHtml(str) {
