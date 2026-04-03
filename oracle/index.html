@@ -237,13 +237,15 @@
             color: var(--text-primary);
             white-space: pre-wrap;
         }
-        /* RTL support for Hebrew, Arabic, etc. */
+        /* RTL support for Hebrew, Arabic, etc. — full layout inversion */
+        .rtl .feed { direction: rtl; }
         .rtl .prophecy-card, .rtl .onboarding-card, .rtl .greeting-card {
             border-left: none;
             border-right: 3px solid var(--amber);
             border-radius: 8px 0 0 8px;
             text-align: right;
             direction: rtl;
+            align-self: flex-end;
         }
         .rtl .query-bubble {
             align-self: flex-start;
@@ -252,9 +254,28 @@
             direction: rtl;
         }
         .rtl .prophecy-text { direction: rtl; text-align: right; }
-        .rtl .onboarding-card h4, .rtl .onboarding-card p { text-align: right; }
-        .rtl .trade-metrics { direction: ltr; } /* metrics stay LTR */
-        .rtl .feedback-row { direction: ltr; } /* feedback stays LTR */
+        .rtl .onboarding-card h4, .rtl .onboarding-card p { text-align: right; direction: rtl; }
+        .rtl .chip-group { direction: rtl; justify-content: flex-end; }
+        .rtl .skip-link { float: left; }
+        .rtl .chip-confirm { float: left; }
+        /* Score gauge + action badge row — flip order */
+        .rtl .prophecy-card > div:first-child { direction: rtl; flex-direction: row-reverse; justify-content: flex-start; }
+        /* Metrics pills stay LTR (numbers/symbols) but align right */
+        .rtl .trade-metrics { direction: ltr; justify-content: flex-end; }
+        .rtl .feedback-row { direction: ltr; justify-content: flex-end; }
+        /* Header */
+        .rtl .header { direction: rtl; }
+        .rtl .header-left { direction: rtl; }
+        /* Input zone */
+        .rtl .input-zone { direction: rtl; }
+        .rtl .input-wrap textarea { direction: rtl; text-align: right; }
+        /* History panel — flip to right side */
+        .rtl .history-panel { left: auto; right: 0; transform: translateX(100%); border-right: none; border-left: 1px solid var(--border); }
+        .rtl .history-panel.open { transform: translateX(0); }
+        .rtl .history-item .hi-query { text-align: right; direction: rtl; }
+        /* Welcome */
+        .rtl .welcome { direction: rtl; text-align: right; }
+        .rtl .welcome .example { text-align: right; direction: rtl; }
         .prophecy-meta {
             margin-top: 12px;
             padding-top: 10px;
