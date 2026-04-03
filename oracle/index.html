@@ -1794,8 +1794,16 @@ function showAlertBar(alert) {
         + '<div class="metric-pill"><span class="mp-label">Score</span><span class="mp-value" style="color:' + (alert.score >= 7 ? '#22c55e' : '#d4a017') + '">' + alert.score + '/10</span></div>'
         + '<div class="metric-pill"><span class="mp-label">Price</span><span class="mp-value">$' + alert.price + '</span></div>'
         + '</div>';
-    feed.appendChild(card);
-    feed.scrollTop = feed.scrollHeight;
+    // Insert after greeting card if exists, otherwise at top
+    var greetingCard = feed.querySelector('.greeting-card');
+    if (greetingCard && greetingCard.nextSibling) {
+        feed.insertBefore(card, greetingCard.nextSibling);
+    } else if (greetingCard) {
+        feed.appendChild(card);
+    } else {
+        feed.insertBefore(card, feed.firstChild);
+    }
+    feed.scrollTop = 0;
 
     setTimeout(function() { if (bar.parentElement) bar.remove(); }, 30000);
 }
