@@ -1207,15 +1207,28 @@ async function showOnboardingStep(stepIdx) {
     });
     var step = ONBOARDING_STEPS[stepIdx];
     // Dynamic exchange list from /status (with names)
-    if (step.field === 'preferred_exchanges' && oracleExchangeDetails && oracleExchangeDetails.length > 0) {
-        step.options = oracleExchangeDetails.map(function(e) {
-            return { value: e.code, label: e.code + ' - ' + e.name };
-        });
-        step.type = 'multi_labeled';
-    } else if (step.field === 'preferred_exchanges') {
-        // Fallback if API didn't load
-        if (!step.options || step.options.length === 0) {
-            step.options = ['NYSE','NASDAQ','TASE','LSE','XETRA','TSE','HKEX','FOREX','NYMEX','COMEX','ASX','SGX','KRX','NSE','PAR','AMS','SIX','BME','MIL','WSE','ATH','VIE','PRA','BUD','HEL','CPH','STO','OSE','ISE','TAL','RIG','SET','IDX','TWSE','NZX','PSE','BMV','BVMF','TSX','JSE','TADAWUL','QSE','ADX','VIL','ZAG','BUC','LJU','CRYPTO'];
+    if (step.field === 'preferred_exchanges') {
+        // Retry fetch if details not loaded yet
+        if (!oracleExchangeDetails || oracleExchangeDetails.length === 0) {
+            try {
+                var exRes = await fetch(API + '/status');
+                var exData = await exRes.json();
+                if (exData.exchange_details) oracleExchangeDetails = exData.exchange_details;
+            } catch(e) {}
+        }
+        if (oracleExchangeDetails && oracleExchangeDetails.length > 0) {
+            step.options = oracleExchangeDetails.map(function(e) {
+                return { value: e.code, label: e.code + ' - ' + e.name };
+            });
+            step.type = 'multi_labeled';
+        } else {
+            step.options = [
+                {value:'NYSE',label:'NYSE - New York Stock Exchange'},{value:'NASDAQ',label:'NASDAQ'},{value:'TASE',label:'TASE - Tel Aviv Stock Exchange'},
+                {value:'LSE',label:'LSE - London Stock Exchange'},{value:'XETRA',label:'XETRA - Deutsche Boerse'},{value:'TSE',label:'TSE - Tokyo Stock Exchange'},
+                {value:'HKEX',label:'HKEX - Hong Kong Stock Exchange'},{value:'FOREX',label:'FOREX - Forex Market'},{value:'ASX',label:'ASX - Australian Securities Exchange'},
+                {value:'CRYPTO',label:'CRYPTO - Cryptocurrency (24/7)'}
+            ];
+            step.type = 'multi_labeled';
         }
     }
     var feed = document.getElementById('feed');
