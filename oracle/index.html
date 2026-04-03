@@ -222,6 +222,24 @@
             color: var(--text-primary);
             white-space: pre-wrap;
         }
+        /* RTL support for Hebrew, Arabic, etc. */
+        .rtl .prophecy-card, .rtl .onboarding-card, .rtl .greeting-card {
+            border-left: none;
+            border-right: 3px solid var(--amber);
+            border-radius: 8px 0 0 8px;
+            text-align: right;
+            direction: rtl;
+        }
+        .rtl .query-bubble {
+            align-self: flex-start;
+            border-radius: 12px 12px 12px 2px;
+            text-align: right;
+            direction: rtl;
+        }
+        .rtl .prophecy-text { direction: rtl; text-align: right; }
+        .rtl .onboarding-card h4, .rtl .onboarding-card p { text-align: right; }
+        .rtl .trade-metrics { direction: ltr; } /* metrics stay LTR */
+        .rtl .feedback-row { direction: ltr; } /* feedback stays LTR */
         .prophecy-meta {
             margin-top: 12px;
             padding-top: 10px;
@@ -713,6 +731,21 @@ async function init() {
 }
 
 var oracleExchanges = [];
+
+var RTL_LANGUAGES = ['he', 'ar', 'fa', 'ur'];
+function applyRTL(lang) {
+    var feed = document.getElementById('feed');
+    var container = document.getElementById('chatContainer');
+    if (lang && RTL_LANGUAGES.indexOf(lang) >= 0) {
+        if (feed) feed.classList.add('rtl');
+        if (container) container.classList.add('rtl');
+        document.body.classList.add('rtl');
+    } else {
+        if (feed) feed.classList.remove('rtl');
+        if (container) container.classList.remove('rtl');
+        document.body.classList.remove('rtl');
+    }
+}
 var oracleExchangeDetails = [];
 async function checkStatus() {
     try {
@@ -868,6 +901,8 @@ async function loadProfile() {
         });
         const d = await res.json();
         userProfile = d;
+        // Apply RTL for Hebrew, Arabic, etc.
+        applyRTL(d.preferred_language);
         if (!d.completed) {
             startOnboarding(d.step || 0);
         } else {
@@ -1132,6 +1167,10 @@ function selectSingleChip(chip, stepIdx) {
     chip.classList.add('selected');
     var step = ONBOARDING_STEPS[stepIdx];
     onboardingData[step.field] = chip.dataset.value;
+    // Apply RTL immediately when language is selected
+    if (step.field === 'preferred_language') {
+        applyRTL(chip.dataset.value);
+    }
     setTimeout(function() {
         saveOnboardingStep(stepIdx);
         showOnboardingStep(stepIdx + 1);
