@@ -1494,8 +1494,20 @@ async function finishOnboarding() {
         localStorage.setItem('oracle_trading_style', onboardingData.trading_style);
     }
 
-    // Show greeting in user's language (with 5s timeout)
+    // Show "setup complete" in user's language
     document.getElementById('gearBtn').style.display = '';
+    var completionMsg = 'Setup complete. The Oracle now sees through your eyes. Ask me anything.';
+    var chosenLang = onboardingData.preferred_language;
+    if (chosenLang && chosenLang !== 'en') {
+        try {
+            var tRes = await fetch(API + '/translate?text=' + encodeURIComponent(completionMsg) + '&lang=' + chosenLang);
+            var tData = await tRes.json();
+            if (tData.translated) completionMsg = tData.translated;
+        } catch(e) {}
+    }
+    addGreetingCard(completionMsg);
+
+    // Then show greeting with hot setups (with 5s timeout)
     try {
         var gController = new AbortController();
         var gTimeout = setTimeout(function() { gController.abort(); }, 5000);
@@ -1507,12 +1519,8 @@ async function finishOnboarding() {
         var gData = await gRes.json();
         if (gData.greeting) {
             addGreetingCard(gData.greeting);
-        } else {
-            addGreetingCard('Ask me anything.');
         }
-    } catch(e) {
-        addGreetingCard('Ask me anything.');
-    }
+    } catch(e) {}
 
     var welcome = document.getElementById('welcome');
     if (welcome) welcome.style.display = '';
