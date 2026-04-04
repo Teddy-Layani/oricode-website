@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oracle - Waitlist</title>
+    <title>Oracle - Request Access</title>
     <link rel="icon" type="image/svg+xml" href="/oricode-favicon.svg">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
@@ -13,6 +13,7 @@
         :root {
             --bg-primary: #08080c;
             --bg-secondary: #0e0e14;
+            --bg-card: #12121a;
             --border: #1a1a2e;
             --amber: #d4a017;
             --amber-dim: #8b6914;
@@ -21,6 +22,7 @@
             --text-secondary: #8a8a9a;
             --text-dim: #555566;
             --green: #22c55e;
+            --red: #ef4444;
         }
 
         body {
@@ -34,7 +36,7 @@
         }
 
         .container {
-            max-width: 480px;
+            max-width: 540px;
             width: 100%;
             padding: 40px;
             text-align: center;
@@ -69,8 +71,9 @@
         .stats {
             display: flex;
             justify-content: center;
-            gap: 32px;
+            gap: 28px;
             margin-bottom: 40px;
+            flex-wrap: wrap;
         }
         .stat {
             text-align: center;
@@ -88,11 +91,69 @@
             margin-top: 4px;
         }
 
-        .form-group {
-            margin-bottom: 16px;
+        /* Pricing */
+        .pricing {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .price-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+            min-width: 140px;
+            max-width: 180px;
+        }
+        .price-card.featured {
+            border-color: var(--amber);
+            position: relative;
+        }
+        .price-card.featured::after {
+            content: 'POPULAR';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--amber);
+            color: var(--bg-primary);
+            font-size: 9px;
+            letter-spacing: 1px;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .price-name {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .price-amount {
+            font-size: 24px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        .price-amount span {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .price-desc {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 8px;
+            line-height: 1.5;
         }
 
-        input[type="email"] {
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        input {
             width: 100%;
             padding: 14px 18px;
             background: var(--bg-secondary);
@@ -104,11 +165,24 @@
             outline: none;
             transition: border-color 0.2s;
         }
-        input[type="email"]:focus {
+        input:focus {
             border-color: var(--amber-dim);
         }
-        input[type="email"]::placeholder {
+        input::placeholder {
             color: var(--text-dim);
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            appearance: none;
         }
 
         .submit-btn {
@@ -124,6 +198,7 @@
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s;
+            margin-top: 8px;
         }
         .submit-btn:hover {
             background: var(--amber-glow);
@@ -139,16 +214,16 @@
             min-height: 18px;
         }
         .message.success { color: var(--green); }
-        .message.error { color: #ef4444; }
+        .message.error { color: var(--red); }
 
         .features {
-            margin-top: 48px;
+            margin-top: 40px;
             text-align: left;
             border-top: 1px solid var(--border);
-            padding-top: 32px;
+            padding-top: 28px;
         }
         .feature {
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             font-size: 12px;
             color: var(--text-secondary);
             line-height: 1.6;
@@ -166,7 +241,7 @@
         }
 
         .back-link {
-            margin-top: 32px;
+            margin-top: 28px;
             font-size: 11px;
         }
         .back-link a {
@@ -176,6 +251,12 @@
         .back-link a:hover {
             color: var(--amber-dim);
         }
+
+        @media (max-width: 480px) {
+            .container { padding: 24px; }
+            .pricing { flex-direction: column; align-items: center; }
+            .price-card { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -184,37 +265,70 @@
         <div class="oracle-mark">O</div>
         <h1>Oracle</h1>
         <p class="tagline">
-            Prophecy powered by real market execution.<br>
-            Not signals. Not analysis. Prophecy.
+            The AI trading co-pilot that speaks from real execution data.<br>
+            Trade cards. Not signals. Not analysis. Prophecy.
         </p>
 
-        <div class="stats">
+        <div class="stats" id="stats">
             <div class="stat">
-                <div class="stat-value">20</div>
-                <div class="stat-label">Founding seats</div>
-            </div>
-            <div class="stat">
-                <div class="stat-value">17</div>
+                <div class="stat-value" id="statExchanges">51</div>
                 <div class="stat-label">Exchanges</div>
             </div>
             <div class="stat">
-                <div class="stat-value">41K+</div>
-                <div class="stat-label">Decisions</div>
+                <div class="stat-value" id="statSymbols">540</div>
+                <div class="stat-label">Symbols</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="statAssets">6</div>
+                <div class="stat-label">Asset Classes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">200+</div>
+                <div class="stat-label">Languages</div>
+            </div>
+        </div>
+
+        <div class="pricing">
+            <div class="price-card">
+                <div class="price-name">Launch</div>
+                <div class="price-amount">$1K <span>/mo</span></div>
+                <div class="price-desc">Early access. Limited seats. 6 months, then standard pricing.</div>
+            </div>
+            <div class="price-card featured">
+                <div class="price-name">Standard</div>
+                <div class="price-amount">$3K <span>/mo</span></div>
+                <div class="price-desc">Full access. Trade cards. Live scoring. All exchanges.</div>
+            </div>
+            <div class="price-card">
+                <div class="price-name">Institution</div>
+                <div class="price-amount">$10K+ <span>/mo</span></div>
+                <div class="price-desc">API access. Usage-based. Integrate into your systems.</div>
             </div>
         </div>
 
         <div class="form-group">
-            <input type="email" id="emailInput" placeholder="your@email.com" onkeydown="if(event.key==='Enter')joinWaitlist()">
+            <input type="text" id="nameInput" placeholder="Your name">
         </div>
-        <button class="submit-btn" id="submitBtn" onclick="joinWaitlist()">Join the Waitlist</button>
+        <div class="form-group">
+            <input type="email" id="emailInput" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+            <select id="tierSelect">
+                <option value="launch">Launch ($1K/mo)</option>
+                <option value="standard" selected>Standard ($3K/mo)</option>
+                <option value="institution">Institution ($10K+/mo)</option>
+            </select>
+        </div>
+        <button class="submit-btn" id="submitBtn" onclick="requestAccess()">Request Access</button>
         <div class="message" id="message"></div>
 
         <div class="features">
-            <div class="feature">Ask any question about a symbol, direction, or market condition</div>
-            <div class="feature">Answers from real execution history, not training data</div>
-            <div class="feature">4 asset classes: stocks, crypto, forex, commodities</div>
-            <div class="feature">Live regime awareness and adaptive factor weights</div>
-            <div class="feature">Founding members lock in their rate for life</div>
+            <div class="feature">Decision-ready trade cards: BUY/SELL with exact entry, stop, target</div>
+            <div class="feature">Oracle Score (0-10) backed by real execution edge</div>
+            <div class="feature">Personalized to your portfolio, style, and language</div>
+            <div class="feature">INCOMING alerts when your watchlist heats up</div>
+            <div class="feature">Conversation memory — the Oracle remembers you</div>
+            <div class="feature">Speaks your language from the first second</div>
         </div>
 
         <div class="back-link">
@@ -223,12 +337,31 @@
     </div>
 
 <script>
-async function joinWaitlist() {
-    const email = document.getElementById('emailInput').value.trim();
-    const msg = document.getElementById('message');
-    const btn = document.getElementById('submitBtn');
+// Load dynamic stats
+async function loadStats() {
+    try {
+        var res = await fetch('https://api-trading.oricode.ai/api/oracle/status');
+        var d = await res.json();
+        if (d.exchanges) document.getElementById('statExchanges').textContent = d.exchanges;
+        if (d.symbols) document.getElementById('statSymbols').textContent = d.symbols;
+        if (d.asset_classes) document.getElementById('statAssets').textContent = d.asset_classes;
+    } catch(e) {}
+}
+loadStats();
 
-    if (!email || !email.includes('@')) {
+async function requestAccess() {
+    var name = document.getElementById('nameInput').value.trim();
+    var email = document.getElementById('emailInput').value.trim();
+    var tier = document.getElementById('tierSelect').value;
+    var msg = document.getElementById('message');
+    var btn = document.getElementById('submitBtn');
+
+    if (!name) {
+        msg.className = 'message error';
+        msg.textContent = 'Please enter your name.';
+        return;
+    }
+    if (!email || email.indexOf('@') < 0) {
         msg.className = 'message error';
         msg.textContent = 'Please enter a valid email.';
         return;
@@ -238,31 +371,37 @@ async function joinWaitlist() {
     btn.textContent = '...';
 
     try {
-        const res = await fetch('https://api-trading.oricode.ai/api/oracle/waitlist', {
+        var res = await fetch('https://api-trading.oricode.ai/api/oracle/waitlist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email: email, name: name, tier: tier }),
         });
-        const d = await res.json();
+        var d = await res.json();
 
         if (res.ok) {
             msg.className = 'message success';
-            msg.textContent = 'You are on the list. We will reach out.';
-            btn.textContent = 'On the list';
+            msg.textContent = 'Request received. We review every application personally.';
+            btn.textContent = 'Applied';
             document.getElementById('emailInput').disabled = true;
+            document.getElementById('nameInput').disabled = true;
+            document.getElementById('tierSelect').disabled = true;
         } else {
             msg.className = 'message error';
             msg.textContent = d.error || 'Something went wrong.';
             btn.disabled = false;
-            btn.textContent = 'Join the Waitlist';
+            btn.textContent = 'Request Access';
         }
     } catch(e) {
         msg.className = 'message error';
         msg.textContent = 'Connection failed. Try again.';
         btn.disabled = false;
-        btn.textContent = 'Join the Waitlist';
+        btn.textContent = 'Request Access';
     }
 }
+
+// Enter key on inputs
+document.getElementById('emailInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') requestAccess(); });
+document.getElementById('nameInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') requestAccess(); });
 </script>
 </body>
 </html>
