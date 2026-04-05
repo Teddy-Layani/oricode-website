@@ -1001,15 +1001,23 @@ async function checkStatus() {
 
 // === AUTH ===
 async function unlockOracle() {
-    const key = document.getElementById('seatKeyInput').value.trim();
+    var key = document.getElementById('seatKeyInput').value.trim();
     if (!key) return;
     seatKey = key;
-    const valid = await validateSeat();
+    var btn = document.getElementById('unlockBtn');
+    var err = document.getElementById('authError');
+    btn.disabled = true;
+    btn.textContent = 'Connecting...';
+    err.textContent = '';
+    var valid = await validateSeat();
     if (valid) {
         localStorage.setItem('oracle_seat_key', key);
+        btn.textContent = 'Welcome';
         enterChat();
     } else {
-        document.getElementById('authError').textContent = 'Invalid or inactive seat key.';
+        err.textContent = 'Invalid or inactive seat key.';
+        btn.disabled = false;
+        btn.textContent = 'Unlock Oracle';
         seatKey = '';
     }
 }
