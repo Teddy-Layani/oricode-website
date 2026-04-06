@@ -1700,66 +1700,70 @@ function renderRRBar(rr) {
     return '<div class="rr-bar"><div class="rr-risk" style="width:' + riskPct + '%"></div><div class="rr-reward" style="width:' + rewPct + '%"></div></div>';
 }
 
+function renderMetricPills(d) {
+    var pills = '<div class="trade-metrics">';
+    if (d.risk_reward) pills += '<div class="metric-pill"><span class="mp-label">R:R</span>' + renderRRBar(d.risk_reward) + '<span class="mp-value">1:' + d.risk_reward + '</span></div>';
+    if (d.edge !== undefined && d.edge !== null) {
+        var ec = d.edge > 0 ? 'positive' : d.edge < 0 ? 'negative' : 'amber';
+        pills += '<div class="metric-pill"><span class="mp-label">Edge</span><span class="mp-value ' + ec + '">' + (d.edge > 0 ? '+' : '') + d.edge + 'R</span></div>';
+    }
+    if (d.risk_dollars || d.risk_10k) {
+        var rv = Math.round(d.risk_dollars || d.risk_10k || 0);
+        pills += '<div class="metric-pill"><span class="mp-label">Risk</span><span class="mp-value negative">-$' + rv + '</span></div>';
+    }
+    if (d.reward_dollars || d.reward_10k) {
+        var rw = Math.round(d.reward_dollars || d.reward_10k || 0);
+        pills += '<div class="metric-pill"><span class="mp-label">Reward</span><span class="mp-value positive">+$' + rw + '</span></div>';
+    }
+    if (d.match_count) pills += '<div class="metric-pill"><span class="mp-label">Trades</span><span class="mp-value">' + d.match_count + '</span></div>';
+    if (d.confidence) pills += '<div class="metric-pill"><span class="mp-label">Conf</span><span class="mp-value">' + d.confidence + '</span></div>';
+    pills += '</div>';
+    return pills;
+}
+
+function renderSymbolCard(sym) {
+    var action = (sym.trade_action || '').toLowerCase();
+    var actionBadge = '<span class="trade-action ' + action + '">' + escapeHtml(sym.trade_action || '?') + '</span>';
+    var scoreHtml = sym.oracle_score ? renderScoreGauge(sym.oracle_score) : '';
+    var symbolLabel = '<span style="font-weight:600;font-size:1.05em;color:var(--amber)">' + escapeHtml(sym.symbol || '') + '</span>';
+    var pills = renderMetricPills(sym);
+    return '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:6px 0">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+        + symbolLabel + actionBadge + scoreHtml
+        + '</div>' + pills + '</div>';
+}
+
 function addProphecy(data) {
     var feed = document.getElementById('feed');
     var el = document.createElement('div');
     el.className = 'prophecy-card';
 
-    // Trade action badge
+    // Check for discovery mode (multiple symbols)
+    var opps = data.opportunity_scores;
+    if (opps && opps.length > 1) {
+        // Discovery: render per-symbol cards
+        var cardsHtml = '';
+        for (var i = 0; i < opps.length; i++) {
+            cardsHtml += renderSymbolCard(opps[i]);
+        }
+        // AI narrative below the cards
+        var narrativeHtml = data.prophecy ? '<div class="prophecy-text" style="margin-top:10px">' + escapeHtml(data.prophecy) + '</div>' : '';
+
+        // Feedback widget
+        var feedbackHtml = renderFeedback(data);
+
+        el.innerHTML = cardsHtml + narrativeHtml + feedbackHtml;
+        feed.appendChild(el);
+        feed.scrollTop = feed.scrollHeight;
+        return;
+    }
+
+    // Single symbol: original layout
     var action = (data.trade_action || '').toLowerCase();
     var actionBadge = action ? '<span class="trade-action ' + action + '">' + escapeHtml(data.trade_action) + '</span>' : '';
-
-    // Score gauge
     var scoreHtml = data.oracle_score ? renderScoreGauge(data.oracle_score) : '';
-
-    // Metrics as pills
-    var pills = '<div class="trade-metrics">';
-    if (data.risk_reward) pills += '<div class="metric-pill"><span class="mp-label">R:R</span>' + renderRRBar(data.risk_reward) + '<span class="mp-value">1:' + data.risk_reward + '</span></div>';
-    if (data.edge !== undefined && data.edge !== null) {
-        var ec = data.edge > 0 ? 'positive' : data.edge < 0 ? 'negative' : 'amber';
-        pills += '<div class="metric-pill"><span class="mp-label">Edge</span><span class="mp-value ' + ec + '">' + (data.edge > 0 ? '+' : '') + data.edge + 'R</span></div>';
-    }
-    if (data.risk_dollars || data.risk_10k) {
-        var rv = Math.round(data.risk_dollars || data.risk_10k || 0);
-        pills += '<div class="metric-pill"><span class="mp-label">Risk</span><span class="mp-value negative">-$' + rv + '</span></div>';
-    }
-    if (data.reward_dollars || data.reward_10k) {
-        var rw = Math.round(data.reward_dollars || data.reward_10k || 0);
-        pills += '<div class="metric-pill"><span class="mp-label">Reward</span><span class="mp-value positive">+$' + rw + '</span></div>';
-    }
-    pills += '<div class="metric-pill"><span class="mp-label">Trades</span><span class="mp-value">' + (data.match_count || 0) + '</span></div>';
-    if (data.confidence) pills += '<div class="metric-pill"><span class="mp-label">Conf</span><span class="mp-value">' + data.confidence + '</span></div>';
-    pills += '</div>';
-
-    // Feedback widget (keep existing logic)
-    var feedbackHtml = '';
-    if (lastQueryId && data.trade_action !== undefined) {
-        var qid = lastQueryId;
-        var isRich = (queryCount % 5 === 0);
-        if (isRich) {
-            feedbackHtml = '<div class="feedback-row" id="fb-' + qid + '">'
-                + '<span>How close was I?</span>'
-                + '<div class="fb-stars">'
-                + '<span class="fb-star" data-n="1" onclick="submitRating(\'' + qid + '\',1)">&#9734;</span>'
-                + '<span class="fb-star" data-n="2" onclick="submitRating(\'' + qid + '\',2)">&#9734;</span>'
-                + '<span class="fb-star" data-n="3" onclick="submitRating(\'' + qid + '\',3)">&#9734;</span>'
-                + '<span class="fb-star" data-n="4" onclick="submitRating(\'' + qid + '\',4)">&#9734;</span>'
-                + '<span class="fb-star" data-n="5" onclick="submitRating(\'' + qid + '\',5)">&#9734;</span>'
-                + '</div>'
-                + '<span style="margin-left:4px">Acted?</span>'
-                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',true)">Yes</button>'
-                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',false)">No</button>'
-                + '</div>';
-        } else {
-            feedbackHtml = '<div class="feedback-row" id="fb-' + qid + '">'
-                + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',1)">&#9650; Useful</button>'
-                + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',-1)">&#9660; Not useful</button>'
-                + '<span style="margin-left:8px">Acted?</span>'
-                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',true)">Yes</button>'
-                + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',false)">No</button>'
-                + '</div>';
-        }
-    }
+    var pills = renderMetricPills(data);
+    var feedbackHtml = renderFeedback(data);
 
     el.innerHTML = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">'
         + actionBadge + scoreHtml
@@ -1770,6 +1774,34 @@ function addProphecy(data) {
 
     feed.appendChild(el);
     feed.scrollTop = feed.scrollHeight;
+}
+
+function renderFeedback(data) {
+    if (!lastQueryId || data.trade_action === undefined) return '';
+    var qid = lastQueryId;
+    var isRich = (queryCount % 5 === 0);
+    if (isRich) {
+        return '<div class="feedback-row" id="fb-' + qid + '">'
+            + '<span>How close was I?</span>'
+            + '<div class="fb-stars">'
+            + '<span class="fb-star" data-n="1" onclick="submitRating(\'' + qid + '\',1)">&#9734;</span>'
+            + '<span class="fb-star" data-n="2" onclick="submitRating(\'' + qid + '\',2)">&#9734;</span>'
+            + '<span class="fb-star" data-n="3" onclick="submitRating(\'' + qid + '\',3)">&#9734;</span>'
+            + '<span class="fb-star" data-n="4" onclick="submitRating(\'' + qid + '\',4)">&#9734;</span>'
+            + '<span class="fb-star" data-n="5" onclick="submitRating(\'' + qid + '\',5)">&#9734;</span>'
+            + '</div>'
+            + '<span style="margin-left:4px">Acted?</span>'
+            + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',true)">Yes</button>'
+            + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',false)">No</button>'
+            + '</div>';
+    }
+    return '<div class="feedback-row" id="fb-' + qid + '">'
+        + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',1)">&#9650; Useful</button>'
+        + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',-1)">&#9660; Not useful</button>'
+        + '<span style="margin-left:8px">Acted?</span>'
+        + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',true)">Yes</button>'
+        + '<button class="fb-btn" onclick="submitActed(\'' + qid + '\',false)">No</button>'
+        + '</div>';
 }
 
 function addError(msg) {
