@@ -272,7 +272,7 @@
         <div class="stats" id="stats">
             <div class="stat">
                 <div class="stat-value" id="statExchanges">51</div>
-                <div class="stat-label">Exchanges</div>
+                <div class="stat-label">Stock Exchanges</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="statSymbols">540</div>
@@ -280,28 +280,28 @@
             </div>
             <div class="stat">
                 <div class="stat-value" id="statAssets">6</div>
-                <div class="stat-label">Asset Classes</div>
+                <div class="stat-label">Types of Assets</div>
             </div>
             <div class="stat">
                 <div class="stat-value">200+</div>
-                <div class="stat-label">Languages</div>
+                <div class="stat-label">Supported Languages</div>
             </div>
         </div>
 
         <div class="pricing">
             <div class="price-card">
                 <div class="price-name">Launch</div>
-                <div class="price-amount">$1K <span>/mo</span></div>
+                <div class="price-amount">$1K <span>/month</span></div>
                 <div class="price-desc">Early access. Limited seats. 6 months, then standard pricing.</div>
             </div>
             <div class="price-card featured">
                 <div class="price-name">Standard</div>
-                <div class="price-amount">$3K <span>/mo</span></div>
+                <div class="price-amount">$3K <span>/month</span></div>
                 <div class="price-desc">Full access. Trade cards. Live scoring. All exchanges.</div>
             </div>
             <div class="price-card">
                 <div class="price-name">Institution</div>
-                <div class="price-amount">$10K+ <span>/mo</span></div>
+                <div class="price-amount">$10K+ <span>/month</span></div>
                 <div class="price-desc">API access. Usage-based. Integrate into your systems.</div>
             </div>
         </div>
@@ -314,9 +314,9 @@
         </div>
         <div class="form-group">
             <select id="tierSelect">
-                <option value="launch">Launch ($1K/mo)</option>
-                <option value="standard" selected>Standard ($3K/mo)</option>
-                <option value="institution">Institution ($10K+/mo)</option>
+                <option value="launch">Launch ($1K/month)</option>
+                <option value="standard" selected>Standard ($3K/month)</option>
+                <option value="institution">Institution ($10K+/month)</option>
             </select>
         </div>
         <button class="submit-btn" id="submitBtn" onclick="requestAccess()">Request Access</button>
@@ -427,7 +427,7 @@ function detectAndTranslate() {
 }
 
 function translatePage(lang) {
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, label, button, li, td, th, .subtitle, .price, .feature');
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, label, button, li, td, th, option, .subtitle, .price, .feature, .stat-label, .price-amount, .tier-name');
     elements.forEach(function(el) {
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
