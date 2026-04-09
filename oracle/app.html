@@ -1376,9 +1376,12 @@ async function showOnboardingStep(stepIdx) {
 
     if (step.type === 'single') {
         inner += '<div class="chip-group">';
+        // Pre-select value from IP detection or existing data
+        var preSelected = onboardingData[step.field] || '';
         for (var i = 0; i < step.options.length; i++) {
             var opt = step.options[i];
-            inner += '<div class="chip" data-value="' + opt.value + '" onclick="selectSingleChip(this, ' + stepIdx + ')">';
+            var isSelected = (opt.value === preSelected) ? ' selected' : '';
+            inner += '<div class="chip' + isSelected + '" data-value="' + opt.value + '" onclick="selectSingleChip(this, ' + stepIdx + ')">';
             inner += '<strong>' + escapeHtml(opt.label) + '</strong>';
             if (opt.desc) inner += '<br><span style="font-size:10px;color:var(--text-dim)">' + escapeHtml(opt.desc) + '</span>';
             inner += '</div>';
@@ -1982,10 +1985,13 @@ function detectIPLanguage() {
         .then(function(data) {
             var country = data.country_code || '';
             _ipLang = COUNTRY_LANG_MAP[country] || 'en';
+            // Pre-set onboarding language from IP detection
+            if (_ipLang !== 'en' && !onboardingData.preferred_language) {
+                onboardingData.preferred_language = _ipLang;
+            }
             if (_ipLang !== 'en') {
                 translateAuthScreen(_ipLang);
                 if (_ipLang === 'he' || _ipLang === 'ar') {
-                    // Only apply RTL to auth section, not the full chat
                     var authEl = document.getElementById('authScreen');
                     if (authEl) authEl.style.direction = 'rtl';
                 }
