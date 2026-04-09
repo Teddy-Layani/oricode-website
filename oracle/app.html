@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai https://ipapi.co; frame-ancestors 'none';">
     <meta http-equiv="X-Frame-Options" content="DENY">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <title>Oracle</title>
@@ -1967,6 +1967,61 @@ function escapeHtml(str) {
 
 // Start
 init();
+</script>
+<script>
+// IP-based language detection for login/onboarding screens
+var _ipLang = null;
+var COUNTRY_LANG_MAP = {
+    'IL': 'he', 'PS': 'he',
+    'SA': 'ar', 'AE': 'ar', 'EG': 'ar', 'JO': 'ar', 'LB': 'ar', 'IQ': 'ar', 'KW': 'ar', 'QA': 'ar', 'BH': 'ar', 'OM': 'ar',
+};
+
+function detectIPLanguage() {
+    fetch('https://ipapi.co/json/')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var country = data.country_code || '';
+            _ipLang = COUNTRY_LANG_MAP[country] || 'en';
+            if (_ipLang !== 'en') {
+                translateAuthScreen(_ipLang);
+                if (_ipLang === 'he' || _ipLang === 'ar') {
+                    // Only apply RTL to auth section, not the full chat
+                    var authEl = document.getElementById('authScreen');
+                    if (authEl) authEl.style.direction = 'rtl';
+                }
+            }
+        })
+        .catch(function() {});
+}
+
+function translateAuthScreen(lang) {
+    // Only translate auth-related elements, not the chat UI (which uses profile language)
+    var authEl = document.getElementById('authScreen');
+    if (!authEl) return;
+    var elements = authEl.querySelectorAll('h1, h2, p, label, button, span, a');
+    elements.forEach(function(el) {
+        var text = el.textContent.trim();
+        if (!text || text.length < 2 || text.length > 300) return;
+        if (/^[\d\s$%+\-.,]+$/.test(text)) return;
+        if (el.dataset.translated) return;
+        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(text) + '&lang=' + lang)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.translated && d.translated !== text) {
+                el.textContent = d.translated;
+                el.dataset.translated = '1';
+            }
+        })
+        .catch(function() {});
+    });
+}
+
+// Detect on load, only if not already logged in
+if (!localStorage.getItem('oracle_seat_key')) {
+    window.addEventListener('load', function() {
+        setTimeout(detectIPLanguage, 300);
+    });
+}
 </script>
 </body>
 </html>

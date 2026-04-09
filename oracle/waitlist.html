@@ -403,5 +403,51 @@ async function requestAccess() {
 document.getElementById('emailInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') requestAccess(); });
 document.getElementById('nameInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') requestAccess(); });
 </script>
+
+<script>
+var COUNTRY_LANG = {
+    'IL': 'he', 'PS': 'he',
+    'SA': 'ar', 'AE': 'ar', 'EG': 'ar', 'JO': 'ar', 'LB': 'ar', 'IQ': 'ar', 'KW': 'ar', 'QA': 'ar', 'BH': 'ar', 'OM': 'ar',
+};
+
+function detectAndTranslate() {
+    fetch('https://ipapi.co/json/')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var country = data.country_code || '';
+            var lang = COUNTRY_LANG[country];
+            if (lang && lang !== 'en') {
+                translatePage(lang);
+                if (lang === 'he' || lang === 'ar') {
+                    document.body.style.direction = 'rtl';
+                }
+            }
+        })
+        .catch(function() {});
+}
+
+function translatePage(lang) {
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, label, button, li, td, th, .subtitle, .price, .feature');
+    elements.forEach(function(el) {
+        var text = el.textContent.trim();
+        if (!text || text.length < 2 || text.length > 500) return;
+        if (/^[\d\s$%+\-.,\/]+$/.test(text)) return;
+        if (el.dataset.translated) return;
+        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(text) + '&lang=' + lang)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.translated && d.translated !== text) {
+                el.textContent = d.translated;
+                el.dataset.translated = '1';
+            }
+        })
+        .catch(function() {});
+    });
+}
+
+window.addEventListener('load', function() {
+    setTimeout(detectAndTranslate, 300);
+});
+</script>
 </body>
 </html>
