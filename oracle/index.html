@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Beast — Oricode Trading Intelligence</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai https://ipapi.co; frame-ancestors 'none';">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" crossorigin="anonymous">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111'/><text x='16' y='23' font-size='20' font-weight='bold' text-anchor='middle' fill='%23d4a017' font-family='Georgia'>O</text></svg>">
@@ -295,9 +295,73 @@ function loadBeastData() {
         });
 }
 
+// IP-based language detection + translation
+var TRANSLATIONS = {
+    'he': {
+        'THE BEAST': '\u05d4\u05d7\u05d9\u05d4',
+        'Autonomous Trading Intelligence': '\u05d1\u05d9\u05e0\u05d4 \u05de\u05e1\u05d7\u05e8\u05d9\u05ea \u05d0\u05d5\u05d8\u05d5\u05e0\u05d5\u05de\u05d9\u05ea',
+        'Exchanges': '\u05d1\u05d5\u05e8\u05e1\u05d5\u05ea',
+        'Verified Trades': '\u05e2\u05e1\u05e7\u05d0\u05d5\u05ea \u05de\u05d0\u05d5\u05de\u05ea\u05d5\u05ea',
+        'Asset Classes': '\u05e1\u05d5\u05d2\u05d9 \u05e0\u05db\u05e1\u05d9\u05dd',
+        'Since Feb 2026': '\u05de\u05d0\u05d6 \u05e4\u05d1\u05e8\u05d5\u05d0\u05e8 2026',
+        'Sharpe Ratio': '\u05de\u05d3\u05d3 \u05e9\u05d0\u05e8\u05e4',
+        'Global Reach': '\u05db\u05d9\u05e1\u05d5\u05d9 \u05e2\u05d5\u05dc\u05de\u05d9',
+        'Win Rate': '\u05d0\u05d7\u05d5\u05d6 \u05d4\u05e6\u05dc\u05d7\u05d4',
+        'Statistically Significant': '\u05de\u05e9\u05de\u05e2\u05d5\u05ea\u05d9 \u05e1\u05d8\u05d8\u05d9\u05e1\u05d8\u05d9\u05ea',
+        'across all trades': '\u05e2\u05dc \u05e4\u05e0\u05d9 \u05db\u05dc \u05d4\u05e2\u05e1\u05e7\u05d0\u05d5\u05ea',
+        'Backed by real executions, not backtests. Every number is verified.': '\u05de\u05d1\u05d5\u05e1\u05e1 \u05e2\u05dc \u05d1\u05d9\u05e6\u05d5\u05e2\u05d9\u05dd \u05d0\u05de\u05d9\u05ea\u05d9\u05d9\u05dd, \u05dc\u05d0 \u05d1\u05d3\u05d9\u05e7\u05d5\u05ea \u05dc\u05d0\u05d7\u05d5\u05e8. \u05db\u05dc \u05de\u05e1\u05e4\u05e8 \u05de\u05d0\u05d5\u05de\u05ea.',
+        'The Oracle sees what you can\'t.': '\u05d4\u05d0\u05d5\u05e8\u05d0\u05e7\u05dc \u05e8\u05d5\u05d0\u05d4 \u05de\u05d4 \u05e9\u05d0\u05ea\u05d4 \u05dc\u05d0.',
+        '5 early access seats': '5 \u05de\u05d5\u05e9\u05d1\u05d9\u05dd \u05dc\u05d2\u05d9\u05e9\u05d4 \u05de\u05d5\u05e7\u05d3\u05de\u05ea',
+        'Get Oracle Access': '\u05e7\u05d1\u05dc \u05d2\u05d9\u05e9\u05d4 \u05dc\u05d0\u05d5\u05e8\u05d0\u05e7\u05dc',
+        'Cancel anytime': '\u05d1\u05d9\u05d8\u05d5\u05dc \u05d1\u05db\u05dc \u05e2\u05ea',
+        'Already have a seat key? Enter the Oracle': '\u05db\u05d1\u05e8 \u05d9\u05e9 \u05dc\u05da \u05de\u05e4\u05ea\u05d7? \u05d4\u05d9\u05db\u05e0\u05e1 \u05dc\u05d0\u05d5\u05e8\u05d0\u05e7\u05dc',
+    },
+    'ar': {
+        'THE BEAST': '\u0627\u0644\u0648\u062d\u0634',
+        'Autonomous Trading Intelligence': '\u0630\u0643\u0627\u0621 \u062a\u062f\u0627\u0648\u0644 \u0645\u0633\u062a\u0642\u0644',
+        'Get Oracle Access': '\u0627\u062d\u0635\u0644 \u0639\u0644\u0649 \u0627\u0644\u0648\u0635\u0648\u0644',
+    }
+};
+
+var COUNTRY_LANG = {
+    'IL': 'he', 'PS': 'he',
+    'SA': 'ar', 'AE': 'ar', 'EG': 'ar', 'JO': 'ar', 'LB': 'ar', 'IQ': 'ar', 'KW': 'ar', 'QA': 'ar', 'BH': 'ar', 'OM': 'ar',
+};
+
+function detectAndTranslate() {
+    fetch('https://ipapi.co/json/')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var country = data.country_code || '';
+            var lang = COUNTRY_LANG[country];
+            if (lang && TRANSLATIONS[lang]) {
+                translatePage(lang);
+                if (lang === 'he' || lang === 'ar') {
+                    document.body.style.direction = 'rtl';
+                }
+            }
+        })
+        .catch(function() {});
+}
+
+function translatePage(lang) {
+    var dict = TRANSLATIONS[lang];
+    if (!dict) return;
+    // Translate text nodes
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+    while (walker.nextNode()) {
+        var node = walker.currentNode;
+        var text = node.textContent.trim();
+        if (dict[text]) {
+            node.textContent = node.textContent.replace(text, dict[text]);
+        }
+    }
+}
+
 // Start on load
 window.addEventListener('load', function() {
     setTimeout(loadBeastData, 300);
+    setTimeout(detectAndTranslate, 500);
 });
 </script>
 
