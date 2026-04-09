@@ -253,58 +253,42 @@ function animateDonut(stocks, crypto, forex, comm) {
 
 // Load live data
 function loadBeastData() {
-    // Counters
-    animateCounter(document.getElementById('exchangeCount'), 54, 2000);
-    // Fetch real trade count from API
-    var _tradeCount = 46800;
+    // Fetch all live stats from public API
     fetch('https://api-trading.oricode.ai/api/oracle/status')
         .then(function(r) { return r.json(); })
         .then(function(d) {
-            if (d.trade_count) _tradeCount = d.trade_count;
-            animateCounter(document.getElementById('tradeCount'), _tradeCount, 2500, '+');
-            var stc = document.getElementById('storyTradeCount');
-            if (stc) stc.textContent = _tradeCount.toLocaleString();
+            renderStats(d.exchange_count || 54, d.trade_count || 46800, d.sharpe_30d || 1.26, d.win_rate || 44);
         })
         .catch(function() {
-            animateCounter(document.getElementById('tradeCount'), _tradeCount, 2500, '+');
+            renderStats(54, 46800, 1.26, 44);
         });
+}
 
-    // Donut: stocks 40%, crypto 25%, forex 20%, commodities 15%
+function renderStats(exchanges, trades, sharpe, wr) {
+    // Counters
+    animateCounter(document.getElementById('exchangeCount'), exchanges, 2000);
+    animateCounter(document.getElementById('tradeCount'), trades, 2500, '+');
+
+    // Story trade count
+    var stc = document.getElementById('storyTradeCount');
+    if (stc) stc.textContent = trades.toLocaleString();
+    var et = document.getElementById('exchangeTotal');
+    if (et) et.textContent = exchanges;
+
+    // Donut
     animateDonut(40, 25, 20, 15);
 
-    // Try to fetch live Sharpe from API (no auth needed for this)
-    fetch('https://api-trading.oricode.ai/api/health')
-        .then(function(r) { return r.json(); })
-        .then(function() {
-            // Static values (updated periodically from real data)
-            var sharpe = 1.26;
-            var wr = 44;
+    // Sharpe gauge
+    var sharpeOffset = Math.max(0, 251 - (sharpe / 3 * 251));
+    animateArc(document.getElementById('sharpeArc'), sharpeOffset, 2000);
+    document.getElementById('sharpeValue').textContent = sharpe.toFixed(2);
+    document.getElementById('sharpeLabel').textContent = sharpe > 0 ? 'Statistically Significant' : 'Calibrating';
+    document.getElementById('sharpeValue').style.color = sharpe >= 1.0 ? '#22c55e' : sharpe >= 0 ? '#eab308' : '#ef4444';
 
-            // Sharpe gauge: map 0-3 to arc offset 251-0
-            var sharpeOffset = Math.max(0, 251 - (sharpe / 3 * 251));
-            animateArc(document.getElementById('sharpeArc'), sharpeOffset, 2000);
-            document.getElementById('sharpeValue').textContent = sharpe.toFixed(2);
-            document.getElementById('sharpeLabel').textContent = 'Statistically Significant';
-            if (sharpe >= 1.0) {
-                document.getElementById('sharpeValue').style.color = '#22c55e';
-            } else if (sharpe >= 0) {
-                document.getElementById('sharpeValue').style.color = '#eab308';
-            } else {
-                document.getElementById('sharpeValue').style.color = '#ef4444';
-            }
-
-            // Win rate ring
-            animateRing(document.getElementById('wrRing'), wr, 2000);
-            document.getElementById('wrValue').textContent = wr + '%';
-            document.getElementById('wrLabel').textContent = 'across all trades';
-        })
-        .catch(function() {
-            document.getElementById('sharpeValue').textContent = '1.26';
-            document.getElementById('sharpeLabel').textContent = 'Verified';
-            animateRing(document.getElementById('wrRing'), 44, 2000);
-            document.getElementById('wrValue').textContent = '44%';
-            document.getElementById('wrLabel').textContent = 'across all trades';
-        });
+    // Win rate ring
+    animateRing(document.getElementById('wrRing'), wr, 2000);
+    document.getElementById('wrValue').textContent = wr + '%';
+    document.getElementById('wrLabel').textContent = 'across all transactions';
 }
 
 // IP-based language detection + translation via Google Translate API
