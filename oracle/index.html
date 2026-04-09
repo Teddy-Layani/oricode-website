@@ -136,6 +136,20 @@
         <div class="gauge-sublabel" id="sharpeLabel">loading...</div>
     </div>
 
+    <!-- Sortino Gauge -->
+    <div class="gauge-container">
+        <div class="gauge-label">Sortino Ratio</div>
+        <svg class="gauge-svg" viewBox="0 0 200 110">
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1a1a2e" stroke-width="14" stroke-linecap="round"/>
+            <path d="M 20 100 A 80 80 0 0 1 60 30" fill="none" stroke="#ef4444" stroke-width="14" stroke-linecap="round" opacity="0.3"/>
+            <path d="M 60 30 A 80 80 0 0 1 100 20" fill="none" stroke="#eab308" stroke-width="14" stroke-linecap="round" opacity="0.3"/>
+            <path d="M 100 20 A 80 80 0 0 1 180 100" fill="none" stroke="#22c55e" stroke-width="14" stroke-linecap="round" opacity="0.3"/>
+            <path id="sortinoArc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#22c55e" stroke-width="14" stroke-linecap="round" stroke-dasharray="251" stroke-dashoffset="251"/>
+        </svg>
+        <div class="gauge-value" id="sortinoValue">--</div>
+        <div class="gauge-sublabel" id="sortinoLabel">loading...</div>
+    </div>
+
     <!-- Exchange Donut -->
     <div class="donut-container">
         <div class="gauge-label">Global Reach</div>
@@ -274,14 +288,18 @@ function loadBeastData() {
     fetch('https://api-trading.oricode.ai/api/oracle/status')
         .then(function(r) { return r.json(); })
         .then(function(d) {
-            renderStats(d.exchange_count || 54, d.trade_count || 46800, d.sharpe_30d || 1.26, d.win_rate || 44);
+            renderStats(d);
         })
         .catch(function() {
-            renderStats(54, 46800, 1.26, 44);
+            renderStats({exchange_count: 54, trade_count: 46800, sharpe_30d: 1.26, win_rate: 44, sortino_30d: 2.50});
         });
 }
 
-function renderStats(exchanges, trades, sharpe, wr) {
+function renderStats(d) {
+    var exchanges = d.exchange_count || 54;
+    var trades = d.trade_count || 46800;
+    var sharpe = d.sharpe_30d || 1.26;
+    var wr = d.win_rate || 44;
     // Counters
     animateCounter(document.getElementById('exchangeCount'), exchanges, 2000);
     animateCounter(document.getElementById('tradeCount'), trades, 2500, '+');
@@ -301,6 +319,14 @@ function renderStats(exchanges, trades, sharpe, wr) {
     document.getElementById('sharpeValue').textContent = sharpe.toFixed(2);
     document.getElementById('sharpeLabel').textContent = sharpe > 0 ? 'Statistically Significant' : 'Calibrating';
     document.getElementById('sharpeValue').style.color = sharpe >= 1.0 ? '#22c55e' : sharpe >= 0 ? '#eab308' : '#ef4444';
+
+    // Sortino gauge
+    var sortino = d.sortino_30d || 2.5;
+    var sortinoOffset = Math.max(0, 251 - (Math.min(sortino, 6) / 6 * 251));
+    animateArc(document.getElementById('sortinoArc'), sortinoOffset, 2000);
+    document.getElementById('sortinoValue').textContent = sortino.toFixed(2);
+    document.getElementById('sortinoLabel').textContent = sortino > 1.0 ? 'Downside Protected' : 'Calibrating';
+    document.getElementById('sortinoValue').style.color = sortino >= 2.0 ? '#22c55e' : sortino >= 0 ? '#eab308' : '#ef4444';
 
     // Win rate ring
     animateRing(document.getElementById('wrRing'), wr, 2000);
