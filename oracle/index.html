@@ -160,7 +160,7 @@
         </p>
         <p class="story-text" id="story2">
             The Oracle is your access point. Ask any question and get answers based on
-            46,000 real trades. Not predictions. Real patterns from real markets.
+            <span id="storyTradeCount">46,000</span> real trades. Not predictions. Real patterns from real markets.
             Tested through market crashes, wars, and extreme volatility.
         </p>
         <p class="story-text" id="story3">
@@ -254,7 +254,19 @@ function animateDonut(stocks, crypto, forex, comm) {
 function loadBeastData() {
     // Counters
     animateCounter(document.getElementById('exchangeCount'), 54, 2000);
-    animateCounter(document.getElementById('tradeCount'), 46800, 2500, '+');
+    // Fetch real trade count from API
+    var _tradeCount = 46800;
+    fetch('https://api-trading.oricode.ai/api/oracle/status')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.trade_count) _tradeCount = d.trade_count;
+            animateCounter(document.getElementById('tradeCount'), _tradeCount, 2500, '+');
+            var stc = document.getElementById('storyTradeCount');
+            if (stc) stc.textContent = _tradeCount.toLocaleString();
+        })
+        .catch(function() {
+            animateCounter(document.getElementById('tradeCount'), _tradeCount, 2500, '+');
+        });
 
     // Donut: stocks 40%, crypto 25%, forex 20%, commodities 15%
     animateDonut(40, 25, 20, 15);
