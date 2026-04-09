@@ -1995,11 +1995,13 @@ function detectIPLanguage() {
 }
 
 function translateAuthScreen(lang) {
-    // Only translate auth-related elements, not the chat UI (which uses profile language)
     var authEl = document.getElementById('authScreen');
     if (!authEl) return;
-    var elements = authEl.querySelectorAll('h1, h2, p, label, button, span, a');
+    // Translate text elements
+    var elements = authEl.querySelectorAll('h1, h2, p, label, button, span, a, div');
     elements.forEach(function(el) {
+        // Skip elements with children that have their own text (avoid double-translate)
+        if (el.children.length > 0 && el.tagName !== 'BUTTON' && el.tagName !== 'A') return;
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 300) return;
         if (/^[\d\s$%+\-.,]+$/.test(text)) return;
@@ -2011,6 +2013,18 @@ function translateAuthScreen(lang) {
                 el.textContent = d.translated;
                 el.dataset.translated = '1';
             }
+        })
+        .catch(function() {});
+    });
+    // Translate placeholders
+    var inputs = authEl.querySelectorAll('input[placeholder]');
+    inputs.forEach(function(inp) {
+        var ph = inp.placeholder;
+        if (!ph || ph.length < 2) return;
+        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(ph) + '&lang=' + lang)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.translated) inp.placeholder = d.translated;
         })
         .catch(function() {});
     });

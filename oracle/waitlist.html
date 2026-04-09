@@ -276,7 +276,7 @@
             </div>
             <div class="stat">
                 <div class="stat-value" id="statSymbols">540</div>
-                <div class="stat-label">Symbols</div>
+                <div class="stat-label">Financial Instruments</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="statAssets">6</div>
@@ -427,7 +427,7 @@ function detectAndTranslate() {
 }
 
 function translatePage(lang) {
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, label, button, li, td, th, option, .subtitle, .price, .feature, .stat-label, .price-amount, .tier-name');
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, label, button, li, td, th, option, .subtitle, .price, .feature, .stat-label, .price-amount, .tier-name, .price-desc');
     elements.forEach(function(el) {
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
@@ -440,6 +440,17 @@ function translatePage(lang) {
                 el.textContent = d.translated;
                 el.dataset.translated = '1';
             }
+        })
+        .catch(function() {});
+    });
+    // Translate placeholders
+    document.querySelectorAll('input[placeholder]').forEach(function(inp) {
+        var ph = inp.placeholder;
+        if (!ph || ph.length < 2) return;
+        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(ph) + '&lang=' + lang)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.translated) inp.placeholder = d.translated;
         })
         .catch(function() {});
     });
