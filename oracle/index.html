@@ -14,6 +14,8 @@
 
         .hero { text-align: center; padding: 80px 20px 40px; position: relative; }
         .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,160,23,0.06) 0%, transparent 70%); pointer-events: none; }
+        .hero-img { width: 200px; height: 200px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 0 30px rgba(212,160,23,0.3)); }
+        .oracle-img { width: 100%; max-width: 320px; border-radius: 16px; margin: 0 auto 24px; display: block; filter: drop-shadow(0 0 20px rgba(212,160,23,0.2)); }
         .hero h1 { font-size: 3.5em; font-weight: 700; letter-spacing: 4px; color: #d4a017; margin-bottom: 8px; }
         .hero .subtitle { font-size: 1.1em; color: #8a8a9a; font-weight: 300; margin-bottom: 40px; }
 
@@ -73,6 +75,7 @@
 <body>
 
 <div class="hero">
+    <img src="beast.png" alt="The Beast" class="hero-img">
     <h1>THE BEAST</h1>
     <p class="subtitle">Autonomous Trading Intelligence</p>
 </div>
@@ -149,6 +152,7 @@
 
 <div class="story-section">
     <div class="story-content">
+        <img src="oracle.png" alt="The Oracle" class="oracle-img">
         <p class="story-text">
             The Beast hunts across 54 exchanges, day and night. It reads the pulse of markets
             in Tokyo before London wakes. It knows which hour favors NVDA and which hour
