@@ -341,10 +341,24 @@ function renderStats(d) {
     animateRing(document.getElementById('wrRing'), wr, 2000);
     document.getElementById('wrValue').textContent = wr + '%';
     document.getElementById('wrLabel').textContent = 'across all transactions';
+
+    // Re-translate dynamic labels if language was detected
+    if (_detectedLang && _detectedLang !== 'en') {
+        ['sharpeLabel', 'sortinoLabel', 'wrLabel'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && el.textContent.trim()) {
+                fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(el.textContent.trim()) + '&lang=' + _detectedLang)
+                .then(function(r) { return r.json(); })
+                .then(function(d) { if (d.translated) el.textContent = d.translated; })
+                .catch(function() {});
+            }
+        });
+    }
 }
 
 // IP-based language detection + translation via Google Translate API
 
+var _detectedLang = null;
 var COUNTRY_LANG = {
     'IL': 'he', 'PS': 'he',
     'SA': 'ar', 'AE': 'ar', 'EG': 'ar', 'JO': 'ar', 'LB': 'ar', 'IQ': 'ar', 'KW': 'ar', 'QA': 'ar', 'BH': 'ar', 'OM': 'ar',
@@ -357,6 +371,7 @@ function detectAndTranslate() {
             var country = data.country_code || '';
             var lang = COUNTRY_LANG[country];
             if (lang && lang !== 'en') {
+                _detectedLang = lang;
                 translatePage(lang);
                 if (lang === 'he' || lang === 'ar') {
                     document.body.style.direction = 'rtl';
