@@ -2054,6 +2054,15 @@ function translateAuthScreen(lang) {
         })
         .catch(function() {});
     });
+    // Translate header tagline (outside authScreen)
+    var headerSub = document.querySelector('.header-sub');
+    if (headerSub && !headerSub.dataset.translated) {
+        var ht = headerSub.textContent.trim();
+        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(ht) + '&lang=' + lang)
+        .then(function(r) { return r.json(); })
+        .then(function(d) { if (d.translated) { headerSub.textContent = d.translated; headerSub.dataset.translated = '1'; } })
+        .catch(function() {});
+    }
     // Translate placeholders
     var inputs = authEl.querySelectorAll('input[placeholder]');
     inputs.forEach(function(inp) {
