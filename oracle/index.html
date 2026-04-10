@@ -14,6 +14,9 @@
 
         .hero { text-align: center; padding: 80px 20px 40px; position: relative; }
         .hero::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(212,160,23,0.06) 0%, transparent 70%); pointer-events: none; }
+        .hero-header { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 16px 0; }
+        .oracle-mark-sm { width: 28px; height: 28px; background: #111; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #d4a017; font-weight: 700; font-family: Georgia, serif; box-shadow: 0 0 8px rgba(212,160,23,0.2); }
+        .hero-tagline { font-size: 0.8em; color: #555; letter-spacing: 1px; }
         .oracle-mark-landing { width: 48px; height: 48px; background: #111; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #d4a017; font-weight: 700; font-family: Georgia, serif; margin: 0 auto 16px; box-shadow: 0 0 16px rgba(212,160,23,0.25); }
         .hero-img { width: 200px; height: 200px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 0 30px rgba(212,160,23,0.3)); }
         .oracle-img { width: 100%; max-width: 320px; border-radius: 16px; margin: 0 auto 24px; display: block; filter: drop-shadow(0 0 20px rgba(212,160,23,0.2)); }
@@ -91,6 +94,11 @@
     </style>
 </head>
 <body>
+
+<div class="hero-header">
+    <div class="oracle-mark-sm">O</div>
+    <span class="hero-tagline">Oracle &middot; Prophecy from real market history</span>
+</div>
 
 <div class="hero">
     <img src="/oracle/beast.png" alt="The Beast" class="hero-img">
