@@ -2054,10 +2054,15 @@ function translateAuthScreen(lang) {
         })
         .catch(function() {});
     });
-    // Translate header tagline (outside authScreen)
+    // Translate header tagline (outside authScreen) + apply RTL to header
     var headerSub = document.querySelector('.header-sub');
     if (headerSub && !headerSub.dataset.translated) {
         var ht = headerSub.textContent.trim();
+        if (lang === 'he' || lang === 'ar') {
+            headerSub.style.direction = 'rtl';
+            var header = document.querySelector('.header');
+            if (header) header.style.direction = 'rtl';
+        }
         fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(ht) + '&lang=' + lang)
         .then(function(r) { return r.json(); })
         .then(function(d) { if (d.translated) { headerSub.textContent = d.translated; headerSub.dataset.translated = '1'; } })
