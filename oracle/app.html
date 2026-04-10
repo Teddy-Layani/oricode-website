@@ -833,7 +833,7 @@
             <div class="oracle-mark">O</div>
             <div>
                 <div class="header-title">Oracle</div>
-                <div class="header-sub">Prophecy from real execution history</div>
+                <div class="header-sub">Prophecy from verified trading history</div>
             </div>
         </div>
         <div style="display:flex;align-items:center;gap:16px;">
@@ -1014,7 +1014,7 @@ async function checkStatus() {
             // Dynamic tagline
             var tag = document.getElementById('authTagline');
             if (tag && d.exchanges) {
-                tag.textContent = 'Prophecy powered by real market execution across ' + d.exchanges + ' exchanges and ' + d.asset_classes + ' asset classes.';
+                tag.textContent = 'Prophecy from verified trading history across ' + d.exchanges + ' stock exchanges and ' + d.asset_classes + ' types of assets.';
             }
             // Store exchange list for onboarding
             if (d.exchange_list) {
