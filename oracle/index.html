@@ -17,6 +17,8 @@
         .hero-header { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 20px 16px 0; }
         .oracle-mark-sm { width: 28px; height: 28px; background: #111; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #d4a017; font-weight: 700; font-family: Georgia, serif; box-shadow: 0 0 8px rgba(212,160,23,0.2); }
         .hero-tagline { font-size: 0.8em; color: #555; letter-spacing: 1px; }
+        .lang-toggle { background: none; border: 1px solid #333; color: #888; font-size: 0.65em; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; letter-spacing: 1px; transition: all 0.2s; }
+        .lang-toggle:hover { border-color: #d4a017; color: #d4a017; }
         .oracle-mark-landing { width: 48px; height: 48px; background: #111; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #d4a017; font-weight: 700; font-family: Georgia, serif; margin: 0 auto 16px; box-shadow: 0 0 16px rgba(212,160,23,0.25); }
         .hero-img { width: 200px; height: 200px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 0 30px rgba(212,160,23,0.3)); }
         .oracle-img { width: 100%; max-width: 320px; border-radius: 16px; margin: 0 auto 24px; display: block; filter: drop-shadow(0 0 20px rgba(212,160,23,0.2)); }
@@ -98,6 +100,7 @@
 <div class="hero-header">
     <div class="oracle-mark-sm">O</div>
     <span class="hero-tagline">Oracle &middot; Prophecy from verified trading history</span>
+    <button id="langToggle" class="lang-toggle" onclick="toggleLanguage()" style="display:none">EN</button>
 </div>
 
 <div class="hero">
@@ -373,6 +376,8 @@ function detectAndTranslate() {
             if (lang && lang !== 'en') {
                 _detectedLang = lang;
                 translatePage(lang);
+                var tb = document.getElementById('langToggle');
+                if (tb) tb.style.display = 'inline-block';
                 if (lang === 'he' || lang === 'ar') {
                     document.body.style.direction = 'rtl';
                 }
@@ -408,6 +413,35 @@ window.addEventListener('load', function() {
     setTimeout(loadBeastData, 300);
     setTimeout(detectAndTranslate, 500);
 });
+
+var _isEnglish = false;
+function toggleLanguage() {
+    var btn = document.getElementById('langToggle');
+    if (_isEnglish) {
+        // Switch back to detected language
+        _isEnglish = false;
+        btn.textContent = 'EN';
+        // Re-translate all elements
+        document.querySelectorAll('[data-original-text]').forEach(function(el) {
+            var orig = el.dataset.originalText;
+            fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(orig) + '&lang=' + _detectedLang)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.translated) el.textContent = d.translated; })
+            .catch(function() {});
+        });
+        if (_detectedLang === 'he' || _detectedLang === 'ar') {
+            document.body.style.direction = 'rtl';
+        }
+    } else {
+        // Switch to English
+        _isEnglish = true;
+        btn.textContent = _detectedLang ? _detectedLang.toUpperCase() : 'HE';
+        document.querySelectorAll('[data-original-text]').forEach(function(el) {
+            el.textContent = el.dataset.originalText;
+        });
+        document.body.style.direction = 'ltr';
+    }
+}
 </script>
 
 </body>
