@@ -277,7 +277,10 @@
 <body>
 
     <div class="container">
-        <div class="oracle-mark">O</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px">
+            <div class="oracle-mark">O</div>
+            <button id="langToggle" style="display:none;background:none;border:1px solid #333;color:#888;font-size:11px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:inherit" onclick="toggleLang()">EN</button>
+        </div>
         <h1>Oracle</h1>
         <p class="tagline">
             The AI trading co-pilot that speaks from real execution data.<br>
@@ -432,14 +435,35 @@ function detectAndTranslate() {
             var country = data.country_code || '';
             var lang = COUNTRY_LANG[country];
             if (lang && lang !== 'en') {
-                if (localStorage.getItem('oracle_lang_override') === 'en') return;
+                _detectedLang = lang;
+                var tb = document.getElementById('langToggle');
+                if (localStorage.getItem('oracle_lang_override') === 'en') {
+                    if (tb) { tb.style.display = 'inline-block'; tb.textContent = lang.toUpperCase(); }
+                    return;
+                }
                 translatePage(lang);
+                if (tb) tb.style.display = 'inline-block';
                 if (lang === 'he' || lang === 'ar') {
                     document.body.style.direction = 'rtl';
                 }
             }
         })
         .catch(function() {});
+}
+
+var _detectedLang = null;
+var _isEnglish = localStorage.getItem('oracle_lang_override') === 'en';
+function toggleLang() {
+    var btn = document.getElementById('langToggle');
+    if (_isEnglish) {
+        _isEnglish = false;
+        localStorage.removeItem('oracle_lang_override');
+        location.reload();
+    } else {
+        _isEnglish = true;
+        localStorage.setItem('oracle_lang_override', 'en');
+        location.reload();
+    }
 }
 
 function translatePage(lang) {

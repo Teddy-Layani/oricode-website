@@ -839,6 +839,7 @@
         <div style="display:flex;align-items:center;gap:16px;">
             <button class="history-toggle" id="historyToggle" onclick="toggleHistory()" style="display:none;">History</button>
             <button class="gear-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">&#9788;</button>
+            <button id="langToggleApp" style="display:none;background:none;border:1px solid var(--border);color:var(--text-dim);font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;font-family:inherit" onclick="toggleLangApp()">EN</button>
             <span class="streak-badge" id="streakBadge" style="display:none;"></span>
             <button class="gear-btn" id="gearBtn" onclick="showProfileEdit()" title="Edit profile" style="display:none;">&#9881;</button>
             <div class="seat-info" id="seatInfo"></div>
@@ -2015,8 +2016,13 @@ function detectIPLanguage() {
                 onboardingData.preferred_language = _ipLang;
             }
             if (_ipLang !== 'en') {
-                if (localStorage.getItem('oracle_lang_override') === 'en') return;
+                var tb = document.getElementById('langToggleApp');
+                if (localStorage.getItem('oracle_lang_override') === 'en') {
+                    if (tb) { tb.style.display = 'inline-block'; tb.textContent = _ipLang.toUpperCase(); }
+                    return;
+                }
                 translateAuthScreen(_ipLang);
+                if (tb) tb.style.display = 'inline-block';
                 if (_ipLang === 'he' || _ipLang === 'ar') {
                     var authEl = document.getElementById('authScreen');
                     if (authEl) authEl.style.direction = 'rtl';
@@ -2067,6 +2073,16 @@ if (!localStorage.getItem('oracle_seat_key')) {
     window.addEventListener('load', function() {
         setTimeout(detectIPLanguage, 300);
     });
+}
+
+function toggleLangApp() {
+    var isEn = localStorage.getItem('oracle_lang_override') === 'en';
+    if (isEn) {
+        localStorage.removeItem('oracle_lang_override');
+    } else {
+        localStorage.setItem('oracle_lang_override', 'en');
+    }
+    location.reload();
 }
 </script>
 </body>
