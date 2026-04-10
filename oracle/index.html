@@ -375,6 +375,13 @@ function detectAndTranslate() {
             var lang = COUNTRY_LANG[country];
             if (lang && lang !== 'en') {
                 _detectedLang = lang;
+                // Skip translation if user previously chose English
+                if (localStorage.getItem('oracle_lang_override') === 'en') {
+                    var tb = document.getElementById('langToggle');
+                    if (tb) { tb.style.display = 'inline-block'; tb.textContent = lang.toUpperCase(); }
+                    _isEnglish = true;
+                    return;
+                }
                 translatePage(lang);
                 var tb = document.getElementById('langToggle');
                 if (tb) tb.style.display = 'inline-block';
@@ -414,12 +421,13 @@ window.addEventListener('load', function() {
     setTimeout(detectAndTranslate, 500);
 });
 
-var _isEnglish = false;
+var _isEnglish = localStorage.getItem('oracle_lang_override') === 'en';
 function toggleLanguage() {
     var btn = document.getElementById('langToggle');
     if (_isEnglish) {
         // Switch back to detected language
         _isEnglish = false;
+        localStorage.removeItem('oracle_lang_override');
         btn.textContent = 'EN';
         // Re-translate all elements
         document.querySelectorAll('[data-original-text]').forEach(function(el) {
@@ -435,6 +443,7 @@ function toggleLanguage() {
     } else {
         // Switch to English
         _isEnglish = true;
+        localStorage.setItem('oracle_lang_override', 'en');
         btn.textContent = _detectedLang ? _detectedLang.toUpperCase() : 'HE';
         document.querySelectorAll('[data-original-text]').forEach(function(el) {
             el.textContent = el.dataset.originalText;

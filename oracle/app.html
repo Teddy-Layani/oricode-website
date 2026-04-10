@@ -2015,6 +2015,7 @@ function detectIPLanguage() {
                 onboardingData.preferred_language = _ipLang;
             }
             if (_ipLang !== 'en') {
+                if (localStorage.getItem('oracle_lang_override') === 'en') return;
                 translateAuthScreen(_ipLang);
                 if (_ipLang === 'he' || _ipLang === 'ar') {
                     var authEl = document.getElementById('authScreen');

@@ -432,6 +432,7 @@ function detectAndTranslate() {
             var country = data.country_code || '';
             var lang = COUNTRY_LANG[country];
             if (lang && lang !== 'en') {
+                if (localStorage.getItem('oracle_lang_override') === 'en') return;
                 translatePage(lang);
                 if (lang === 'he' || lang === 'ar') {
                     document.body.style.direction = 'rtl';
