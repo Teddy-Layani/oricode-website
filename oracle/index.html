@@ -375,14 +375,12 @@ function renderPricing(p) {
     var pp = document.getElementById('proPrice');
     if (pp) pp.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
 
-    // Institutional price: seat + estimated usage (1000 extra queries typical)
-    var instBase = seat;
-    var instUsage = Math.round(query * 1000);
-    var instTotal = instBase + instUsage;
+    // Institutional price: minimum 3x professional, floor $20K
+    var instPrice = Math.max(20000, Math.round(seat * 3 / 1000) * 1000);
     var ip = document.getElementById('instPrice');
-    if (ip) ip.innerHTML = '$' + (instTotal).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
+    if (ip) ip.innerHTML = '$' + (instPrice).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo + usage</span>';
     var ipn = document.getElementById('instPriceNote');
-    if (ipn) ipn.textContent = '$' + seat.toLocaleString() + ' seat + ~$' + instUsage.toLocaleString() + ' usage';
+    if (ipn) ipn.textContent = 'Includes 1,000 queries. Extra at $' + query.toFixed(2) + '/query';
 
     // Extra query prices (same rate for all tiers)
     var qpIds = ['queryPrice', 'foundingExtraPrice', 'instQueryPrice'];
