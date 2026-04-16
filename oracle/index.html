@@ -119,8 +119,8 @@
         <div class="stat-label">Decisions Analyzed</div>
     </div>
     <div class="stat-item">
-        <div class="stat-value">4</div>
-        <div class="stat-label">Types of Assets</div>
+        <div class="stat-value" id="pfValue">--</div>
+        <div class="stat-label">Profit Factor (30d)</div>
     </div>
     <div class="stat-item">
         <div class="stat-value"><span class="live-pulse"></span>LIVE</div>
@@ -325,8 +325,8 @@ function renderStats(d) {
     // Donut
     animateDonut(40, 25, 20, 15);
 
-    // Sharpe gauge
-    var sharpeOffset = Math.max(0, 251 - (sharpe / 3 * 251));
+    // Sharpe gauge (scale to 5.0 for headroom)
+    var sharpeOffset = Math.max(0, 251 - (Math.min(sharpe, 5) / 5 * 251));
     animateArc(document.getElementById('sharpeArc'), sharpeOffset, 2000);
     document.getElementById('sharpeValue').textContent = sharpe.toFixed(2);
     document.getElementById('sharpeLabel').textContent = sharpe > 0 ? 'Statistically Significant' : 'Calibrating';
@@ -334,16 +334,25 @@ function renderStats(d) {
 
     // Sortino gauge
     var sortino = d.sortino_30d || 2.5;
-    var sortinoOffset = Math.max(0, 251 - (Math.min(sortino, 6) / 6 * 251));
+    var sortinoOffset = Math.max(0, 251 - (Math.min(sortino, 15) / 15 * 251));
     animateArc(document.getElementById('sortinoArc'), sortinoOffset, 2000);
     document.getElementById('sortinoValue').textContent = sortino.toFixed(2);
     document.getElementById('sortinoLabel').textContent = sortino > 1.0 ? 'Downside Protected' : 'Calibrating';
     document.getElementById('sortinoValue').style.color = sortino >= 2.0 ? '#22c55e' : sortino >= 0 ? '#eab308' : '#ef4444';
 
-    // Win rate ring
-    animateRing(document.getElementById('wrRing'), wr, 2000);
-    document.getElementById('wrValue').textContent = wr + '%';
-    document.getElementById('wrLabel').textContent = 'across all transactions';
+    // Win rate ring (use 30d WR, fall back to all-time)
+    var wr30 = d.win_rate_30d || wr;
+    animateRing(document.getElementById('wrRing'), wr30, 2000);
+    document.getElementById('wrValue').textContent = wr30 + '%';
+    document.getElementById('wrLabel').textContent = 'live trades (30 days)';
+
+    // Profit factor
+    var pf = d.profit_factor_30d || 1.0;
+    var pfEl = document.getElementById('pfValue');
+    if (pfEl) {
+        pfEl.textContent = pf.toFixed(2);
+        pfEl.style.color = pf >= 1.5 ? '#22c55e' : pf >= 1.0 ? '#eab308' : '#ef4444';
+    }
 
     // Re-translate dynamic labels if language was detected
     if (_detectedLang && _detectedLang !== 'en') {
