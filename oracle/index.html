@@ -262,7 +262,7 @@
         <span class="badge badge-blue">FUNDS &amp; INSTITUTIONS</span>
         <h3>Institutional</h3>
         <div class="price" id="instPrice">--</div>
-        <div class="price-note">Performance-linked + metered usage.</div>
+        <div class="price-note" id="instPriceNote">Performance-linked + metered usage.</div>
         <div class="feature"><b>Unlimited seats</b></div>
         <div class="feature">Everything in Professional</div>
         <div class="feature"><b>1,000 queries/month</b> included</div>
@@ -375,9 +375,14 @@ function renderPricing(p) {
     var pp = document.getElementById('proPrice');
     if (pp) pp.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
 
-    // Institutional price (same formula, usage on top)
+    // Institutional price: seat + estimated usage (1000 extra queries typical)
+    var instBase = seat;
+    var instUsage = Math.round(query * 1000);
+    var instTotal = instBase + instUsage;
     var ip = document.getElementById('instPrice');
-    if (ip) ip.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo + usage</span>';
+    if (ip) ip.innerHTML = '$' + (instTotal).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
+    var ipn = document.getElementById('instPriceNote');
+    if (ipn) ipn.textContent = '$' + seat.toLocaleString() + ' seat + ~$' + instUsage.toLocaleString() + ' usage';
 
     // Extra query prices (same rate for all tiers)
     var qpIds = ['queryPrice', 'foundingExtraPrice', 'instQueryPrice'];
