@@ -252,7 +252,7 @@
         <div class="feature">Extra: <span id="foundingExtraPrice">--</span>/query</div>
         <a href="#" class="cta-btn" id="ctaFounding" onclick="startCheckout('founding')">Claim Founding Seat</a>
     </div>
-    <div class="pricing-card">
+    <div class="pricing-card pro">
         <h3>Professional</h3>
         <div class="price" id="proPrice">--</div>
         <div class="price-note">Performance-linked. Price moves with Sharpe.</div>
@@ -402,15 +402,21 @@ function renderPricing(p) {
         if (qp) qp.textContent = '$' + query.toFixed(2);
     }
 
-    // Founding seats: show card only if remaining > 0, otherwise hide entirely
+    // Founding vs Pro: founding available = pro greyed out. Founding sold = pro activates.
     var sr = document.getElementById('seatsRemaining');
     var foundingCard = document.querySelector('.pricing-card.founding');
+    var proCard = document.querySelector('.pricing-card.pro');
+    var proBtn = proCard ? proCard.querySelector('.cta-btn') : null;
     if (remaining > 0) {
+        // Founding available: show founding, grey out pro
         if (sr) sr.textContent = remaining + ' founding seat' + (remaining > 1 ? 's' : '') + ' remaining';
         if (foundingCard) foundingCard.style.display = '';
+        if (proCard) { proCard.style.opacity = '0.4'; proCard.style.pointerEvents = 'none'; }
     } else {
+        // Founding sold out: hide founding, activate pro
         if (sr) sr.textContent = '';
         if (foundingCard) foundingCard.style.display = 'none';
+        if (proCard) { proCard.style.opacity = '1'; proCard.style.pointerEvents = 'auto'; }
     }
 }
 
