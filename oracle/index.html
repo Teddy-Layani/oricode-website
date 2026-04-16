@@ -402,16 +402,15 @@ function renderPricing(p) {
         if (qp) qp.textContent = '$' + query.toFixed(2);
     }
 
-    // Founding seats remaining
+    // Founding seats: show card only if remaining > 0, otherwise hide entirely
     var sr = document.getElementById('seatsRemaining');
-    if (sr) {
-        if (remaining > 0) {
-            sr.textContent = remaining + ' founding seat' + (remaining > 1 ? 's' : '') + ' remaining';
-        } else {
-            sr.textContent = 'Founding seats sold out';
-            var fb = document.getElementById('ctaFounding');
-            if (fb) { fb.textContent = 'Sold Out'; fb.style.opacity = '0.5'; fb.style.pointerEvents = 'none'; }
-        }
+    var foundingCard = document.querySelector('.pricing-card.founding');
+    if (remaining > 0) {
+        if (sr) sr.textContent = remaining + ' founding seat' + (remaining > 1 ? 's' : '') + ' remaining';
+        if (foundingCard) foundingCard.style.display = '';
+    } else {
+        if (sr) sr.textContent = '';
+        if (foundingCard) foundingCard.style.display = 'none';
     }
 }
 
