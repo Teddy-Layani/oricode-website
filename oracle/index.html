@@ -238,12 +238,12 @@
         <span class="badge badge-gold">FOUNDING</span>
         <h3>Early Believer</h3>
         <div class="price">$5,000<span style="font-size:0.4em;color:#666">/mo</span></div>
-        <div class="price-note">Locked forever. Free usage.</div>
+        <div class="price-note">Locked forever. Price never changes.</div>
         <div class="feature"><b>3 seats only</b></div>
         <div class="feature">Historical + live scoring</div>
         <div class="feature">Discovery mode</div>
-        <div class="feature">Unlimited queries</div>
-        <div class="feature">Price never changes</div>
+        <div class="feature"><b>500 queries/month</b> included</div>
+        <div class="feature">Extra: <span id="foundingExtraPrice">--</span>/query</div>
         <a href="#" class="cta-btn" id="ctaFounding" onclick="startCheckout('founding')">Claim Founding Seat</a>
     </div>
     <div class="pricing-card">
@@ -253,7 +253,8 @@
         <div class="feature"><b>Unlimited seats</b></div>
         <div class="feature">Historical + live scoring</div>
         <div class="feature">Discovery mode</div>
-        <div class="feature">Usage: <span id="queryPrice">--</span>/query</div>
+        <div class="feature"><b>200 queries/month</b> included</div>
+        <div class="feature">Extra: <span id="queryPrice">--</span>/query</div>
         <div class="feature">Price drops apply immediately</div>
         <a href="#" class="cta-btn" onclick="startCheckout('professional')">Get Access</a>
     </div>
@@ -261,11 +262,12 @@
         <span class="badge badge-blue">FUNDS &amp; INSTITUTIONS</span>
         <h3>Institutional</h3>
         <div class="price" id="instPrice">--</div>
-        <div class="price-note">Performance-linked + usage. API access.</div>
+        <div class="price-note">Performance-linked + metered usage.</div>
         <div class="feature"><b>Unlimited seats</b></div>
         <div class="feature">Everything in Professional</div>
-        <div class="feature">Portfolio scan (batch)</div>
-        <div class="feature">REST API access</div>
+        <div class="feature"><b>1,000 queries/month</b> included</div>
+        <div class="feature">Extra: <span id="instQueryPrice">--</span>/query</div>
+        <div class="feature">REST API + batch scan</div>
         <div class="feature">Priority support</div>
         <a href="#" class="cta-btn" style="background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff" onclick="startCheckout('institutional')">Contact Us</a>
     </div>
@@ -377,9 +379,12 @@ function renderPricing(p) {
     var ip = document.getElementById('instPrice');
     if (ip) ip.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo + usage</span>';
 
-    // Query price
-    var qp = document.getElementById('queryPrice');
-    if (qp) qp.textContent = '$' + query.toFixed(2);
+    // Extra query prices (same rate for all tiers)
+    var qpIds = ['queryPrice', 'foundingExtraPrice', 'instQueryPrice'];
+    for (var i = 0; i < qpIds.length; i++) {
+        var qp = document.getElementById(qpIds[i]);
+        if (qp) qp.textContent = '$' + query.toFixed(2);
+    }
 
     // Founding seats remaining
     var sr = document.getElementById('seatsRemaining');
