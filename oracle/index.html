@@ -55,12 +55,26 @@
 
         .trust-line { text-align: center; color: #555; font-size: 0.85em; margin-bottom: 50px; font-style: italic; }
 
-        .cta-section { text-align: center; padding: 40px 20px 80px; }
+        .cta-section { text-align: center; padding: 40px 20px 20px; }
         .cta-section h2 { font-size: 1.5em; font-weight: 300; color: #e8e6e3; margin-bottom: 8px; }
         .cta-section .seats { font-size: 0.9em; color: #d4a017; margin-bottom: 24px; }
         .cta-btn { display: inline-block; padding: 16px 48px; background: linear-gradient(135deg, #d4a017, #8b6914); color: #0a0a0f; font-size: 1.1em; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s; }
         .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(212,160,23,0.3); }
         .cta-sub { font-size: 0.75em; color: #555; margin-top: 12px; }
+
+        .pricing-tiers { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 0 20px 40px; max-width: 1000px; margin: 0 auto; }
+        .pricing-card { background: #12121a; border: 1px solid #222; border-radius: 12px; padding: 28px 24px; flex: 1; min-width: 260px; max-width: 320px; text-align: center; }
+        .pricing-card.founding { border-color: #d4a017; }
+        .pricing-card.institutional { border-color: #3b82f6; }
+        .pricing-card h3 { font-size: 1.1em; font-weight: 400; color: #e8e6e3; margin: 0 0 4px; }
+        .pricing-card .price { font-size: 2em; font-weight: 600; color: #22c55e; margin: 8px 0; }
+        .pricing-card .price-note { font-size: 0.75em; color: #666; margin-bottom: 16px; }
+        .pricing-card .feature { font-size: 0.85em; color: #999; margin: 6px 0; }
+        .pricing-card .feature b { color: #e8e6e3; }
+        .pricing-card .badge { display: inline-block; font-size: 0.7em; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
+        .badge-gold { background: rgba(212,160,23,0.2); color: #d4a017; }
+        .badge-blue { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .pricing-formula { text-align: center; color: #444; font-size: 0.8em; padding: 0 20px 40px; font-family: monospace; }
 
         .oracle-link { text-align: center; padding-bottom: 60px; }
         .oracle-link a { color: #d4a017; text-decoration: none; font-size: 0.9em; border-bottom: 1px solid #8b6914; padding-bottom: 2px; }
@@ -216,9 +230,49 @@
 
 <div class="cta-section">
     <h2>The Oracle sees what you can't.</h2>
-    <p class="seats">5 early access seats</p>
-    <a href="/oracle/app.html" class="cta-btn" id="ctaBtn">Get Oracle Access</a>
-    <p class="cta-sub">$1,000/month &middot; Cancel anytime</p>
+    <p class="seats" id="seatsRemaining">3 founding seats</p>
+</div>
+
+<div class="pricing-tiers">
+    <div class="pricing-card founding">
+        <span class="badge badge-gold">FOUNDING</span>
+        <h3>Early Believer</h3>
+        <div class="price">$5,000<span style="font-size:0.4em;color:#666">/mo</span></div>
+        <div class="price-note">Locked forever. Free usage.</div>
+        <div class="feature"><b>3 seats only</b></div>
+        <div class="feature">Historical + live scoring</div>
+        <div class="feature">Discovery mode</div>
+        <div class="feature">Unlimited queries</div>
+        <div class="feature">Price never changes</div>
+        <a href="#" class="cta-btn" id="ctaFounding" onclick="startCheckout('founding')">Claim Founding Seat</a>
+    </div>
+    <div class="pricing-card">
+        <h3>Professional</h3>
+        <div class="price" id="proPrice">--</div>
+        <div class="price-note">Performance-linked. Price moves with Sharpe.</div>
+        <div class="feature"><b>Unlimited seats</b></div>
+        <div class="feature">Historical + live scoring</div>
+        <div class="feature">Discovery mode</div>
+        <div class="feature">Usage: <span id="queryPrice">--</span>/query</div>
+        <div class="feature">Price drops apply immediately</div>
+        <a href="#" class="cta-btn" onclick="startCheckout('professional')">Get Access</a>
+    </div>
+    <div class="pricing-card institutional">
+        <span class="badge badge-blue">FUNDS &amp; INSTITUTIONS</span>
+        <h3>Institutional</h3>
+        <div class="price" id="instPrice">--</div>
+        <div class="price-note">Performance-linked + usage. API access.</div>
+        <div class="feature"><b>Unlimited seats</b></div>
+        <div class="feature">Everything in Professional</div>
+        <div class="feature">Portfolio scan (batch)</div>
+        <div class="feature">REST API access</div>
+        <div class="feature">Priority support</div>
+        <a href="#" class="cta-btn" style="background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff" onclick="startCheckout('institutional')">Contact Us</a>
+    </div>
+</div>
+
+<div class="pricing-formula">
+    Seat = $3K + ($2K &times; (Sharpe - 2.0)) &nbsp;&middot;&nbsp; Query = $0.50 + ($0.10 &times; Sharpe) &nbsp;&middot;&nbsp; The Beast sets the price.
 </div>
 
 <div class="oracle-link">
@@ -296,15 +350,71 @@ function animateDonut(stocks, crypto, forex, comm) {
 
 // Load live data
 function loadBeastData() {
-    // Fetch all live stats from public API
     fetch('https://api-trading.oricode.ai/api/oracle/status')
         .then(function(r) { return r.json(); })
         .then(function(d) {
             renderStats(d);
+            // Load pricing from same response
+            if (d.pricing) {
+                renderPricing(d.pricing);
+            }
         })
         .catch(function() {
             renderStats({exchange_count: 54, trade_count: 46800, sharpe_30d: 1.26, win_rate: 44, sortino_30d: 2.50});
         });
+}
+
+function renderPricing(p) {
+    var seat = p.seat_price || 9000;
+    var query = p.query_price || 1.00;
+    var remaining = p.founding_remaining || 0;
+
+    // Professional price
+    var pp = document.getElementById('proPrice');
+    if (pp) pp.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
+
+    // Institutional price (same formula, usage on top)
+    var ip = document.getElementById('instPrice');
+    if (ip) ip.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo + usage</span>';
+
+    // Query price
+    var qp = document.getElementById('queryPrice');
+    if (qp) qp.textContent = '$' + query.toFixed(2);
+
+    // Founding seats remaining
+    var sr = document.getElementById('seatsRemaining');
+    if (sr) {
+        if (remaining > 0) {
+            sr.textContent = remaining + ' founding seat' + (remaining > 1 ? 's' : '') + ' remaining';
+        } else {
+            sr.textContent = 'Founding seats sold out';
+            var fb = document.getElementById('ctaFounding');
+            if (fb) { fb.textContent = 'Sold Out'; fb.style.opacity = '0.5'; fb.style.pointerEvents = 'none'; }
+        }
+    }
+}
+
+function startCheckout(tier) {
+    var email = prompt('Enter your email to get started:');
+    if (!email || email.indexOf('@') < 0) return;
+    if (tier === 'institutional') {
+        window.location.href = 'mailto:teddy.layani@gmail.com?subject=Oracle%20Institutional%20Access&body=Email:%20' + email;
+        return;
+    }
+    fetch('https://api-trading.oricode.ai/api/oracle/checkout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email: email, tier: tier})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (d.url) {
+            window.location.href = d.url;
+        } else {
+            alert(d.error || 'Checkout not available yet.');
+        }
+    })
+    .catch(function() { alert('Checkout not available yet. Contact teddy.layani@gmail.com'); });
 }
 
 function renderStats(d) {
