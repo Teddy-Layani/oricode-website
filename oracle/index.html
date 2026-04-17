@@ -321,6 +321,20 @@
     </div>
 </div>
 
+<div class="edge-gauge-section" style="max-width:500px;margin:0 auto;padding:20px 24px 10px;">
+    <div style="background:#12121a;border:1px solid #1a1a2e;border-radius:10px;padding:20px 24px;">
+        <div class="edge-gauge-title" style="text-align:center;font-size:0.95em;color:#e8e6e3;margin-bottom:14px;">Signal Edge Quality</div>
+        <div style="position:relative;height:24px;background:#1a1a2e;border-radius:12px;overflow:hidden;">
+            <div id="edgeBar" style="height:100%;width:95%;border-radius:12px;background:linear-gradient(90deg,#ef4444 0%,#eab308 40%,#22c55e 70%);transition:width 1s ease;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+            <span id="edgeUsers" style="font-size:0.75em;color:#666;">0 members</span>
+            <span id="edgePercent" style="font-size:0.75em;color:#22c55e;font-weight:600;">95%</span>
+        </div>
+        <div class="edge-gauge-desc" style="text-align:center;font-size:0.75em;color:#555;margin-top:10px;">Fewer members = stronger signals. When quality drops, the community votes to protect the edge.</div>
+    </div>
+</div>
+
 <div class="trial-section" style="text-align:center;padding:20px 20px 10px;max-width:500px;margin:0 auto;">
     <div style="background:#12121a;border:1px solid #1a1a2e;border-radius:10px;padding:20px 24px;">
         <div class="trial-title" style="font-size:1.1em;color:#e8e6e3;margin-bottom:8px;">Not ready to commit?</div>
@@ -411,6 +425,7 @@ function loadBeastData() {
             // Load pricing from same response
             if (d.pricing) {
                 renderPricing(d.pricing);
+                renderEdgeGauge(d.pricing);
             }
         })
         .catch(function() {
@@ -457,6 +472,26 @@ function renderPricing(p) {
         if (foundingCard) foundingCard.style.display = 'none';
         if (proCard) { proCard.style.opacity = '1'; proCard.style.pointerEvents = 'auto'; }
     }
+}
+
+function renderEdgeGauge(p) {
+    // Edge quality = inverse of user density. Fewer users = higher quality.
+    var users = p.founding_remaining !== undefined ? (5 - p.founding_remaining) : 0;
+    // Add estimated pro users (from API if available, else 0)
+    var totalUsers = users;
+    var optimal = 50;
+    var critical = 150;
+    // Quality: 100% at 0 users, degrades linearly, floor at 20%
+    var quality = Math.max(20, Math.round(100 - (totalUsers / critical) * 80));
+    var bar = document.getElementById('edgeBar');
+    var pct = document.getElementById('edgePercent');
+    var usersEl = document.getElementById('edgeUsers');
+    if (bar) bar.style.width = quality + '%';
+    if (pct) {
+        pct.textContent = quality + '%';
+        pct.style.color = quality > 70 ? '#22c55e' : quality > 40 ? '#eab308' : '#ef4444';
+    }
+    if (usersEl) usersEl.textContent = totalUsers + ' member' + (totalUsers !== 1 ? 's' : '');
 }
 
 function startCheckout(tier) {
@@ -579,7 +614,7 @@ function detectAndTranslate() {
 
 function translatePage(lang) {
     // Collect all translatable elements
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc');
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-desc');
     elements.forEach(function(el) {
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
