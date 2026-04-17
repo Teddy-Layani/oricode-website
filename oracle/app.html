@@ -2047,6 +2047,10 @@ function detectIPLanguage() {
         .then(function(data) {
             var country = data.country_code || '';
             _ipLang = COUNTRY_LANG_MAP[country] || 'en';
+            // Save detected language for persistence across pages/login
+            if (_ipLang !== 'en') {
+                localStorage.setItem('oracle_detected_lang', _ipLang);
+            }
             // Pre-set onboarding language from IP detection
             if (_ipLang !== 'en' && !onboardingData.preferred_language) {
                 onboardingData.preferred_language = _ipLang;
@@ -2118,12 +2122,36 @@ function translateAuthScreen(lang) {
     });
 }
 
-// Detect on load, only if not already logged in
-if (!localStorage.getItem('oracle_seat_key')) {
-    window.addEventListener('load', function() {
+// Always detect language (persists across login)
+window.addEventListener('load', function() {
+    // If user chose EN, respect it
+    if (localStorage.getItem('oracle_lang_override') === 'en') {
+        _ipLang = 'en';
+        var tb = document.getElementById('langToggleApp');
+        var savedLang = localStorage.getItem('oracle_detected_lang');
+        if (tb && savedLang && savedLang !== 'en') {
+            tb.style.display = 'inline-block';
+            tb.textContent = savedLang.toUpperCase();
+        }
         setTimeout(detectIPLanguage, 300);
-    });
-}
+        return;
+    }
+    // Restore saved language
+    var savedLang = localStorage.getItem('oracle_detected_lang');
+    if (savedLang && savedLang !== 'en') {
+        _ipLang = savedLang;
+        if (_ipLang === 'he' || _ipLang === 'ar') {
+            document.body.style.direction = 'rtl';
+        }
+        var tb = document.getElementById('langToggleApp');
+        if (tb) tb.style.display = 'inline-block';
+        // If already logged in, translate chat immediately
+        if (localStorage.getItem('oracle_seat_key')) {
+            translateChatUI(_ipLang);
+        }
+    }
+    setTimeout(detectIPLanguage, 300);
+});
 
 function toggleLangApp() {
     var isEn = localStorage.getItem('oracle_lang_override') === 'en';
