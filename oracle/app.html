@@ -2124,32 +2124,49 @@ function translateAuthScreen(lang) {
 
 // Always detect language (persists across login)
 window.addEventListener('load', function() {
-    // If user chose EN, respect it
-    if (localStorage.getItem('oracle_lang_override') === 'en') {
+    var savedLang = localStorage.getItem('oracle_detected_lang') || '';
+    var overrideEn = localStorage.getItem('oracle_lang_override') === 'en';
+    var tb = document.getElementById('langToggleApp');
+
+    // If user explicitly chose EN
+    if (overrideEn) {
         _ipLang = 'en';
-        var tb = document.getElementById('langToggleApp');
-        var savedLang = localStorage.getItem('oracle_detected_lang');
+        // Show button to switch back to detected language
         if (tb && savedLang && savedLang !== 'en') {
             tb.style.display = 'inline-block';
             tb.textContent = savedLang.toUpperCase();
         }
-        setTimeout(detectIPLanguage, 300);
+        // Still detect IP to save lang for future toggle, but don't translate
+        setTimeout(function() {
+            fetch('https://ipapi.co/json/')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var country = data.country_code || '';
+                    var lang = COUNTRY_LANG_MAP[country];
+                    if (lang && lang !== 'en') {
+                        localStorage.setItem('oracle_detected_lang', lang);
+                        if (tb) { tb.style.display = 'inline-block'; tb.textContent = lang.toUpperCase(); }
+                    }
+                }).catch(function() {});
+        }, 300);
         return;
     }
-    // Restore saved language
-    var savedLang = localStorage.getItem('oracle_detected_lang');
+
+    // Restore saved non-EN language
     if (savedLang && savedLang !== 'en') {
         _ipLang = savedLang;
         if (_ipLang === 'he' || _ipLang === 'ar') {
             document.body.style.direction = 'rtl';
         }
-        var tb = document.getElementById('langToggleApp');
-        if (tb) tb.style.display = 'inline-block';
-        // If already logged in, translate chat immediately
+        if (tb) { tb.style.display = 'inline-block'; tb.textContent = 'EN'; }
+        // Translate auth screen or chat depending on login state
         if (localStorage.getItem('oracle_seat_key')) {
             translateChatUI(_ipLang);
+        } else {
+            translateAuthScreen(_ipLang);
         }
     }
+    // Detect IP for first-time visitors
     setTimeout(detectIPLanguage, 300);
 });
 
