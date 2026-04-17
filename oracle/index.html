@@ -323,9 +323,9 @@
 
 <div class="trial-section" style="text-align:center;padding:20px 20px 10px;max-width:500px;margin:0 auto;">
     <div style="background:#12121a;border:1px solid #1a1a2e;border-radius:10px;padding:20px 24px;">
-        <div style="font-size:1.1em;color:#e8e6e3;margin-bottom:8px;">Not ready to commit?</div>
-        <div style="font-size:0.85em;color:#888;margin-bottom:16px;">Try 10 free queries. Credit card required. 7 days. No charge unless you subscribe.</div>
-        <a href="#" class="cta-btn" style="padding:12px 36px;font-size:0.95em;background:linear-gradient(135deg,#333,#222);color:#e8e6e3;" onclick="startCheckout('trial')">Start Free Trial</a>
+        <div class="trial-title" style="font-size:1.1em;color:#e8e6e3;margin-bottom:8px;">Not ready to commit?</div>
+        <div class="trial-desc" style="font-size:0.85em;color:#888;margin-bottom:16px;">Try 10 free queries. Credit card required. 7 days. No charge unless you subscribe.</div>
+        <a href="#" class="cta-btn trial-btn" style="padding:12px 36px;font-size:0.95em;background:linear-gradient(135deg,#333,#222);color:#e8e6e3;" onclick="startCheckout('trial')">Start Free Trial</a>
     </div>
 </div>
 
@@ -579,7 +579,7 @@ function detectAndTranslate() {
 
 function translatePage(lang) {
     // Collect all translatable elements
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-section div, .trial-section a');
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc');
     elements.forEach(function(el) {
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
