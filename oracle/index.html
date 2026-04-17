@@ -82,6 +82,15 @@
         .pricing-formula .formula-note b { color: #22c55e; }
         .pricing-formula .formula-note .down { color: #ef4444; }
 
+        .price-protection { max-width: 700px; margin: 0 auto; padding: 0 24px 50px; }
+        .price-protection h3 { text-align: center; font-size: 1.1em; font-weight: 400; color: #d4a017; margin-bottom: 20px; }
+        .protection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 600px) { .protection-grid { grid-template-columns: 1fr; } }
+        .protection-card { background: #12121a; border: 1px solid #1a1a2e; border-radius: 10px; padding: 16px 18px; }
+        .protection-card .icon { font-size: 1.4em; margin-bottom: 6px; }
+        .protection-card .title { font-size: 0.95em; color: #e8e6e3; font-weight: 500; margin-bottom: 4px; }
+        .protection-card .desc { font-size: 0.82em; color: #888; line-height: 1.5; }
+
         .oracle-link { text-align: center; padding-bottom: 60px; }
         .oracle-link a { color: #d4a017; text-decoration: none; font-size: 0.9em; border-bottom: 1px solid #8b6914; padding-bottom: 2px; }
         .oracle-link a:hover { color: #e8c84a; }
@@ -287,6 +296,28 @@
         The Beast sets the price. Revised monthly based on verified 30-day Sharpe.<br>
         <b>Performance up, price up.</b> <span class="down">Performance down, price down.</span><br>
         Price drops apply immediately. No human decides.
+    </div>
+</div>
+
+<div class="price-protection">
+    <h3>Your seat protects you.</h3>
+    <div class="protection-grid">
+        <div class="protection-card">
+            <div class="title">Price locked at entry</div>
+            <div class="desc">When you subscribe, your rate is locked for 6 months. If the price rises, you keep your lower rate. Maximum increase at renewal: 20%.</div>
+        </div>
+        <div class="protection-card">
+            <div class="title">Dips benefit you instantly</div>
+            <div class="desc">If performance drops, your price drops immediately. No waiting for renewal. You always pay the lower of your locked rate or the current rate.</div>
+        </div>
+        <div class="protection-card">
+            <div class="title">You can never overpay</div>
+            <div class="desc">Your monthly price = MIN(your locked rate, current market rate). The system is designed so the customer always wins on price.</div>
+        </div>
+        <div class="protection-card">
+            <div class="title">Cancel anytime</div>
+            <div class="desc">No lock-in. No annual contract. If you leave during a dip and come back later, you pay the new (higher) rate. Staying is rewarded.</div>
+        </div>
     </div>
 </div>
 
