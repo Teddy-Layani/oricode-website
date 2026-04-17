@@ -323,7 +323,8 @@
 
 <div class="edge-gauge-section" style="max-width:500px;margin:0 auto;padding:20px 24px 10px;">
     <div style="background:#12121a;border:1px solid #1a1a2e;border-radius:10px;padding:20px 24px;">
-        <div class="edge-gauge-title" style="text-align:center;font-size:0.95em;color:#e8e6e3;margin-bottom:14px;">Signal Edge Quality</div>
+        <div class="edge-gauge-title" style="text-align:center;font-size:0.95em;color:#e8e6e3;margin-bottom:6px;">Signal Edge Quality</div>
+        <div class="edge-gauge-subtitle" style="text-align:center;font-size:0.8em;color:#888;margin-bottom:14px;">How exclusive are the Oracle's signals right now</div>
         <div style="position:relative;height:24px;background:#1a1a2e;border-radius:12px;overflow:hidden;">
             <div id="edgeBar" style="height:100%;width:95%;border-radius:12px;background:linear-gradient(90deg,#ef4444 0%,#eab308 40%,#22c55e 70%);transition:width 1s ease;"></div>
         </div>
@@ -331,7 +332,11 @@
             <span id="edgeUsers" style="font-size:0.75em;color:#666;">0 members</span>
             <span id="edgePercent" style="font-size:0.75em;color:#22c55e;font-weight:600;">95%</span>
         </div>
-        <div class="edge-gauge-desc" style="text-align:center;font-size:0.75em;color:#555;margin-top:10px;">Fewer members = stronger signals. When quality drops, the community votes to protect the edge.</div>
+        <div style="margin-top:14px;font-size:0.8em;color:#999;line-height:1.6;">
+            <div class="edge-gauge-p1" style="margin-bottom:8px;">When too many traders act on the same signals, the market absorbs the edge. Prices move before you can act. The advantage disappears.</div>
+            <div class="edge-gauge-p2" style="margin-bottom:8px;">This gauge measures signal exclusivity in real time. Green means your signals are fresh and uncrowded. As membership grows, the gauge moves toward yellow and red.</div>
+            <div class="edge-gauge-p3">When quality drops below 70%, the community votes. If 20% of members agree, the price increases to reduce membership and restore signal strength. Your edge is protected by the community itself.</div>
+        </div>
     </div>
 </div>
 
@@ -614,7 +619,7 @@ function detectAndTranslate() {
 
 function translatePage(lang) {
     // Collect all translatable elements
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-desc');
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3');
     elements.forEach(function(el) {
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
