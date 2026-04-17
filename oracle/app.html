@@ -1848,8 +1848,10 @@ function renderFeedback(data) {
     if (!lastQueryId || data.trade_action === undefined) return '';
     var qid = lastQueryId;
     var isRich = (queryCount % 5 === 0);
+    var copyBtn = '<button class="fb-btn" onclick="copyResponse(this)" title="Copy response">&#128203; Copy</button>';
     if (isRich) {
         return '<div class="feedback-row" id="fb-' + qid + '">'
+            + copyBtn
             + '<span>How close was I?</span>'
             + '<div class="fb-stars">'
             + '<span class="fb-star" data-n="1" onclick="submitRating(\'' + qid + '\',1)">&#9734;</span>'
@@ -1864,6 +1866,7 @@ function renderFeedback(data) {
             + '</div>';
     }
     return '<div class="feedback-row" id="fb-' + qid + '">'
+        + copyBtn
         + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',1)">&#9650; Useful</button>'
         + '<button class="fb-btn" onclick="submitThumbs(\'' + qid + '\',-1)">&#9660; Not useful</button>'
         + '<span style="margin-left:8px">Acted?</span>'
@@ -1880,6 +1883,42 @@ function addError(msg) {
     el.innerHTML = '<div class="prophecy-text" style="color:var(--red)">' + escapeHtml(msg) + '</div>';
     feed.appendChild(el);
     feed.scrollTop = feed.scrollHeight;
+}
+
+// === COPY RESPONSE ===
+function copyResponse(btn) {
+    // Find the message container (parent of feedback row)
+    var msgEl = btn.closest('.feedback-row').previousElementSibling;
+    if (!msgEl) msgEl = btn.closest('.msg-oracle');
+    // Walk up to find the oracle message content
+    var container = btn.closest('.msg-oracle') || btn.parentElement.parentElement;
+    var text = '';
+    // Get all text content before the feedback row
+    var children = container.children;
+    for (var i = 0; i < children.length; i++) {
+        if (children[i].classList && children[i].classList.contains('feedback-row')) break;
+        text += children[i].innerText + '\n';
+    }
+    text = text.trim();
+    if (!text) text = container.innerText;
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.innerHTML;
+        btn.innerHTML = '&#10003; Copied';
+        btn.style.color = 'var(--green)';
+        setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+    }).catch(function() {
+        // Fallback for older browsers
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        var orig = btn.innerHTML;
+        btn.innerHTML = '&#10003; Copied';
+        btn.style.color = 'var(--green)';
+        setTimeout(function() { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+    });
 }
 
 // === FEEDBACK ===
