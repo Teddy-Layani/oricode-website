@@ -343,8 +343,8 @@
 <div class="trial-section" style="text-align:center;padding:20px 20px 10px;max-width:500px;margin:0 auto;">
     <div style="background:#12121a;border:1px solid #1a1a2e;border-radius:10px;padding:20px 24px;">
         <div class="trial-title" style="font-size:1.1em;color:#e8e6e3;margin-bottom:8px;">Not ready to commit?</div>
-        <div class="trial-desc" style="font-size:0.85em;color:#888;margin-bottom:16px;">Try 10 free queries. Credit card required. 7 days free. After trial, you automatically move to Professional at the current Sharpe-linked price. Cancel anytime before the trial ends to avoid any charge.</div>
-        <a href="#" class="cta-btn trial-btn" style="padding:12px 36px;font-size:0.95em;background:linear-gradient(135deg,#333,#222);color:#e8e6e3;" onclick="startCheckout('trial')">Start Free Trial</a>
+        <div class="trial-desc" style="font-size:0.85em;color:#888;margin-bottom:16px;">Buy a Query Pack. 5 queries. One-time payment. No subscription. Verify the Oracle with real questions before committing to a seat. Price indexed to the current Sharpe: <b><span id="packPrice">--</span></b> for 5 queries.</div>
+        <a href="#" class="cta-btn trial-btn" style="padding:12px 36px;font-size:0.95em;background:linear-gradient(135deg,#333,#222);color:#e8e6e3;" onclick="startCheckout('pack')">Buy 5-Query Pack</a>
     </div>
 </div>
 
@@ -460,6 +460,10 @@ function renderPricing(p) {
         var qp = document.getElementById(qpIds[i]);
         if (qp) qp.textContent = '$' + query.toFixed(2);
     }
+
+    // Pack price (Sharpe-indexed, one-time)
+    var packEl = document.getElementById('packPrice');
+    if (packEl && p.pack_price) packEl.textContent = '$' + p.pack_price.toLocaleString();
 
     // Founding vs Pro: founding available = pro greyed out. Founding sold = pro activates.
     var sr = document.getElementById('seatsRemaining');
