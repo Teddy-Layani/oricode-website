@@ -1342,7 +1342,9 @@ function loadAssetSharpe() {
             }
             var assets = data.sharpe_by_asset;
             var rows = [];
-            ['stocks', 'crypto', 'forex', 'commodities'].forEach(function(key) {
+            // Only show lanes that actively trade live. Commodities is shadow-only
+            // until graduation; hidden from subscribers until it ships as a new feature.
+            ['stocks', 'crypto', 'forex'].forEach(function(key) {
                 var a = assets[key];
                 if (a) rows.push({ name: key, data: a });
             });
