@@ -335,7 +335,7 @@
         <div style="margin-top:14px;font-size:0.8em;color:#999;line-height:1.6;">
             <div class="edge-gauge-p1" style="margin-bottom:8px;">When too many traders act on the same signals, the market absorbs the edge. Prices move before you can act. The advantage disappears.</div>
             <div class="edge-gauge-p2" style="margin-bottom:8px;">This gauge measures signal exclusivity in real time. Green means your signals are fresh and uncrowded. As membership grows, the gauge moves toward yellow and red.</div>
-            <div class="edge-gauge-p3">When quality drops below 70%, the community votes. If 20% of members agree, the price increases to reduce the number of traders and restore signal strength. Your signal quality is protected by the community itself.</div>
+            <div class="edge-gauge-p3">The price adjusts automatically based on this gauge. As membership grows, a crowd premium is added to the seat price. This naturally limits the number of traders and keeps signals strong. No vote needed. The math protects your signal quality.</div>
         </div>
     </div>
 </div>
@@ -480,14 +480,9 @@ function renderPricing(p) {
 }
 
 function renderEdgeGauge(p) {
-    // Edge quality = inverse of user density. Fewer users = higher quality.
-    var users = p.founding_remaining !== undefined ? (5 - p.founding_remaining) : 0;
-    // Add estimated pro users (from API if available, else 0)
-    var totalUsers = users;
-    var optimal = 50;
-    var critical = 150;
-    // Quality: 100% at 0 users, degrades linearly, floor at 20%
-    var quality = Math.max(20, Math.round(100 - (totalUsers / critical) * 80));
+    var quality = p.signal_quality || 95;
+    var members = p.members || 0;
+    var mult = p.crowd_multiplier || 1.0;
     var bar = document.getElementById('edgeBar');
     var pct = document.getElementById('edgePercent');
     var usersEl = document.getElementById('edgeUsers');
@@ -496,7 +491,11 @@ function renderEdgeGauge(p) {
         pct.textContent = quality + '%';
         pct.style.color = quality > 70 ? '#22c55e' : quality > 40 ? '#eab308' : '#ef4444';
     }
-    if (usersEl) usersEl.textContent = totalUsers + ' member' + (totalUsers !== 1 ? 's' : '');
+    if (usersEl) {
+        var label = members + ' member' + (members !== 1 ? 's' : '');
+        if (mult > 1.05) label += ' (x' + mult.toFixed(1) + ' crowd premium)';
+        usersEl.textContent = label;
+    }
 }
 
 function startCheckout(tier) {
