@@ -897,6 +897,29 @@
         .tp-table td.sharpe-good { color: var(--green); font-weight: 600; }
         .tp-table td.sharpe-mid { color: #eab308; font-weight: 600; }
         .tp-table td.sharpe-bad { color: var(--red); font-weight: 600; }
+        .tp-badge {
+            display: inline-block;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 6px;
+            vertical-align: middle;
+            background: rgba(234, 179, 8, 0.12);
+            color: #eab308;
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+        .tp-context {
+            display: block;
+            font-size: 10px;
+            color: var(--text-dim);
+            font-weight: 400;
+            margin-top: 3px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
 
     </style>
 </head>
@@ -967,6 +990,29 @@
                         </tr>
                     </thead>
                     <tbody id="tpTbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Transparency Panel: Per-Asset Sharpe w/ T-bill hurdle badge -->
+        <div class="transparency-panel" id="assetPanel">
+            <button class="tp-toggle" id="apToggle" onclick="toggleAssetPanel()">
+                <span>Your Transparency View: Per-Asset Sharpe (30d)</span>
+                <span class="tp-chevron">&#x25B6;</span>
+            </button>
+            <div class="tp-body" id="apBody">
+                <p class="tp-desc">Honest Sharpe per asset class with proper annualization (Stocks 252d, Forex 260d, Crypto 365d). A "below T-bill hurdle" badge fires when a lane is profitable but earns less than the daily risk-free rate (4.5% annual US T-bill).</p>
+                <div class="tp-status" id="apStatus">Loading...</div>
+                <table class="tp-table" id="apTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Sharpe (30d)</th>
+                            <th>Sortino</th>
+                            <th>CI / Context</th>
+                        </tr>
+                    </thead>
+                    <tbody id="apTbody"></tbody>
                 </table>
             </div>
         </div>
@@ -1258,6 +1304,126 @@ function loadTransparencyExchangeSharpe() {
         .catch(function() {
             if (status) { status.textContent = 'Unavailable'; status.style.display = 'block'; }
             if (table) table.style.display = 'none';
+        });
+}
+
+var _apLoaded = false;
+
+function toggleAssetPanel() {
+    var btn = document.getElementById('apToggle');
+    var body = document.getElementById('apBody');
+    if (!btn || !body) return;
+    var isOpen = body.classList.contains('open');
+    if (isOpen) {
+        body.classList.remove('open');
+        btn.classList.remove('open');
+    } else {
+        body.classList.add('open');
+        btn.classList.add('open');
+        if (!_apLoaded) {
+            loadAssetSharpe();
+        }
+    }
+}
+
+function loadAssetSharpe() {
+    var status = document.getElementById('apStatus');
+    var table = document.getElementById('apTable');
+    var tbody = document.getElementById('apTbody');
+    if (status) { status.textContent = 'Loading...'; status.style.display = 'block'; }
+    if (table) table.style.display = 'none';
+    // Per-asset data lives on the public /status endpoint (no auth needed)
+    fetch('https://api-trading.oricode.ai/api/oracle/status')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+            if (!data || !data.sharpe_by_asset) {
+                if (status) { status.textContent = 'Unavailable'; }
+                return;
+            }
+            var assets = data.sharpe_by_asset;
+            var rows = [];
+            ['stocks', 'crypto', 'forex', 'commodities'].forEach(function(key) {
+                var a = assets[key];
+                if (a) rows.push({ name: key, data: a });
+            });
+            if (rows.length === 0) {
+                if (status) { status.textContent = 'No data yet'; }
+                return;
+            }
+            _apLoaded = true;
+            // Sort by sharpe desc (nulls last)
+            rows.sort(function(a, b) {
+                var sa = (a.data.sharpe_30d == null) ? -999 : Number(a.data.sharpe_30d);
+                var sb = (b.data.sharpe_30d == null) ? -999 : Number(b.data.sharpe_30d);
+                return sb - sa;
+            });
+            if (tbody) {
+                tbody.textContent = '';
+                rows.forEach(function(r) {
+                    var a = r.data;
+                    var tr = document.createElement('tr');
+
+                    // Asset column
+                    var tdName = document.createElement('td');
+                    tdName.textContent = r.name;
+                    tdName.style.textTransform = 'capitalize';
+                    tr.appendChild(tdName);
+
+                    // Sharpe + optional badge
+                    var tdSh = document.createElement('td');
+                    tdSh.className = 'num';
+                    var shVal = (a.sharpe_30d == null) ? null : Number(a.sharpe_30d);
+                    if (shVal == null || isNaN(shVal)) {
+                        tdSh.textContent = '--';
+                    } else {
+                        tdSh.textContent = shVal.toFixed(2);
+                        tdSh.className = 'num ' + tpSharpeColorClass(shVal);
+                        if (a.below_tbill_hurdle === true) {
+                            var badge = document.createElement('span');
+                            badge.className = 'tp-badge';
+                            badge.textContent = 'below T-bill hurdle';
+                            tdSh.appendChild(badge);
+                            // Context line: "+$17.80 over 22d"
+                            if (a.total_pnl_30d != null && a.n_days) {
+                                var ctx = document.createElement('span');
+                                ctx.className = 'tp-context';
+                                var sign = a.total_pnl_30d >= 0 ? '+' : '';
+                                ctx.textContent = sign + '$' + Number(a.total_pnl_30d).toFixed(2) +
+                                    ' over ' + a.n_days + 'd - too low-vol to clear rf';
+                                tdSh.appendChild(ctx);
+                            }
+                        }
+                    }
+                    tr.appendChild(tdSh);
+
+                    // Sortino
+                    var tdSo = document.createElement('td');
+                    tdSo.className = 'num';
+                    var soVal = (a.sortino_30d == null) ? null : Number(a.sortino_30d);
+                    tdSo.textContent = (soVal == null || isNaN(soVal)) ? '--' : soVal.toFixed(2);
+                    tr.appendChild(tdSo);
+
+                    // CI / context column
+                    var tdCi = document.createElement('td');
+                    tdCi.className = 'num';
+                    if (a.ci_lower != null && a.ci_upper != null) {
+                        tdCi.textContent = Number(a.ci_lower).toFixed(1) + ' to ' +
+                            Number(a.ci_upper).toFixed(1) + ' (n=' + a.n_days + 'd)';
+                    } else if (a.n_days) {
+                        tdCi.textContent = 'n=' + a.n_days + 'd (building)';
+                    } else {
+                        tdCi.textContent = '--';
+                    }
+                    tr.appendChild(tdCi);
+
+                    tbody.appendChild(tr);
+                });
+            }
+            if (status) status.style.display = 'none';
+            if (table) table.style.display = 'table';
+        })
+        .catch(function() {
+            if (status) { status.textContent = 'Unavailable'; }
         });
 }
 
