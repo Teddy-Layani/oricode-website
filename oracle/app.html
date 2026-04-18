@@ -823,6 +823,81 @@
         /* Metric pills */
         body.light .metric-pill { background: #eeeef0; }
 
+        /* === TRANSPARENCY PANEL (per-exchange Sharpe drilldown) === */
+        .transparency-panel {
+            margin: 12px 24px 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .tp-toggle {
+            width: 100%;
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+        .tp-toggle:hover { color: var(--amber); }
+        .tp-toggle .tp-chevron {
+            font-size: 10px;
+            color: var(--text-dim);
+            transition: transform 0.2s;
+        }
+        .tp-toggle.open .tp-chevron { transform: rotate(90deg); }
+        .tp-body {
+            display: none;
+            padding: 12px 16px 16px;
+            border-top: 1px solid var(--border);
+        }
+        .tp-body.open { display: block; }
+        .tp-desc {
+            font-size: 11px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .tp-status {
+            font-size: 11px;
+            color: var(--text-dim);
+            padding: 8px 0;
+        }
+        .tp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .tp-table th {
+            text-align: left;
+            padding: 8px 10px;
+            color: var(--text-dim);
+            font-weight: 500;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+        .tp-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+        .tp-table tr:last-child td { border-bottom: none; }
+        .tp-table td.num { font-variant-numeric: tabular-nums; text-align: right; }
+        .tp-table td.sharpe-good { color: var(--green); font-weight: 600; }
+        .tp-table td.sharpe-mid { color: #eab308; font-weight: 600; }
+        .tp-table td.sharpe-bad { color: var(--red); font-weight: 600; }
+
     </style>
 </head>
 <body>
@@ -874,6 +949,27 @@
 
     <!-- CHAT CONTAINER -->
     <div class="chat-container" id="chatContainer">
+        <!-- Transparency Panel: Per-Exchange Sharpe (members only) -->
+        <div class="transparency-panel" id="transparencyPanel">
+            <button class="tp-toggle" id="tpToggle" onclick="toggleTransparency()">
+                <span>Your Transparency View: Per-Exchange Sharpe (30d)</span>
+                <span class="tp-chevron">&#x25B6;</span>
+            </button>
+            <div class="tp-body" id="tpBody">
+                <p class="tp-desc">Risk-adjusted performance by exchange over the last 30 days. Updates as new trades settle.</p>
+                <div class="tp-status" id="tpStatus">Loading...</div>
+                <table class="tp-table" id="tpTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Exchange</th>
+                            <th>Sharpe</th>
+                            <th>Sortino</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tpTbody"></tbody>
+                </table>
+            </div>
+        </div>
         <div class="feed" id="feed">
             <!-- Welcome with examples: controlled by JS -->
             <div class="welcome" id="welcome" style="display:none;">
@@ -1077,6 +1173,92 @@ function enterChat() {
     if (_ipLang && _ipLang !== 'en') {
         translateChatUI(_ipLang);
     }
+}
+
+// === TRANSPARENCY PANEL (per-exchange Sharpe, members-only) ===
+var _tpLoaded = false;
+function toggleTransparency() {
+    var btn = document.getElementById('tpToggle');
+    var body = document.getElementById('tpBody');
+    if (!btn || !body) return;
+    var isOpen = body.classList.contains('open');
+    if (isOpen) {
+        body.classList.remove('open');
+        btn.classList.remove('open');
+    } else {
+        body.classList.add('open');
+        btn.classList.add('open');
+        if (!_tpLoaded) {
+            loadTransparencyExchangeSharpe();
+        }
+    }
+}
+
+function tpSharpeColorClass(s) {
+    if (s > 2) return 'sharpe-good';
+    if (s >= 1) return 'sharpe-mid';
+    return 'sharpe-bad';
+}
+
+function loadTransparencyExchangeSharpe() {
+    var status = document.getElementById('tpStatus');
+    var table = document.getElementById('tpTable');
+    var tbody = document.getElementById('tpTbody');
+    if (status) { status.textContent = 'Loading...'; status.style.display = 'block'; }
+    if (table) table.style.display = 'none';
+    fetch(API + '/exchange_sharpe', { headers: { 'Authorization': 'Bearer ' + seatKey } })
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+            if (!data) {
+                if (status) { status.textContent = 'Unavailable'; status.style.display = 'block'; }
+                if (table) table.style.display = 'none';
+                return;
+            }
+            var rows = Array.isArray(data) ? data : (data && data.rows ? data.rows : []);
+            if (!rows || rows.length === 0) {
+                if (status) { status.textContent = 'No data yet'; status.style.display = 'block'; }
+                if (table) table.style.display = 'none';
+                return;
+            }
+            _tpLoaded = true;
+            // Sort by sharpe desc (nulls last)
+            rows.sort(function(a, b) {
+                var sa = (a.sharpe_30d == null) ? -999 : Number(a.sharpe_30d);
+                var sb = (b.sharpe_30d == null) ? -999 : Number(b.sharpe_30d);
+                return sb - sa;
+            });
+            if (tbody) {
+                tbody.textContent = '';
+                rows.forEach(function(row) {
+                    var tr = document.createElement('tr');
+                    var tdEx = document.createElement('td');
+                    tdEx.textContent = row.exchange || '--';
+                    var tdSh = document.createElement('td');
+                    tdSh.className = 'num';
+                    var shVal = (row.sharpe_30d == null) ? null : Number(row.sharpe_30d);
+                    if (shVal == null || isNaN(shVal)) {
+                        tdSh.textContent = '--';
+                    } else {
+                        tdSh.textContent = shVal.toFixed(2);
+                        tdSh.className = 'num ' + tpSharpeColorClass(shVal);
+                    }
+                    var tdSo = document.createElement('td');
+                    tdSo.className = 'num';
+                    var soVal = (row.sortino_30d == null) ? null : Number(row.sortino_30d);
+                    tdSo.textContent = (soVal == null || isNaN(soVal)) ? '--' : soVal.toFixed(2);
+                    tr.appendChild(tdEx);
+                    tr.appendChild(tdSh);
+                    tr.appendChild(tdSo);
+                    tbody.appendChild(tr);
+                });
+            }
+            if (status) status.style.display = 'none';
+            if (table) table.style.display = 'table';
+        })
+        .catch(function() {
+            if (status) { status.textContent = 'Unavailable'; status.style.display = 'block'; }
+            if (table) table.style.display = 'none';
+        });
 }
 
 function translateChatUI(lang) {

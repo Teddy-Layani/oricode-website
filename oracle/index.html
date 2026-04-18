@@ -99,6 +99,36 @@
         .story-text { color: #8a8a9a; font-size: 0.95em; line-height: 1.8; margin-bottom: 16px; font-weight: 300; }
         .story-text:last-child { margin-bottom: 0; }
 
+        /* Lock commitment + OOS cards */
+        .commitment-row { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 0 20px; max-width: 1000px; margin: 10px auto 40px; }
+        .commitment-card { background: #12121a; border: 1px solid #1a1a2e; border-radius: 12px; padding: 24px 22px; flex: 1; min-width: 280px; max-width: 460px; text-align: center; }
+        .commitment-card.lock { border-color: #d4a017; box-shadow: 0 0 24px rgba(212,160,23,0.08); }
+        .commitment-card.oos { border-color: #2a2a3e; }
+        .commitment-card h3 { font-size: 1em; font-weight: 500; color: #e8e6e3; margin: 0 0 10px; letter-spacing: 0.5px; }
+        .commitment-card .explainer { font-size: 0.82em; color: #8a8a9a; line-height: 1.6; margin-top: 12px; }
+        .commitment-card .small-note { font-size: 0.72em; color: #555; line-height: 1.5; margin-top: 10px; font-style: italic; }
+        .countdown-grid { display: flex; justify-content: center; gap: 14px; margin: 8px 0 4px; font-variant-numeric: tabular-nums; }
+        .countdown-unit { min-width: 64px; background: #0a0a0f; border: 1px solid #2a2a3e; border-radius: 8px; padding: 10px 8px; }
+        .countdown-number { font-size: 1.5em; font-weight: 700; color: #d4a017; }
+        .countdown-label { font-size: 0.65em; color: #666; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+        .oos-placeholder { display: flex; flex-direction: column; align-items: center; opacity: 0.5; }
+        .oos-placeholder .gauge-value { color: #888; }
+        .oos-live { font-size: 1.1em; color: #888; margin: 10px 0 4px; font-weight: 600; }
+        .oos-live-label { font-size: 0.7em; color: #555; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Methodology explainer */
+        .perf-disclaimer { text-align: center; font-size: 0.72em; color: #666; max-width: 640px; margin: 6px auto 4px; padding: 0 20px; line-height: 1.6; font-style: italic; }
+        .methodology-link { display: block; text-align: center; margin: 4px auto 0; font-size: 0.78em; color: #8a8a9a; cursor: pointer; user-select: none; }
+        .methodology-link:hover { color: #d4a017; }
+        .methodology-body { display: none; max-width: 560px; margin: 10px auto 0; padding: 12px 16px; background: #12121a; border: 1px solid #1a1a2e; border-radius: 8px; font-size: 0.82em; color: #8a8a9a; line-height: 1.7; text-align: left; }
+        .methodology-body.open { display: block; }
+        .methodology-body p { margin-bottom: 8px; }
+        .methodology-body p:last-child { margin-bottom: 0; }
+
+        /* Sharpe sparkline */
+        .sharpe-sparkline { display: block; margin: 4px auto 0; }
+        .sharpe-sparkline-note { font-size: 0.62em; color: #555; margin-top: 2px; font-style: italic; }
+
         @media (max-width: 600px) {
             .hero { padding: 50px 16px 30px; }
             .hero-img { width: 160px; height: 160px; }
@@ -121,6 +151,11 @@
             .cta-sub { font-size: 0.8em; }
             .oracle-link { padding-bottom: 40px; }
             .oracle-link a { font-size: 0.85em; }
+            .commitment-row { gap: 14px; padding: 0 14px; }
+            .commitment-card { padding: 18px 16px; min-width: 240px; }
+            .countdown-unit { min-width: 54px; padding: 8px 6px; }
+            .countdown-number { font-size: 1.2em; }
+            .methodology-body { font-size: 0.78em; padding: 10px 12px; }
         }
     </style>
 </head>
@@ -175,6 +210,11 @@
         </svg>
         <div class="gauge-value" id="sharpeValue">--</div>
         <div class="gauge-sublabel" id="sharpeLabel">&nbsp;</div>
+        <svg class="sharpe-sparkline" id="sharpeSparkline" width="120" height="30" viewBox="0 0 120 30" style="display:none;">
+            <title id="sparklineTitle">30-day rolling Sharpe. Each point = Sharpe over prior 30 trading days.</title>
+            <polyline id="sharpeSparklinePath" fill="none" stroke="#d4a017" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points=""/>
+        </svg>
+        <div class="sharpe-sparkline-note" id="sharpeSparklineNote" style="display:none;">rolling data coming soon</div>
     </div>
 
     <!-- Sortino Gauge -->
@@ -215,6 +255,50 @@
         </svg>
         <div class="ring-value" id="wrValue">--</div>
         <div class="ring-sublabel" id="wrLabel">&nbsp;</div>
+    </div>
+</div>
+
+<!-- Performance disclaimer (regulatory safety layer) -->
+<p class="perf-disclaimer">Past performance does not guarantee future results. Oracle provides analytical data, not investment advice. Not suitable for all investors.</p>
+
+<!-- Task 4: Methodology explainer -->
+<div style="text-align:center; padding: 0 20px;">
+    <span class="methodology-link" id="methodologyLink" onclick="toggleMethodology()">&#9432; Methodology</span>
+    <div class="methodology-body" id="methodologyBody">
+        <p class="methodology-blend">Headline Sharpe is capital-weighted blend of per-asset Sharpes. Stocks annualize 252d/yr, Forex 260d/yr, Crypto 365d/yr.</p>
+        <p class="methodology-divisor" id="methodologyDivisor">Loading methodology details...</p>
+    </div>
+</div>
+
+<div class="commitment-row">
+    <!-- Task 1: Codebase Freeze Commitment (intent, no date) -->
+    <div class="commitment-card lock">
+        <h3 class="commitment-title-lock">Codebase Freeze Commitment</h3>
+        <p class="explainer commitment-lock-explainer">
+            Validation window opens after correctness audit completes. Codebase freeze + out-of-sample window announcement to follow. This is our commitment to honest numbers — not marketing spin.
+        </p>
+    </div>
+
+    <!-- Task 2: Out-of-Sample Sharpe Panel (intent, no date) -->
+    <div class="commitment-card oos">
+        <h3 class="commitment-title-oos">Out-of-Sample Sharpe</h3>
+        <div id="oosBeforeLock" class="oos-placeholder">
+            <svg class="gauge-svg" viewBox="0 0 200 110">
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#1a1a2e" stroke-width="14" stroke-linecap="round"/>
+                <path d="M 20 100 A 80 80 0 0 1 60 30" fill="none" stroke="#ef4444" stroke-width="14" stroke-linecap="round" opacity="0.15"/>
+                <path d="M 60 30 A 80 80 0 0 1 100 20" fill="none" stroke="#eab308" stroke-width="14" stroke-linecap="round" opacity="0.15"/>
+                <path d="M 100 20 A 80 80 0 0 1 180 100" fill="none" stroke="#22c55e" stroke-width="14" stroke-linecap="round" opacity="0.15"/>
+            </svg>
+            <div class="gauge-value oos-dash">--</div>
+            <div class="gauge-sublabel commitment-oos-begins">Begins after codebase freeze</div>
+        </div>
+        <div id="oosAfterLock" style="display:none;">
+            <div class="oos-live">Live OOS: <span id="oosValue">--</span></div>
+            <div class="oos-live-label commitment-oos-live-label">Post-Freeze Sharpe</div>
+        </div>
+        <p class="explainer commitment-oos-explainer">
+            Begins after codebase freeze. Date announced when correctness audit completes. This is the number that survives the freeze.
+        </p>
     </div>
 </div>
 
@@ -642,7 +726,7 @@ function detectAndTranslate() {
 
 function translatePage(lang) {
     // Collect all translatable elements
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3');
+    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, th, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3, .commitment-card h3, .commitment-card .explainer, .commitment-card .small-note, .countdown-label, .oos-live-label, .methodology-link, .methodology-blend, .methodology-divisor, .sharpe-sparkline-note');
     elements.forEach(function(el) {
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
@@ -662,10 +746,125 @@ function translatePage(lang) {
     });
 }
 
+// Task 1: Countdown to codebase freeze (2026-07-17 00:00 UTC)
+var FREEZE_DATE_UTC = Date.UTC(2026, 6, 17, 0, 0, 0); // Month is 0-indexed: 6 = July
+
+function updateFreezeCountdown() {
+    var now = Date.now();
+    var diffMs = FREEZE_DATE_UTC - now;
+    var daysEl = document.getElementById('freezeDays');
+    var hoursEl = document.getElementById('freezeHours');
+    if (!daysEl || !hoursEl) return;
+    if (diffMs <= 0) {
+        daysEl.textContent = '0';
+        hoursEl.textContent = '0';
+        // Flip OOS panel to post-lock state
+        var before = document.getElementById('oosBeforeLock');
+        var after = document.getElementById('oosAfterLock');
+        if (before) before.style.display = 'none';
+        if (after) after.style.display = 'block';
+        return;
+    }
+    var totalHours = Math.floor(diffMs / (1000 * 60 * 60));
+    var days = Math.floor(totalHours / 24);
+    var hours = totalHours % 24;
+    daysEl.textContent = days;
+    hoursEl.textContent = hours;
+}
+
+// Task 4: Methodology explainer toggle
+function toggleMethodology() {
+    var body = document.getElementById('methodologyBody');
+    if (!body) return;
+    body.classList.toggle('open');
+}
+
+// Task 3 + 4: Load Sharpe metadata (rolling_sharpe, annualize disclosure, equity divisor flags)
+function loadSharpeMetadata() {
+    fetch('https://api-trading.oricode.ai/api/oracle/sharpe')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(d) {
+            if (!d) { renderSparkline(null); renderMethodologyDivisor(null); return; }
+            // Rolling sharpe: accept top-level or nested under statistical_rigor_json
+            var rolling = d.rolling_sharpe;
+            if (!rolling && d.statistical_rigor_json) rolling = d.statistical_rigor_json.rolling_sharpe;
+            renderSparkline(rolling);
+            renderMethodologyDivisor(d);
+        })
+        .catch(function() {
+            renderSparkline(null);
+            renderMethodologyDivisor(null);
+        });
+}
+
+function renderSparkline(values) {
+    var svg = document.getElementById('sharpeSparkline');
+    var path = document.getElementById('sharpeSparklinePath');
+    var note = document.getElementById('sharpeSparklineNote');
+    if (!svg || !path) return;
+    if (!Array.isArray(values) || values.length < 2) {
+        svg.style.display = 'none';
+        if (note) note.style.display = 'block';
+        return;
+    }
+    // Filter to numeric
+    var pts = values.filter(function(v) { return typeof v === 'number' && !isNaN(v); });
+    if (pts.length < 2) {
+        svg.style.display = 'none';
+        if (note) note.style.display = 'block';
+        return;
+    }
+    var W = 120, H = 30, pad = 2;
+    var minV = Math.min.apply(null, pts);
+    var maxV = Math.max.apply(null, pts);
+    var range = (maxV - minV) || 1;
+    var coords = pts.map(function(v, i) {
+        var x = pad + (W - 2 * pad) * (i / (pts.length - 1));
+        var y = H - pad - (H - 2 * pad) * ((v - minV) / range);
+        return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+    path.setAttribute('points', coords);
+    svg.style.display = 'block';
+    if (note) note.style.display = 'none';
+}
+
+function renderMethodologyDivisor(d) {
+    var el = document.getElementById('methodologyDivisor');
+    if (!el) return;
+    if (!d) { el.style.display = 'none'; return; }
+    // Prefer disclosure text if backend supplies it
+    if (d.sharpe_annualize_disclosure && typeof d.sharpe_annualize_disclosure === 'string') {
+        // Keep static blend line above, replace divisor paragraph
+        el.textContent = d.sharpe_annualize_disclosure;
+    } else {
+        var startDate = d.equity_series_start_date || null;
+        if (d.using_live_equity_divisor === true) {
+            if (startDate) {
+                el.textContent = 'Currently using live equity as divisor. Per-day equity series starts ' + startDate + '. Full honest computation begins 30 days after that date.';
+            } else {
+                el.textContent = 'Currently using live equity as divisor. Per-day equity series accumulating.';
+            }
+        } else if (d.using_live_equity_divisor === false) {
+            if (startDate) {
+                el.textContent = 'Using per-day equity divisor from ' + startDate + '.';
+            } else {
+                el.textContent = 'Using per-day equity divisor.';
+            }
+        } else {
+            // Field absent: hide divisor line, keep blend line only
+            el.style.display = 'none';
+        }
+    }
+}
+
 // Start on load
 window.addEventListener('load', function() {
     setTimeout(loadBeastData, 300);
+    setTimeout(loadSharpeMetadata, 400);
     setTimeout(detectAndTranslate, 500);
+    // Countdown disabled until correctness audit completes — intent card only, no date.
+    // updateFreezeCountdown();
+    // setInterval(updateFreezeCountdown, 60000);
 });
 
 var _isEnglish = localStorage.getItem('oracle_lang_override') === 'en';
