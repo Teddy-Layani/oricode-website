@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Beast — Oricode Trading Intelligence</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai https://ipapi.co; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai https://api.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai https://api.oricode.ai https://ipapi.co; frame-ancestors 'none';">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" crossorigin="anonymous">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111'/><text x='16' y='23' font-size='20' font-weight='bold' text-anchor='middle' fill='%23d4a017' font-family='Georgia'>O</text></svg>">
@@ -128,6 +128,40 @@
         /* Sharpe sparkline */
         .sharpe-sparkline { display: block; margin: 4px auto 0; }
         .sharpe-sparkline-note { font-size: 0.62em; color: #555; margin-top: 2px; font-style: italic; }
+
+        /* --- Signup modal (geofence + residence + T&C) --- */
+        .signup-overlay { display: none; position: fixed; inset: 0; background: rgba(5,5,10,0.85); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .signup-overlay.open { display: flex; }
+        .signup-modal { background: #12121a; border: 1px solid #2a2a3e; border-radius: 14px; padding: 28px 26px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,160,23,0.08); }
+        .signup-modal h3 { color: #d4a017; font-size: 1.2em; font-weight: 600; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .signup-modal .modal-sub { font-size: 0.82em; color: #8a8a9a; margin-bottom: 20px; line-height: 1.6; }
+        .signup-modal label { display: block; font-size: 0.8em; color: #bdbdc8; margin: 14px 0 6px; letter-spacing: 0.3px; }
+        .signup-modal input[type=email], .signup-modal select { width: 100%; background: #0a0a0f; border: 1px solid #2a2a3e; border-radius: 8px; color: #e8e6e3; font-family: inherit; font-size: 0.95em; padding: 11px 14px; transition: border-color 0.2s; }
+        .signup-modal input[type=email]:focus, .signup-modal select:focus { outline: none; border-color: #d4a017; }
+        .signup-modal .ip-hint { font-size: 0.72em; color: #555; margin-top: 6px; font-style: italic; }
+        .signup-modal .ip-hint.ok { color: #22c55e; }
+        .signup-modal .ip-hint.warn { color: #eab308; }
+        .signup-modal .checkbox-row { display: flex; gap: 10px; align-items: flex-start; margin: 18px 0 8px; font-size: 0.82em; color: #bdbdc8; line-height: 1.55; }
+        .signup-modal .checkbox-row input[type=checkbox] { flex-shrink: 0; margin-top: 3px; width: 16px; height: 16px; accent-color: #d4a017; cursor: pointer; }
+        .signup-modal .checkbox-row a { color: #d4a017; text-decoration: none; border-bottom: 1px solid #8b6914; }
+        .signup-modal .checkbox-row a:hover { color: #e8c84a; }
+        .signup-modal .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+        .signup-modal .btn-primary { flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #d4a017, #8b6914); color: #0a0a0f; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-family: inherit; transition: transform 0.15s; }
+        .signup-modal .btn-primary:hover:not(:disabled) { transform: translateY(-1px); }
+        .signup-modal .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .signup-modal .btn-cancel { padding: 12px 20px; background: transparent; color: #8a8a9a; border: 1px solid #2a2a3e; border-radius: 8px; cursor: pointer; font-size: 0.95em; font-family: inherit; }
+        .signup-modal .btn-cancel:hover { color: #e8e6e3; border-color: #4a4a5e; }
+        .signup-modal .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4); border-radius: 8px; padding: 12px 14px; color: #fca5a5; font-size: 0.85em; margin: 14px 0; display: none; line-height: 1.5; }
+        .signup-modal .error-msg.open { display: block; }
+        .signup-modal .warn-msg { background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.3); border-radius: 8px; padding: 10px 12px; color: #eab308; font-size: 0.78em; margin-top: 10px; display: none; line-height: 1.5; }
+        .signup-modal .warn-msg.open { display: block; }
+        .signup-modal .blocked-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 16px; color: #fca5a5; font-size: 0.88em; line-height: 1.6; display: none; margin-top: 16px; }
+        .signup-modal .blocked-msg.open { display: block; }
+        .signup-modal .blocked-msg b { color: #ef4444; }
+
+        .footer-legal { text-align: center; padding: 20px 20px 40px; font-size: 0.72em; color: #555; }
+        .footer-legal a { color: #8a8a9a; text-decoration: none; border-bottom: 1px solid #333; margin: 0 8px; }
+        .footer-legal a:hover { color: #d4a017; border-color: #8b6914; }
 
         @media (max-width: 600px) {
             .hero { padding: 50px 16px 30px; }
@@ -436,6 +470,84 @@
     <a href="/oracle/app.html">Already have a seat key? Enter the Oracle</a>
 </div>
 
+<!-- Signup / geofence / T&C modal. Hidden until a .cta-btn is clicked. -->
+<div class="signup-overlay" id="signupOverlay" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+    <div class="signup-modal">
+        <h3 id="signupTitle">Claim your seat</h3>
+        <div class="modal-sub">
+            Oracle provides analytical data, not investment advice. Before we
+            can create your checkout, we need a few compliance details.
+        </div>
+
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email" required>
+
+        <label for="signupCountry">I reside in</label>
+        <select id="signupCountry" required>
+            <option value="">-- Select country of residence --</option>
+            <option value="IL">Israel</option>
+            <option value="__BLOCKED__US">United States (not available)</option>
+            <option value="__BLOCKED__GB">United Kingdom (not available)</option>
+            <option value="__BLOCKED__EU">European Union (not available)</option>
+            <option disabled>---</option>
+            <option value="CA">Canada</option>
+            <option value="CH">Switzerland</option>
+            <option value="AU">Australia</option>
+            <option value="NZ">New Zealand</option>
+            <option value="SG">Singapore</option>
+            <option value="JP">Japan</option>
+            <option value="HK">Hong Kong</option>
+            <option value="AE">United Arab Emirates</option>
+            <option value="IN">India</option>
+            <option value="BR">Brazil</option>
+            <option value="MX">Mexico</option>
+            <option value="ZA">South Africa</option>
+            <option value="OTHER">Other (not US / UK / EU)</option>
+        </select>
+        <div class="ip-hint" id="ipHint">Detecting your location&hellip;</div>
+
+        <div class="warn-msg" id="mismatchWarn">
+            Your declared country differs from your detected location. That is
+            fine &mdash; your declaration is what we record. Please confirm it
+            is accurate.
+        </div>
+
+        <div class="checkbox-row">
+            <input type="checkbox" id="signupTerms">
+            <label for="signupTerms" style="margin:0; cursor:pointer;">
+                I have read and agree to the
+                <a href="/oracle/terms.html" target="_blank" rel="noopener">Terms of Service</a>,
+                and I acknowledge that Oracle provides analytical data,
+                <b>not investment advice</b>. I am solely responsible for my
+                investment decisions.
+            </label>
+        </div>
+
+        <div class="error-msg" id="signupError"></div>
+
+        <div class="blocked-msg" id="signupBlocked">
+            <b>Not available in your region yet.</b><br>
+            Oracle is currently available in Israel and a limited set of other
+            jurisdictions. Subscriptions from the United States, United Kingdom,
+            and European Union are not accepted at this time. We will announce
+            here when this changes.
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="btn-cancel" onclick="closeSignup()">Cancel</button>
+            <button type="button" class="btn-primary" id="signupSubmit" onclick="submitSignup()" disabled>Continue to checkout</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer-legal">
+    <a href="/oracle/what-you-get.html">What Oracle Does</a>
+    &middot;
+    <a href="/oracle/terms.html">Terms of Service</a>
+    &middot;
+    <a href="mailto:teddy.layani@gmail.com">Contact</a>
+</div>
+
 <script>
 // Animate counter
 function animateCounter(el, target, duration, suffix) {
@@ -586,27 +698,249 @@ function renderEdgeGauge(p) {
     }
 }
 
+// =============================================================
+// Signup flow: geofence + residence declaration + T&C
+// =============================================================
+// Regulatory layer on the way to Stripe checkout.
+//  1. User clicks CTA -> modal opens.
+//  2. IP country detected via ipapi.co (fail-safe: if down, we still
+//     proceed with declared country only).
+//  3. User declares country + accepts T&C.
+//  4. POST to api.oricode.ai/api/oracle/signup-audit for the audit trail
+//     (ALWAYS, even when allowed, so we have a record).
+//  5. If allowed, POST to api-trading.oricode.ai/api/oracle/checkout for
+//     the Stripe session and redirect.
+//  6. If blocked (US / UK / EU), show "coming soon" message and stop.
+
+var TERMS_VERSION = '2026-04-18-draft-v1';
+var EU_COUNTRIES = ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'];
+var BLOCKED_EXTRA = ['US','GB','UK'];
+
+function isBlockedCountry(cc) {
+    if (!cc) return false;
+    cc = String(cc).toUpperCase().trim();
+    if (EU_COUNTRIES.indexOf(cc) >= 0) return true;
+    if (BLOCKED_EXTRA.indexOf(cc) >= 0) return true;
+    return false;
+}
+
+var _signupState = {
+    tier: null,
+    ipCountry: null,
+    ipLookupDone: false
+};
+
 function startCheckout(tier) {
-    var email = prompt('Enter your email to get started:');
-    if (!email || email.indexOf('@') < 0) return;
-    if (tier === 'institutional') {
-        window.location.href = 'mailto:teddy.layani@gmail.com?subject=Oracle%20Institutional%20Access&body=Email:%20' + email;
+    // Institutional tier is email-only, no Stripe flow yet. Still require
+    // the geofence + T&C gate before opening an email thread.
+    _signupState.tier = tier;
+    _signupState.ipCountry = null;
+    _signupState.ipLookupDone = false;
+
+    // Reset modal UI
+    var overlay = document.getElementById('signupOverlay');
+    document.getElementById('signupEmail').value = '';
+    document.getElementById('signupCountry').value = '';
+    document.getElementById('signupTerms').checked = false;
+    document.getElementById('signupError').classList.remove('open');
+    document.getElementById('signupBlocked').classList.remove('open');
+    document.getElementById('mismatchWarn').classList.remove('open');
+    document.getElementById('signupSubmit').disabled = true;
+    document.getElementById('ipHint').textContent = 'Detecting your location...';
+    document.getElementById('ipHint').className = 'ip-hint';
+
+    overlay.classList.add('open');
+
+    // Wire up validation (idempotent: remove-then-add would be cleaner but
+    // simple re-assign works because these are inline elements).
+    document.getElementById('signupEmail').oninput = validateSignupForm;
+    document.getElementById('signupCountry').onchange = onCountryChange;
+    document.getElementById('signupTerms').onchange = validateSignupForm;
+
+    // Kick off IP lookup (non-blocking, fail-safe).
+    detectSignupIp();
+}
+
+function closeSignup() {
+    document.getElementById('signupOverlay').classList.remove('open');
+}
+
+function detectSignupIp() {
+    fetch('https://ipapi.co/json/')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            _signupState.ipCountry = (data && data.country_code) ? String(data.country_code).toUpperCase() : null;
+            _signupState.ipLookupDone = true;
+            renderIpHint();
+            // If IP pre-fills a non-blocked country AND user has not chosen
+            // anything yet, auto-select it as a convenience. For blocked
+            // countries we deliberately do NOT auto-select -- user must
+            // affirm.
+            var sel = document.getElementById('signupCountry');
+            if (!sel.value && _signupState.ipCountry) {
+                if (!isBlockedCountry(_signupState.ipCountry)) {
+                    // Only auto-select if it's in our dropdown list
+                    for (var i = 0; i < sel.options.length; i++) {
+                        if (sel.options[i].value === _signupState.ipCountry) {
+                            sel.value = _signupState.ipCountry;
+                            onCountryChange();
+                            break;
+                        }
+                    }
+                }
+            }
+            validateSignupForm();
+        })
+        .catch(function() {
+            // Fail safe: IP API down. Still allow signup on declared country.
+            _signupState.ipCountry = null;
+            _signupState.ipLookupDone = true;
+            var h = document.getElementById('ipHint');
+            h.textContent = 'Location detection unavailable. Please declare your country below.';
+            h.className = 'ip-hint warn';
+            validateSignupForm();
+        });
+}
+
+function renderIpHint() {
+    var h = document.getElementById('ipHint');
+    var cc = _signupState.ipCountry;
+    if (!cc) {
+        h.textContent = 'Location detection unavailable. Please declare your country below.';
+        h.className = 'ip-hint warn';
         return;
     }
-    fetch('https://api-trading.oricode.ai/api/oracle/checkout', {
+    if (isBlockedCountry(cc)) {
+        h.textContent = 'Detected location: ' + cc + '. Note: Oracle is not available in US / UK / EU.';
+        h.className = 'ip-hint warn';
+    } else {
+        h.textContent = 'Detected location: ' + cc + '.';
+        h.className = 'ip-hint ok';
+    }
+}
+
+function onCountryChange() {
+    var sel = document.getElementById('signupCountry');
+    var val = sel.value;
+    var blockedMsg = document.getElementById('signupBlocked');
+    var mismatch = document.getElementById('mismatchWarn');
+
+    // Pseudo-values for the blocked options
+    if (val && val.indexOf('__BLOCKED__') === 0) {
+        blockedMsg.classList.add('open');
+        mismatch.classList.remove('open');
+        document.getElementById('signupSubmit').disabled = true;
+        return;
+    }
+    blockedMsg.classList.remove('open');
+
+    // Mismatch warning (soft)
+    if (val && _signupState.ipCountry && val !== _signupState.ipCountry) {
+        mismatch.classList.add('open');
+    } else {
+        mismatch.classList.remove('open');
+    }
+    validateSignupForm();
+}
+
+function validateSignupForm() {
+    var email = document.getElementById('signupEmail').value.trim();
+    var country = document.getElementById('signupCountry').value;
+    var terms = document.getElementById('signupTerms').checked;
+    var submit = document.getElementById('signupSubmit');
+
+    var emailOk = email.length >= 3 && email.indexOf('@') > 0 && email.indexOf('.') > 0;
+    var countryOk = country && country.indexOf('__BLOCKED__') !== 0;
+    submit.disabled = !(emailOk && countryOk && terms);
+}
+
+function submitSignup() {
+    var email = document.getElementById('signupEmail').value.trim();
+    var country = document.getElementById('signupCountry').value;
+    var terms = document.getElementById('signupTerms').checked;
+    var tier = _signupState.tier;
+    var errEl = document.getElementById('signupError');
+    var submit = document.getElementById('signupSubmit');
+
+    errEl.classList.remove('open');
+
+    if (!email || !country || !terms || country.indexOf('__BLOCKED__') === 0) {
+        errEl.textContent = 'Please fill all fields and accept the terms.';
+        errEl.classList.add('open');
+        return;
+    }
+
+    submit.disabled = true;
+    submit.textContent = 'Verifying...';
+
+    var auditPayload = {
+        email: email,
+        declaredCountry: country,
+        ipCountry: _signupState.ipCountry,
+        tier: tier || 'unknown',
+        termsAccepted: true,
+        termsVersion: TERMS_VERSION,
+        userAgent: navigator.userAgent
+    };
+
+    // Step 1: audit (always, whether allowed or not). This is the compliance
+    // record. If the audit call fails, we do NOT proceed to checkout -- the
+    // regulatory requirement is a recorded declaration, and we cannot honor
+    // that without the record.
+    fetch('https://api.oricode.ai/api/oracle/signup-audit', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email: email, tier: tier})
+        body: JSON.stringify(auditPayload)
     })
-    .then(function(r) { return r.json(); })
+    .then(function(r) { return r.json().then(function(d) { return {status: r.status, data: d}; }); })
+    .then(function(resp) {
+        if (resp.status !== 200 || !resp.data || !resp.data.ok) {
+            throw new Error((resp.data && resp.data.error) || 'Audit failed');
+        }
+        if (resp.data.allowed === false) {
+            // Blocked by server-side geofence
+            document.getElementById('signupBlocked').classList.add('open');
+            submit.textContent = 'Continue to checkout';
+            return null;
+        }
+        // Allowed -> proceed to tier-specific next step
+        if (tier === 'institutional') {
+            window.location.href = 'mailto:teddy.layani@gmail.com?subject=Oracle%20Institutional%20Access&body=' +
+                encodeURIComponent('Email: ' + email + '\nCountry: ' + country);
+            return null;
+        }
+        // Trigger Stripe checkout on trading-backtest backend
+        return fetch('https://api-trading.oricode.ai/api/oracle/checkout', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                email: email,
+                tier: tier,
+                // Forward compliance fields. trading-backtest may ignore
+                // them today, but if/when it is updated they land here.
+                declared_country: country,
+                ip_country: _signupState.ipCountry,
+                terms_version: TERMS_VERSION
+            })
+        }).then(function(r) { return r.json(); });
+    })
     .then(function(d) {
+        if (!d) return; // blocked or institutional, nothing more to do
         if (d.url) {
             window.location.href = d.url;
         } else {
-            alert(d.error || 'Checkout not available yet.');
+            errEl.textContent = d.error || 'Checkout not available yet. Contact teddy.layani@gmail.com';
+            errEl.classList.add('open');
+            submit.disabled = false;
+            submit.textContent = 'Continue to checkout';
         }
     })
-    .catch(function() { alert('Checkout not available yet. Contact teddy.layani@gmail.com'); });
+    .catch(function(e) {
+        errEl.textContent = 'Could not complete signup. Please try again, or contact teddy.layani@gmail.com';
+        errEl.classList.add('open');
+        submit.disabled = false;
+        submit.textContent = 'Continue to checkout';
+    });
 }
 
 function renderStats(d) {
