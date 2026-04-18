@@ -543,20 +543,40 @@ function renderStats(d) {
     // Donut
     animateDonut(40, 25, 20, 15);
 
-    // Sharpe gauge (scale to 5.0 for headroom)
-    var sharpeOffset = Math.max(0, 251 - (Math.min(sharpe, 5) / 5 * 251));
+    // Sharpe gauge (gauge bar = lower CI bound; value = point estimate)
+    var ciLo = d.sharpe_ci_lower;
+    var ciHi = d.sharpe_ci_upper;
+    var nDays = d.n_days || 0;
+    // Use lower CI bound for the bar (pessimistic) so the arc never overpromises
+    var sharpeForBar = (ciLo !== null && ciLo !== undefined) ? ciLo : sharpe;
+    var sharpeOffset = Math.max(0, 251 - (Math.max(0, Math.min(sharpeForBar, 5)) / 5 * 251));
     animateArc(document.getElementById('sharpeArc'), sharpeOffset, 2000);
     document.getElementById('sharpeValue').textContent = sharpe.toFixed(2);
-    document.getElementById('sharpeLabel').textContent = sharpe > 0 ? 'Statistically Significant' : 'Calibrating';
     document.getElementById('sharpeValue').style.color = sharpe >= 1.0 ? '#22c55e' : sharpe >= 0 ? '#eab308' : '#ef4444';
+    // Sublabel shows CI + n, full transparency
+    var sharpeLabel = '';
+    if (ciLo !== null && ciLo !== undefined && ciHi !== null) {
+        sharpeLabel = 'CI ' + ciLo.toFixed(1) + '–' + ciHi.toFixed(1) + ' · n=' + nDays + 'd';
+    } else {
+        sharpeLabel = 'n=' + nDays + 'd (building data)';
+    }
+    document.getElementById('sharpeLabel').textContent = sharpeLabel;
 
-    // Sortino gauge
-    var sortino = d.sortino_30d || 2.5;
-    var sortinoOffset = Math.max(0, 251 - (Math.min(sortino, 15) / 15 * 251));
-    animateArc(document.getElementById('sortinoArc'), sortinoOffset, 2000);
-    document.getElementById('sortinoValue').textContent = sortino.toFixed(2);
-    document.getElementById('sortinoLabel').textContent = sortino > 1.0 ? 'Downside Protected' : 'Calibrating';
-    document.getElementById('sortinoValue').style.color = sortino >= 2.0 ? '#22c55e' : sortino >= 0 ? '#eab308' : '#ef4444';
+    // Sortino gauge (suppressed if < 5 loss days)
+    var sortino = d.sortino_30d;
+    var nLosses = d.n_losses || 0;
+    if (sortino !== null && sortino !== undefined && nLosses >= 5) {
+        var sortinoOffset = Math.max(0, 251 - (Math.max(0, Math.min(sortino, 15)) / 15 * 251));
+        animateArc(document.getElementById('sortinoArc'), sortinoOffset, 2000);
+        document.getElementById('sortinoValue').textContent = sortino.toFixed(2);
+        document.getElementById('sortinoValue').style.color = sortino >= 2.0 ? '#22c55e' : sortino >= 0 ? '#eab308' : '#ef4444';
+        document.getElementById('sortinoLabel').textContent = 'n=' + nLosses + ' loss days';
+    } else {
+        // Not enough losses for stable Sortino
+        document.getElementById('sortinoValue').textContent = '—';
+        document.getElementById('sortinoValue').style.color = '#888';
+        document.getElementById('sortinoLabel').textContent = 'Accumulating losses (' + nLosses + '/5)';
+    }
 
     // Win rate ring (use 30d WR, fall back to all-time)
     var wr30 = d.win_rate_30d || wr;
