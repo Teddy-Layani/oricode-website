@@ -369,46 +369,34 @@
 <div class="pricing-tiers">
     <div class="pricing-card founding">
         <span class="badge badge-gold">FOUNDING</span>
-        <h3>Early Believer</h3>
+        <h3>Founding Oracle</h3>
         <div class="price">$3,000<span style="font-size:0.4em;color:#666">/mo</span></div>
-        <div class="price-note">Locked forever. Price never changes.</div>
-        <div class="feature"><b>5 seats only</b></div>
-        <div class="feature">Historical + live scoring</div>
-        <div class="feature">Discovery mode</div>
-        <div class="feature"><b>500 queries/month</b> included</div>
-        <div class="feature">Extra: <span id="foundingExtraPrice">--</span>/query</div>
+        <div class="price-note">5 seats. Locked for life. Closes forever when filled.</div>
+        <div class="feature"><b>Rate locked for life</b> &mdash; no increases, ever</div>
+        <div class="feature"><b>50% lifetime discount</b> on Oracle Managed when launched</div>
+        <div class="feature"><b>Early access</b> to Research tier when ISA license lands</div>
+        <div class="feature"><b>Unlimited queries</b></div>
+        <div class="feature"><b>Priority query response</b> (faster model tier)</div>
+        <div class="feature">&ldquo;Founding Member&rdquo; status &mdash; permanent badge</div>
         <a href="#" class="cta-btn" id="ctaFounding" onclick="startCheckout('founding')">Claim Founding Seat</a>
     </div>
     <div class="pricing-card pro">
-        <h3>Professional</h3>
+        <h3>Oracle Read</h3>
         <div class="price" id="proPrice">--</div>
         <div class="price-note">Performance-linked. Price moves with Sharpe.</div>
-        <div class="feature"><b>Unlimited seats</b></div>
-        <div class="feature">Historical + live scoring</div>
-        <div class="feature">Discovery mode</div>
+        <div class="feature"><b>Regime analysis</b> &mdash; volatility, breadth, cross-asset flows</div>
+        <div class="feature"><b>Retrospective commentary</b> &mdash; closed-period attribution</div>
+        <div class="feature"><b>Published performance</b> &mdash; Sharpe, drawdown, CI</div>
+        <div class="feature"><b>Symbol-level analytical context</b></div>
         <div class="feature"><b>200 queries/month</b> included</div>
         <div class="feature">Extra: <span id="queryPrice">--</span>/query</div>
-        <div class="feature">Price drops apply immediately</div>
         <a href="#" class="cta-btn" onclick="startCheckout('professional')">Get Access</a>
-    </div>
-    <div class="pricing-card institutional">
-        <span class="badge badge-blue">FUNDS &amp; INSTITUTIONS</span>
-        <h3>Institutional</h3>
-        <div class="price" id="instPrice">--</div>
-        <div class="price-note" id="instPriceNote">Performance-linked + metered usage.</div>
-        <div class="feature"><b>Unlimited seats</b></div>
-        <div class="feature">Everything in Professional</div>
-        <div class="feature"><b>1,000 queries/month</b> included</div>
-        <div class="feature">Extra: <span id="instQueryPrice">--</span>/query</div>
-        <div class="feature">REST API + batch scan</div>
-        <div class="feature">Priority support</div>
-        <a href="#" class="cta-btn" style="background:linear-gradient(135deg,#3b82f6,#1e40af);color:#fff" onclick="startCheckout('institutional')">Contact Us</a>
     </div>
 </div>
 
 <div class="pricing-formula">
     <div class="formula-row">
-        Seat = $2K + ($750 &times; (Sharpe - 2.0)) &nbsp;&nbsp;&middot;&nbsp;&nbsp; Query = $0.50 + ($0.10 &times; Sharpe)
+        Oracle Read = $199 + ($75 &times; max(0, Sharpe - 2.0)) &nbsp;&nbsp;&middot;&nbsp;&nbsp; Query = $0.50 + ($0.10 &times; Sharpe)
     </div>
     <div class="formula-note">
         The Beast sets the price. On each billing date, your price recalculates based on the current verified 30-day Sharpe.<br>
@@ -447,8 +435,8 @@
             <div id="edgeBar" style="height:100%;width:95%;border-radius:12px;background:linear-gradient(90deg,#ef4444 0%,#eab308 40%,#22c55e 70%);transition:width 1s ease;"></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:8px;">
-            <span id="edgeUsers" style="font-size:0.75em;color:#666;">0 members</span>
-            <span id="edgePercent" style="font-size:0.75em;color:#22c55e;font-weight:600;">95%</span>
+            <span id="edgeUsers" style="font-size:0.75em;color:#666;">Pre-launch</span>
+            <span id="edgePercent" style="font-size:0.75em;color:#22c55e;font-weight:600;">95% &middot; maximum exclusivity</span>
         </div>
         <div style="margin-top:14px;font-size:0.8em;color:#999;line-height:1.6;">
             <div class="edge-gauge-p1" style="margin-bottom:8px;">When too many traders act on the same signals, the market absorbs the edge. Prices move before you can act. The advantage disappears.</div>
@@ -635,27 +623,17 @@ function loadBeastData() {
 }
 
 function renderPricing(p) {
-    var seat = p.seat_price || 9000;
+    var seat = p.seat_price || 366;
     var query = p.query_price || 1.00;
     var remaining = p.founding_remaining || 0;
 
-    // Professional price
+    // Oracle Read price (performance-linked, automated SaaS)
     var pp = document.getElementById('proPrice');
     if (pp) pp.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
 
-    // Institutional price: minimum 3x professional, floor $20K
-    var instPrice = Math.max(20000, Math.round(seat * 3 / 1000) * 1000);
-    var ip = document.getElementById('instPrice');
-    if (ip) ip.innerHTML = '$' + (instPrice).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo + usage</span>';
-    var ipn = document.getElementById('instPriceNote');
-    if (ipn) ipn.textContent = 'Includes 1,000 queries. Extra at $' + query.toFixed(2) + '/query';
-
-    // Extra query prices (same rate for all tiers)
-    var qpIds = ['queryPrice', 'foundingExtraPrice', 'instQueryPrice'];
-    for (var i = 0; i < qpIds.length; i++) {
-        var qp = document.getElementById(qpIds[i]);
-        if (qp) qp.textContent = '$' + query.toFixed(2);
-    }
+    // Extra query price (Oracle Read tier only)
+    var qp = document.getElementById('queryPrice');
+    if (qp) qp.textContent = '$' + query.toFixed(2);
 
     // Pack price (Sharpe-indexed, one-time)
     var packEl = document.getElementById('packPrice');
@@ -903,13 +881,7 @@ function submitSignup() {
             submit.textContent = 'Continue to checkout';
             return null;
         }
-        // Allowed -> proceed to tier-specific next step
-        if (tier === 'institutional') {
-            window.location.href = 'mailto:teddy.layani@gmail.com?subject=Oracle%20Institutional%20Access&body=' +
-                encodeURIComponent('Email: ' + email + '\nCountry: ' + country);
-            return null;
-        }
-        // Trigger Stripe checkout on trading-backtest backend
+        // Allowed -> proceed to Stripe checkout on trading-backtest backend
         return fetch('https://api-trading.oricode.ai/api/oracle/checkout', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -925,7 +897,7 @@ function submitSignup() {
         }).then(function(r) { return r.json(); });
     })
     .then(function(d) {
-        if (!d) return; // blocked or institutional, nothing more to do
+        if (!d) return; // blocked, nothing more to do
         if (d.url) {
             window.location.href = d.url;
         } else {

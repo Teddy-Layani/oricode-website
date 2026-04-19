@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai; frame-ancestors 'none';">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <title>Oracle Console</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23080810'/><text x='16' y='23' font-size='20' font-weight='bold' text-anchor='middle' fill='%23b91c1c' font-family='Georgia'>O</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #080810;
+            --bg-secondary: #0d0d18;
+            --bg-card: #12121f;
+            --border: #24242e;
+            --red: #b91c1c;
+            --red-light: #fca5a5;
+            --red-dim: #7f1d1d;
+            --red-glow: rgba(185, 28, 28, 0.10);
+            --red-strong: rgba(185, 28, 28, 0.20);
+            --text-primary: #f0eeeb;
+            --text-secondary: #a8a8b8;
+            --text-dim: #70708a;
+            --green: #22c55e;
+            --amber: #d4a017;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border-top: 3px solid var(--red);
+        }
+
+        /* === DANGER BANNER === */
+        .danger-banner {
+            background: linear-gradient(90deg, var(--red-dim) 0%, #5a1414 50%, var(--red-dim) 100%);
+            color: #fecaca;
+            padding: 8px 24px;
+            font-size: 11px;
+            text-align: center;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 500;
+            border-bottom: 1px solid var(--red);
+            flex-shrink: 0;
+        }
+        .danger-banner b {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* === HEADER === */
+        .header {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            background: var(--bg-secondary);
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .oracle-mark {
+            width: 32px; height: 32px;
+            background: #111;
+            border: 1px solid var(--red);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            color: var(--red-light);
+            font-weight: 700;
+            font-family: Georgia, serif;
+            box-shadow: 0 0 12px var(--red-glow);
+        }
+        .header-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .header-title .accent {
+            color: var(--red-light);
+            font-weight: 700;
+        }
+        .header-sub {
+            font-size: 10px;
+            color: var(--red);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .mode-badge {
+            padding: 4px 10px;
+            background: var(--red-strong);
+            border: 1px solid var(--red);
+            border-radius: 4px;
+            color: var(--red-light);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .lock-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            font-family: inherit;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lock-btn:hover {
+            border-color: var(--red);
+            color: var(--red-light);
+        }
+
+        /* === AUTH GATE === */
+        .auth-screen {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-box {
+            max-width: 440px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid var(--red-dim);
+            border-radius: 8px;
+            background: var(--bg-card);
+            box-shadow: 0 0 40px rgba(185, 28, 28, 0.08);
+        }
+        .auth-box .oracle-mark {
+            width: 64px; height: 64px;
+            font-size: 28px;
+            margin: 0 auto 24px;
+        }
+        .auth-box h2 {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            color: var(--red-light);
+        }
+        .auth-box p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            line-height: 1.7;
+        }
+        .auth-warning {
+            font-size: 10px;
+            color: var(--red-light);
+            background: var(--red-glow);
+            border: 1px solid var(--red-dim);
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            text-align: left;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 12px;
+            margin-bottom: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .auth-input:focus {
+            border-color: var(--red);
+        }
+        .auth-input::placeholder { color: var(--text-dim); }
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--red);
+            color: var(--red-light);
+            font-family: inherit;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .auth-btn:hover { background: var(--red-glow); }
+        .auth-error {
+            color: var(--red);
+            font-size: 11px;
+            margin-top: 12px;
+            min-height: 16px;
+        }
+
+        /* === CHAT AREA === */
+        .chat-container {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-container.active { display: flex; }
+
+        .feed {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .feed::-webkit-scrollbar { width: 4px; }
+        .feed::-webkit-scrollbar-track { background: transparent; }
+        .feed::-webkit-scrollbar-thumb { background: var(--red-dim); border-radius: 2px; }
+
+        /* Operator query bubble */
+        .query-bubble {
+            align-self: flex-end;
+            max-width: 75%;
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px 12px 2px 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .query-bubble .qb-label {
+            display: block;
+            font-size: 9px;
+            color: var(--red-light);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        /* Response card */
+        .response-card {
+            max-width: 88%;
+            align-self: flex-start;
+            border-left: 3px solid var(--red);
+            background: var(--bg-card);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .response-label {
+            font-size: 9px;
+            color: var(--red);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        .response-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.75;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .response-footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .audit-tag {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 0.5px;
+        }
+        .audit-tag .dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            background: var(--red);
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+            box-shadow: 0 0 6px var(--red);
+        }
+        .copy-btn {
+            background: var(--red-glow);
+            border: 1px solid var(--red);
+            border-radius: 4px;
+            padding: 6px 14px;
+            color: var(--red-light);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.15s;
+        }
+        .copy-btn:hover {
+            background: var(--red-strong);
+        }
+        .copy-btn.copied {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        /* Loading */
+        .response-loading {
+            max-width: 88%;
+            align-self: flex-start;
+            border-left: 3px solid var(--red-dim);
+            background: var(--bg-card);
+            border-radius: 0 8px 8px 0;
+            padding: 14px 18px;
+        }
+        .loading-dots { display: flex; gap: 6px; }
+        .loading-dots span {
+            width: 6px; height: 6px;
+            background: var(--red);
+            border-radius: 50%;
+            animation: pulse 1.2s infinite;
+        }
+        .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes pulse {
+            0%, 80%, 100% { opacity: 0.25; }
+            40% { opacity: 1; }
+        }
+
+        /* Error card */
+        .error-card {
+            max-width: 88%;
+            align-self: flex-start;
+            border-left: 3px solid var(--red);
+            background: rgba(185, 28, 28, 0.06);
+            border-radius: 0 8px 8px 0;
+            padding: 12px 16px;
+            color: var(--red-light);
+            font-size: 12px;
+        }
+
+        /* Welcome */
+        .welcome {
+            align-self: center;
+            text-align: center;
+            padding: 48px 20px;
+            max-width: 560px;
+        }
+        .welcome h3 {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--red-light);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .welcome p {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+        .welcome .hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            padding: 10px 14px;
+            border: 1px dashed var(--red-dim);
+            border-radius: 6px;
+            background: var(--red-glow);
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        /* === INPUT ZONE === */
+        .input-zone {
+            padding: 14px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+        .input-wrap {
+            flex: 1;
+            position: relative;
+        }
+        .input-wrap textarea {
+            width: 100%;
+            padding: 12px 16px;
+            padding-right: 50px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            min-height: 44px;
+            max-height: 120px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+        .input-wrap textarea:focus { border-color: var(--red); }
+        .input-wrap textarea::placeholder { color: var(--text-dim); }
+        .char-count {
+            position: absolute;
+            right: 12px;
+            bottom: 8px;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--red-glow);
+            border: 1px solid var(--red);
+            border-radius: 8px;
+            color: var(--red-light);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+        .send-btn:hover { background: var(--red-strong); }
+        .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .send-btn.stop {
+            border-color: var(--amber);
+            color: var(--amber);
+            background: rgba(212, 160, 23, 0.08);
+        }
+
+        /* Footer */
+        .console-footer {
+            padding: 8px 24px;
+            font-size: 10px;
+            color: var(--text-dim);
+            border-top: 1px solid var(--border);
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: space-between;
+            letter-spacing: 0.5px;
+        }
+        .console-footer .sep { color: var(--red-dim); margin: 0 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- DANGER BANNER -->
+    <div class="danger-banner">
+        <b>FORBIDDEN MODE</b>
+        &nbsp; | &nbsp;
+        This console generates regulated content. Do NOT share output externally.
+        Screenshots leak evidence of unlicensed advisory.
+    </div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="header-left">
+            <div class="oracle-mark">O</div>
+            <div>
+                <div class="header-title">Oracle <span class="accent">Console</span></div>
+                <div class="header-sub">Operator Access &middot; Forbidden Mode</div>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="mode-badge">10/10 Directive</span>
+            <button class="lock-btn" id="lockBtn" onclick="lockConsole()" style="display:none;">Lock Console</button>
+        </div>
+    </div>
+
+    <!-- AUTH GATE -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-box">
+            <div class="oracle-mark">O</div>
+            <h2>Operator Console</h2>
+            <p>Forbidden mode. Direct trade directives. No subscriber access.</p>
+            <div class="auth-warning">
+                <b>WARNING:</b> This console outputs full trade directives (score, edge, R:R, entry, SL, TP, hold time).
+                Output is regulated advice. Never share. Never screenshot for external distribution.
+            </div>
+            <input type="password" class="auth-input" id="adminTokenInput"
+                   placeholder="Admin token (Bearer)" autocomplete="off" spellcheck="false">
+            <button class="auth-btn" onclick="enterConsole()">Enter Console</button>
+            <div class="auth-error" id="authError"></div>
+        </div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="chat-container" id="chatContainer">
+        <div class="feed" id="feed">
+            <div class="welcome" id="welcome">
+                <h3>Forbidden Mode Active</h3>
+                <p>Full directive output. Score, edge, risk/reward, entry, stop, target, hold window.</p>
+                <div class="hint">
+                    <b>Operator reminder:</b> responses are raw, unfiltered trade directives.
+                    Every query is logged under <code style="color:var(--red-light)">operator_access</code>.
+                    No guardrails. No subscriber guardrails. Think before you paste into execution.
+                </div>
+            </div>
+        </div>
+        <div class="input-zone">
+            <div class="input-wrap">
+                <textarea id="queryInput" placeholder="Query (symbol, direction, market)..." rows="1" maxlength="1000"
+                          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                <div class="char-count"><span id="charCount">0</span>/1000</div>
+            </div>
+            <button class="send-btn" id="sendBtn" onclick="sendQuery()" disabled>&#x27A4;</button>
+        </div>
+        <div class="console-footer">
+            <span>Oracle Console v1 <span class="sep">|</span> Forbidden mode <span class="sep">|</span> Operator-only</span>
+            <span id="footerStatus">Ready</span>
+        </div>
+    </div>
+
+<script>
+// === STATE ===
+var API_ENDPOINT = 'https://api-trading.oricode.ai/api/oracle/chat';
+var adminToken = localStorage.getItem('admin_token') || '';
+var isQuerying = false;
+var abortController = null;
+
+// === AUTH GATE ===
+function enterConsole() {
+    var input = document.getElementById('adminTokenInput');
+    var err = document.getElementById('authError');
+    var token = (input.value || '').trim();
+    if (!token) {
+        err.textContent = 'Admin token required.';
+        return;
+    }
+    // Strip any "Bearer " prefix the operator may have pasted
+    if (token.toLowerCase().indexOf('bearer ') === 0) {
+        token = token.substring(7).trim();
+    }
+    adminToken = token;
+    localStorage.setItem('admin_token', token);
+    err.textContent = '';
+    showConsole();
+}
+
+function showConsole() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('chatContainer').classList.add('active');
+    document.getElementById('lockBtn').style.display = 'inline-block';
+    setTimeout(function() { document.getElementById('queryInput').focus(); }, 60);
+}
+
+function lockConsole() {
+    localStorage.removeItem('admin_token');
+    adminToken = '';
+    document.getElementById('adminTokenInput').value = '';
+    document.getElementById('authError').textContent = '';
+    document.getElementById('chatContainer').classList.remove('active');
+    document.getElementById('lockBtn').style.display = 'none';
+    document.getElementById('authScreen').style.display = 'flex';
+    // Clear feed for next session
+    var feed = document.getElementById('feed');
+    feed.innerHTML = '';
+    var w = document.createElement('div');
+    w.className = 'welcome';
+    w.id = 'welcome';
+    w.innerHTML = '<h3>Forbidden Mode Active</h3>'
+        + '<p>Full directive output. Score, edge, risk/reward, entry, stop, target, hold window.</p>'
+        + '<div class="hint"><b>Operator reminder:</b> responses are raw, unfiltered trade directives. '
+        + 'Every query is logged under <code style="color:var(--red-light)">operator_access</code>. '
+        + 'No guardrails. No subscriber guardrails. Think before you paste into execution.</div>';
+    feed.appendChild(w);
+}
+
+// === INPUT HANDLING ===
+function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendQuery();
+    }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+    document.getElementById('charCount').textContent = el.value.length;
+    document.getElementById('sendBtn').disabled = !el.value.trim();
+}
+
+// === RENDER HELPERS ===
+function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function addQueryBubble(text) {
+    var feed = document.getElementById('feed');
+    var welcome = document.getElementById('welcome');
+    if (welcome) welcome.remove();
+    var el = document.createElement('div');
+    el.className = 'query-bubble';
+    el.innerHTML = '<span class="qb-label">Query</span>' + escapeHtml(text);
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
+}
+
+function addLoading() {
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
+    el.className = 'response-loading';
+    el.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
+    return el;
+}
+
+function addError(msg) {
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
+    el.className = 'error-card';
+    el.textContent = msg;
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
+}
+
+function addResponse(data) {
+    var feed = document.getElementById('feed');
+    var el = document.createElement('div');
+    el.className = 'response-card';
+
+    // Prefer explicit directive text; fall back to prophecy / response / message
+    var directive = data.directive || data.prophecy || data.response || data.message || data.text || '';
+    if (typeof directive !== 'string') {
+        try { directive = JSON.stringify(directive, null, 2); } catch(e) { directive = String(directive); }
+    }
+    directive = directive.trim() || '(empty response)';
+
+    var ts = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+
+    el.innerHTML = '<div class="response-label">Directive</div>'
+        + '<div class="response-text" id="rt-' + Date.now() + '">' + escapeHtml(directive) + '</div>'
+        + '<div class="response-footer">'
+        +   '<span class="audit-tag"><span class="dot"></span>logged as operator_access &middot; ' + ts + '</span>'
+        +   '<button class="copy-btn" onclick="copyResponse(this)">Copy</button>'
+        + '</div>';
+
+    feed.appendChild(el);
+    feed.scrollTop = feed.scrollHeight;
+}
+
+// === COPY ===
+function copyResponse(btn) {
+    var card = btn.closest('.response-card');
+    var textEl = card ? card.querySelector('.response-text') : null;
+    var text = textEl ? textEl.innerText : '';
+    if (!text) return;
+
+    function flash() {
+        var orig = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(function() {
+            btn.textContent = orig;
+            btn.classList.remove('copied');
+        }, 1800);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flash).catch(function() {
+            fallbackCopy(text); flash();
+        });
+    } else {
+        fallbackCopy(text); flash();
+    }
+}
+
+function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+}
+
+// === QUERY ===
+async function sendQuery() {
+    if (isQuerying) {
+        // Stop mode
+        if (abortController) abortController.abort();
+        return;
+    }
+    var input = document.getElementById('queryInput');
+    var text = (input.value || '').trim();
+    if (!text) return;
+    if (!adminToken) {
+        addError('No admin token. Lock and re-enter.');
+        return;
+    }
+
+    addQueryBubble(text);
+    input.value = '';
+    input.style.height = 'auto';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('sendBtn').disabled = true;
+
+    var loadingEl = addLoading();
+    isQuerying = true;
+    abortController = new AbortController();
+    setButtonMode('stop');
+    setFooter('Querying forbidden mode...');
+
+    try {
+        var res = await fetch(API_ENDPOINT, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + adminToken,
+                'Content-Type': 'application/json',
+                'X-Oracle-Mode': 'forbidden'
+            },
+            body: JSON.stringify({
+                query: text,
+                mode: 'forbidden'
+            }),
+            signal: abortController.signal
+        });
+
+        var ct = res.headers.get('content-type') || '';
+        var data;
+        if (ct.indexOf('application/json') !== -1) {
+            data = await res.json();
+        } else {
+            data = { directive: await res.text() };
+        }
+
+        loadingEl.remove();
+
+        if (res.status === 401 || res.status === 403) {
+            addError('Auth rejected (' + res.status + '). Admin token invalid or expired. Lock and re-enter.');
+        } else if (res.status === 429) {
+            addError((data && data.error) || 'Rate limited. Unusual for operator; check backend.');
+        } else if (!res.ok) {
+            addError((data && (data.error || data.message)) || ('HTTP ' + res.status));
+        } else {
+            addResponse(data);
+        }
+    } catch(e) {
+        loadingEl.remove();
+        if (e.name === 'AbortError') {
+            addError('Query aborted by operator.');
+        } else {
+            addError('Connection failed: ' + (e.message || e));
+        }
+    }
+
+    isQuerying = false;
+    abortController = null;
+    setButtonMode('send');
+    setFooter('Ready');
+    document.getElementById('sendBtn').disabled = !document.getElementById('queryInput').value.trim();
+}
+
+function setButtonMode(mode) {
+    var btn = document.getElementById('sendBtn');
+    if (mode === 'stop') {
+        btn.classList.add('stop');
+        btn.innerHTML = '&#9632;';
+        btn.disabled = false;
+    } else {
+        btn.classList.remove('stop');
+        btn.innerHTML = '&#x27A4;';
+    }
+}
+
+function setFooter(msg) {
+    var f = document.getElementById('footerStatus');
+    if (f) f.textContent = msg;
+}
+
+// === INIT ===
+(function init() {
+    // Auth gate Enter key
+    var tokenInput = document.getElementById('adminTokenInput');
+    tokenInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); enterConsole(); }
+    });
+
+    if (adminToken) {
+        showConsole();
+    } else {
+        setTimeout(function() { tokenInput.focus(); }, 60);
+    }
+})();
+</script>
+</body>
+</html>
