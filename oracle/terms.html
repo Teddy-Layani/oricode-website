@@ -399,7 +399,7 @@ function translateElement(el, lang) {
     });
 
     var text = clone.textContent.trim();
-    if (!text || text.length < 2 || text.length > 1500) return;
+    if (!text || text.length < 2 || text.length > 3000) return;
     if (/^[\d\s$%+\-.,]+$/.test(text)) return;
     el.dataset.originalText = text;
     el.dataset.originalHtml = el.innerHTML;
