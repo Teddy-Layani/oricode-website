@@ -157,19 +157,19 @@ function detectAndTranslate() {
         .catch(function() {});
 }
 
-function translatePage(lang) {
-    // Selector tailored to what-you-get.html structure
-    var elements = document.querySelectorAll('h1, h2, p, li, b, .subtitle, .example-label, .example-quote, .legal-note, .back-link, .hero-tagline');
-    elements.forEach(function(el) {
-        // Skip explicitly protected elements and any that contain protected descendants
-        if (el.closest && el.closest('.notranslate, [translate="no"], [data-notranslate]')) return;
-        if (el.querySelector && el.querySelector('.notranslate, [translate="no"], [data-notranslate]')) return;
+function translateElement(el, lang) {
+    if (el.closest && el.closest('.notranslate, [translate="no"], [data-notranslate]')) return;
+    if (el.dataset.translated) return;
+
+    var API = 'https://api-trading.oricode.ai/api/oracle/translate';
+    var protectedEls = el.querySelectorAll('.notranslate, [translate="no"], [data-notranslate]');
+
+    if (protectedEls.length === 0) {
         var text = el.textContent.trim();
-        if (!text || text.length < 2 || text.length > 500) return;
+        if (!text || text.length < 2 || text.length > 1000) return;
         if (/^[\d\s$%+\-.,]+$/.test(text)) return;
-        if (el.dataset.translated) return;
         el.dataset.originalText = text;
-        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(text) + '&lang=' + lang)
+        fetch(API + '?text=' + encodeURIComponent(text) + '&lang=' + lang)
         .then(function(r) { return r.json(); })
         .then(function(d) {
             if (d.translated && d.translated !== text) {
@@ -178,7 +178,56 @@ function translatePage(lang) {
             }
         })
         .catch(function() {});
+        return;
+    }
+
+    var tokens = {};
+    var counter = 0;
+    var clone = el.cloneNode(true);
+    var cloneProtected = clone.querySelectorAll('.notranslate, [translate="no"], [data-notranslate]');
+    cloneProtected.forEach(function(n) {
+        var key = 'ZNT' + counter + 'ZNT';
+        tokens[key] = protectedEls[counter].outerHTML;
+        n.replaceWith(document.createTextNode(key));
+        counter++;
     });
+
+    var text = clone.textContent.trim();
+    if (!text || text.length < 2 || text.length > 1500) return;
+    if (/^[\d\s$%+\-.,]+$/.test(text)) return;
+    el.dataset.originalText = text;
+    el.dataset.originalHtml = el.innerHTML;
+
+    fetch(API + '?text=' + encodeURIComponent(text) + '&lang=' + lang)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (!d.translated || d.translated === text) return;
+        var restored = d.translated;
+        Object.keys(tokens).forEach(function(key) {
+            if (restored.indexOf(key) >= 0) {
+                restored = restored.split(key).join(tokens[key]);
+            } else {
+                var rx = new RegExp(key, 'gi');
+                restored = restored.replace(rx, tokens[key]);
+            }
+        });
+        el.innerHTML = restored;
+        el.dataset.translated = '1';
+    })
+    .catch(function() {});
+}
+
+function translatePage(lang) {
+    // Selector tailored to what-you-get.html structure
+    var selector = 'h1, h2, p, li, b, .subtitle, .example-label, .example-quote, .legal-note, .back-link, .hero-tagline';
+    var all = document.querySelectorAll(selector);
+    var topLevel = Array.prototype.filter.call(all, function(el) {
+        for (var p = el.parentElement; p; p = p.parentElement) {
+            if (Array.prototype.indexOf.call(all, p) >= 0) return false;
+        }
+        return true;
+    });
+    topLevel.forEach(function(el) { translateElement(el, lang); });
 }
 
 function toggleLanguage() {

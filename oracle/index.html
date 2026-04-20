@@ -1041,26 +1041,21 @@ function detectAndTranslate() {
         .catch(function() {});
 }
 
-function translatePage(lang) {
-    // Collect all translatable elements
-    var elements = document.querySelectorAll('h1, h2, h3, p, a, span, th, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3, .commitment-card h3, .commitment-card .explainer, .commitment-card .small-note, .countdown-label, .oos-live-label, .methodology-link, .methodology-blend, .methodology-divisor, .sharpe-sparkline-note');
-    elements.forEach(function(el) {
-        // Skip explicitly protected elements (brand/product names, literal tokens).
-        // .closest() returns el itself if el matches, or the nearest protected ancestor,
-        // so this single check covers both self and any protected ancestor in one call.
-        if (el.closest && el.closest('.notranslate, [translate="no"], [data-notranslate]')) return;
-        // Also skip if any DESCENDANT is protected — translating the parent replaces
-        // innerHTML via textContent = ..., which would destroy the protected child span
-        // and still send its brand text to the backend. Skipping keeps the sentence
-        // English on that line, which is acceptable for short feature/price rows.
-        if (el.querySelector && el.querySelector('.notranslate, [translate="no"], [data-notranslate]')) return;
+function translateElement(el, lang) {
+    // If element itself is protected or has a protected ancestor, skip.
+    if (el.closest && el.closest('.notranslate, [translate="no"], [data-notranslate]')) return;
+    if (el.dataset.translated) return;
+
+    var API = 'https://api-trading.oricode.ai/api/oracle/translate';
+    var protectedEls = el.querySelectorAll('.notranslate, [translate="no"], [data-notranslate]');
+
+    if (protectedEls.length === 0) {
+        // Simple path: no protection needed
         var text = el.textContent.trim();
-        if (!text || text.length < 2 || text.length > 500) return;
-        // Skip numbers-only, symbols, and already-translated
+        if (!text || text.length < 2 || text.length > 1000) return;
         if (/^[\d\s$%+\-.,]+$/.test(text)) return;
-        if (el.dataset.translated) return;
         el.dataset.originalText = text;
-        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(text) + '&lang=' + lang)
+        fetch(API + '?text=' + encodeURIComponent(text) + '&lang=' + lang)
         .then(function(r) { return r.json(); })
         .then(function(d) {
             if (d.translated && d.translated !== text) {
@@ -1069,7 +1064,59 @@ function translatePage(lang) {
             }
         })
         .catch(function() {});
+        return;
+    }
+
+    // Placeholder substitution path
+    var tokens = {};
+    var counter = 0;
+    var clone = el.cloneNode(true);
+    var cloneProtected = clone.querySelectorAll('.notranslate, [translate="no"], [data-notranslate]');
+    cloneProtected.forEach(function(n) {
+        var key = 'ZNT' + counter + 'ZNT';
+        tokens[key] = protectedEls[counter].outerHTML;
+        n.replaceWith(document.createTextNode(key));
+        counter++;
     });
+
+    var text = clone.textContent.trim();
+    if (!text || text.length < 2 || text.length > 1500) return;
+    if (/^[\d\s$%+\-.,]+$/.test(text)) return;
+    el.dataset.originalText = text;
+    el.dataset.originalHtml = el.innerHTML;
+
+    fetch(API + '?text=' + encodeURIComponent(text) + '&lang=' + lang)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+        if (!d.translated || d.translated === text) return;
+        var restored = d.translated;
+        Object.keys(tokens).forEach(function(key) {
+            if (restored.indexOf(key) >= 0) {
+                restored = restored.split(key).join(tokens[key]);
+            } else {
+                var rx = new RegExp(key, 'gi');
+                restored = restored.replace(rx, tokens[key]);
+            }
+        });
+        el.innerHTML = restored;
+        el.dataset.translated = '1';
+    })
+    .catch(function() {});
+}
+
+function translatePage(lang) {
+    // Collect all translatable elements
+    var selector = 'h1, h2, h3, p, a, span, th, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3, .commitment-card h3, .commitment-card .explainer, .commitment-card .small-note, .countdown-label, .oos-live-label, .methodology-link, .methodology-blend, .methodology-divisor, .sharpe-sparkline-note';
+    var all = document.querySelectorAll(selector);
+    // Top-level filter: keep only elements whose ancestors are NOT in the match set.
+    // Prevents double-translating <li><b>X</b></li> (both li AND b match the selector).
+    var topLevel = Array.prototype.filter.call(all, function(el) {
+        for (var p = el.parentElement; p; p = p.parentElement) {
+            if (Array.prototype.indexOf.call(all, p) >= 0) return false;
+        }
+        return true;
+    });
+    topLevel.forEach(function(el) { translateElement(el, lang); });
 }
 
 // Task 1: Countdown to codebase freeze (2026-07-17 00:00 UTC)
