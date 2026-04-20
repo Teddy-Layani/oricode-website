@@ -369,18 +369,18 @@
 <div class="pricing-tiers">
     <div class="pricing-card founding">
         <span class="badge badge-gold">FOUNDING</span>
-        <h3>Founding Oracle</h3>
-        <div class="price">$3,000<span style="font-size:0.4em;color:#666">/mo</span></div>
+        <h3 class="notranslate">Founding Oracle</h3>
+        <div class="price">$3,000<span class="notranslate" style="font-size:0.4em;color:#666">/mo</span></div>
         <div class="price-note">5 seats. Locked for life. Closes forever when filled.</div>
         <div class="feature"><b>Rate locked for life</b> &mdash; no increases, ever</div>
         <div class="feature"><b>Unlimited queries</b></div>
         <div class="feature"><b>Priority query response</b> &mdash; faster model tier</div>
-        <div class="feature">Full Oracle Read analytical envelope</div>
+        <div class="feature">Full <span class="notranslate">Oracle Read</span> analytical envelope</div>
         <div class="feature">&ldquo;Founding Member&rdquo; status</div>
         <a href="#" class="cta-btn" id="ctaFounding" onclick="startCheckout('founding')">Claim Founding Seat</a>
     </div>
     <div class="pricing-card pro">
-        <h3>Oracle Read</h3>
+        <h3 class="notranslate">Oracle Read</h3>
         <div class="price" id="proPrice">--</div>
         <div class="price-note">Performance-linked. Price moves with Sharpe.</div>
         <div class="feature"><b>Regime analysis</b> &mdash; volatility, breadth, cross-asset flows</div>
@@ -628,7 +628,7 @@ function renderPricing(p) {
 
     // Oracle Read price (performance-linked, automated SaaS)
     var pp = document.getElementById('proPrice');
-    if (pp) pp.innerHTML = '$' + (seat).toLocaleString() + '<span style="font-size:0.4em;color:#666">/mo</span>';
+    if (pp) pp.innerHTML = '$' + (seat).toLocaleString() + '<span class="notranslate" style="font-size:0.4em;color:#666">/mo</span>';
 
     // Extra query price (Oracle Read tier only)
     var qp = document.getElementById('queryPrice');
@@ -994,12 +994,15 @@ function renderStats(d) {
     if (_detectedLang && _detectedLang !== 'en') {
         ['sharpeLabel', 'sortinoLabel', 'wrLabel'].forEach(function(id) {
             var el = document.getElementById(id);
-            if (el && el.textContent.trim()) {
-                fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(el.textContent.trim()) + '&lang=' + _detectedLang)
-                .then(function(r) { return r.json(); })
-                .then(function(d) { if (d.translated) el.textContent = d.translated; })
-                .catch(function() {});
-            }
+            if (!el || !el.textContent.trim()) return;
+            // Skip explicitly protected elements (brand/product names, literal tokens)
+            if (el.classList && el.classList.contains('notranslate')) return;
+            if (el.getAttribute && el.getAttribute('translate') === 'no') return;
+            if (el.dataset && el.dataset.notranslate) return;
+            fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(el.textContent.trim()) + '&lang=' + _detectedLang)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.translated) el.textContent = d.translated; })
+            .catch(function() {});
         });
     }
 }
@@ -1042,6 +1045,15 @@ function translatePage(lang) {
     // Collect all translatable elements
     var elements = document.querySelectorAll('h1, h2, h3, p, a, span, th, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3, .commitment-card h3, .commitment-card .explainer, .commitment-card .small-note, .countdown-label, .oos-live-label, .methodology-link, .methodology-blend, .methodology-divisor, .sharpe-sparkline-note');
     elements.forEach(function(el) {
+        // Skip explicitly protected elements (brand/product names, literal tokens).
+        // .closest() returns el itself if el matches, or the nearest protected ancestor,
+        // so this single check covers both self and any protected ancestor in one call.
+        if (el.closest && el.closest('.notranslate, [translate="no"], [data-notranslate]')) return;
+        // Also skip if any DESCENDANT is protected — translating the parent replaces
+        // innerHTML via textContent = ..., which would destroy the protected child span
+        // and still send its brand text to the backend. Skipping keeps the sentence
+        // English on that line, which is acceptable for short feature/price rows.
+        if (el.querySelector && el.querySelector('.notranslate, [translate="no"], [data-notranslate]')) return;
         var text = el.textContent.trim();
         if (!text || text.length < 2 || text.length > 500) return;
         // Skip numbers-only, symbols, and already-translated

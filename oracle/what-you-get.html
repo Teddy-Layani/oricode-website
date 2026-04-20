@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What Oracle Does — Oricode</title>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-ancestors 'none';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api-trading.oricode.ai; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api-trading.oricode.ai https://ipapi.co; frame-ancestors 'none';">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" crossorigin="anonymous">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111'/><text x='16' y='23' font-size='20' font-weight='bold' text-anchor='middle' fill='%23d4a017' font-family='Georgia'>O</text></svg>">
@@ -15,7 +15,9 @@
         .hero-header { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
         .oracle-mark-sm { width: 28px; height: 28px; background: #111; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #d4a017; font-weight: 700; font-family: Georgia, serif; box-shadow: 0 0 8px rgba(212,160,23,0.2); }
         .hero-tagline { font-size: 0.8em; color: #555; letter-spacing: 1px; }
-        .back-link { margin-left: auto; font-size: 0.8em; color: #d4a017; text-decoration: none; border-bottom: 1px solid #8b6914; }
+        .lang-toggle { background: none; border: 1px solid #333; color: #888; font-size: 0.65em; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; letter-spacing: 1px; transition: all 0.2s; margin-left: auto; }
+        .lang-toggle:hover { border-color: #d4a017; color: #d4a017; }
+        .back-link { font-size: 0.8em; color: #d4a017; text-decoration: none; border-bottom: 1px solid #8b6914; margin-left: 12px; }
         .back-link:hover { color: #e8c84a; }
 
         h1 { font-size: 2em; color: #d4a017; letter-spacing: 2px; font-weight: 700; margin-bottom: 6px; }
@@ -70,7 +72,8 @@
     <div class="wrap">
         <div class="hero-header">
             <div class="oracle-mark-sm">O</div>
-            <div class="hero-tagline">ORACLE</div>
+            <div class="hero-tagline notranslate">ORACLE</div>
+            <button id="langToggle" class="lang-toggle" onclick="toggleLanguage()" style="display:none">EN</button>
             <a href="/oracle/" class="back-link">Back</a>
         </div>
 
@@ -85,7 +88,7 @@
             <li><b>Regime analysis</b> — volatility, breadth, cross-asset flows, dollar regime, session context</li>
             <li><b>Retrospective commentary</b> — what drove performance in closed periods, with attribution</li>
             <li><b>Methodology discussion</b> — how the system thinks about inputs, gates, and risk at a conceptual level</li>
-            <li><b>Published performance</b> — Sharpe, drawdown, profit factor, with sample sizes and confidence intervals</li>
+            <li><b>Published performance</b> — <span class="notranslate">Sharpe</span>, drawdown, profit factor, with sample sizes and confidence intervals</li>
             <li><b>Symbol-level analytical context</b> — framed as commentary, never as instruction</li>
         </ul>
 
@@ -119,5 +122,96 @@
             Oracle provides analytical data and commentary. It is not investment advice under the Regulation of Investment Advice Law (5755-1995). Past performance does not predict future results. Investing carries risk of loss.
         </div>
     </div>
+
+<script>
+// IP-based language detection + translation via backend /api/oracle/translate
+var _detectedLang = null;
+var COUNTRY_LANG = {
+    'IL': 'he', 'PS': 'he',
+    'SA': 'ar', 'AE': 'ar', 'EG': 'ar', 'JO': 'ar', 'LB': 'ar', 'IQ': 'ar', 'KW': 'ar', 'QA': 'ar', 'BH': 'ar', 'OM': 'ar',
+};
+var _isEnglish = localStorage.getItem('oracle_lang_override') === 'en';
+
+function detectAndTranslate() {
+    fetch('https://ipapi.co/json/')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var country = data.country_code || '';
+            var lang = COUNTRY_LANG[country];
+            if (lang && lang !== 'en') {
+                _detectedLang = lang;
+                if (localStorage.getItem('oracle_lang_override') === 'en') {
+                    var tb = document.getElementById('langToggle');
+                    if (tb) { tb.style.display = 'inline-block'; tb.textContent = lang.toUpperCase(); }
+                    _isEnglish = true;
+                    return;
+                }
+                translatePage(lang);
+                var tb = document.getElementById('langToggle');
+                if (tb) tb.style.display = 'inline-block';
+                if (lang === 'he' || lang === 'ar') {
+                    document.body.style.direction = 'rtl';
+                }
+            }
+        })
+        .catch(function() {});
+}
+
+function translatePage(lang) {
+    // Selector tailored to what-you-get.html structure
+    var elements = document.querySelectorAll('h1, h2, p, li, b, .subtitle, .example-label, .example-quote, .legal-note, .back-link, .hero-tagline');
+    elements.forEach(function(el) {
+        // Skip explicitly protected elements and any that contain protected descendants
+        if (el.closest && el.closest('.notranslate, [translate="no"], [data-notranslate]')) return;
+        if (el.querySelector && el.querySelector('.notranslate, [translate="no"], [data-notranslate]')) return;
+        var text = el.textContent.trim();
+        if (!text || text.length < 2 || text.length > 500) return;
+        if (/^[\d\s$%+\-.,]+$/.test(text)) return;
+        if (el.dataset.translated) return;
+        el.dataset.originalText = text;
+        fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(text) + '&lang=' + lang)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.translated && d.translated !== text) {
+                el.textContent = d.translated;
+                el.dataset.translated = '1';
+            }
+        })
+        .catch(function() {});
+    });
+}
+
+function toggleLanguage() {
+    var btn = document.getElementById('langToggle');
+    if (_isEnglish) {
+        _isEnglish = false;
+        localStorage.removeItem('oracle_lang_override');
+        btn.textContent = 'EN';
+        document.querySelectorAll('[data-original-text]').forEach(function(el) {
+            var orig = el.dataset.originalText;
+            fetch('https://api-trading.oricode.ai/api/oracle/translate?text=' + encodeURIComponent(orig) + '&lang=' + _detectedLang)
+            .then(function(r) { return r.json(); })
+            .then(function(d) { if (d.translated) el.textContent = d.translated; })
+            .catch(function() {});
+        });
+        if (_detectedLang === 'he' || _detectedLang === 'ar') {
+            document.body.style.direction = 'rtl';
+        }
+    } else {
+        _isEnglish = true;
+        localStorage.setItem('oracle_lang_override', 'en');
+        btn.textContent = _detectedLang ? _detectedLang.toUpperCase() : 'HE';
+        document.querySelectorAll('[data-original-text]').forEach(function(el) {
+            el.textContent = el.dataset.originalText;
+        });
+        document.body.style.direction = 'ltr';
+    }
+}
+
+window.addEventListener('load', function() {
+    setTimeout(detectAndTranslate, 300);
+});
+</script>
+
 </body>
 </html>
