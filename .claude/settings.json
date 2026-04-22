@@ -108,7 +108,11 @@
       "Bash(javap -cp \"/c/Users/teddy.layani/.p2/pool/plugins/com.sap.adt.destinations.model_3.54.0.jar\" com.sap.adt.destinations.model.http.internal.HttpSystemConfiguration)",
       "Bash(javap -cp \"/c/Users/teddy.layani/.p2/pool/plugins/com.sap.adt.communication.destinations_3.54.0.jar\" com.sap.adt.communication.destinations.ApplicationServerConnectionAttributes)",
       "Bash(javap -cp /c/Users/teddy.layani/.p2/pool/plugins/com.sap.adt.communication_3.54.0.jar com.sap.adt.communication.destinations.ApplicationServerConnectionAttributes)",
-      "Bash(base64 -w0 scripts/recompute_rigor_now.py)"
+      "Bash(base64 -w0 scripts/recompute_rigor_now.py)",
+      "Read(//c/Users/teddy.layani/eclipse/jee-2025-126/eclipse/configuration//**)",
+      "Bash(base64 -w0 /tmp/plat_mix.py)",
+      "Bash(base64 -w0 /tmp/all_brokers.py)",
+      "Bash(base64 -w0 /tmp/arb_state.py)"
     ],
     "additionalDirectories": [
       "\\tmp",
