@@ -638,21 +638,19 @@ function renderPricing(p) {
     var packEl = document.getElementById('packPrice');
     if (packEl && p.pack_price) packEl.textContent = '$' + p.pack_price.toLocaleString();
 
-    // Founding vs Pro: founding available = pro greyed out. Founding sold = pro activates.
+    // Both tiers always clickable. Founding stays visually prominent (gold border, scale)
+    // while available, but Oracle Read remains a real choice. When founding sells out,
+    // we hide the founding card entirely.
     var sr = document.getElementById('seatsRemaining');
     var foundingCard = document.querySelector('.pricing-card.founding');
     var proCard = document.querySelector('.pricing-card.pro');
-    var proBtn = proCard ? proCard.querySelector('.cta-btn') : null;
+    if (proCard) { proCard.style.opacity = '1'; proCard.style.pointerEvents = 'auto'; }
     if (remaining > 0) {
-        // Founding available: show founding, grey out pro
         if (sr) sr.textContent = remaining + ' founding seat' + (remaining > 1 ? 's' : '') + ' remaining';
         if (foundingCard) foundingCard.style.display = '';
-        if (proCard) { proCard.style.opacity = '0.4'; proCard.style.pointerEvents = 'none'; }
     } else {
-        // Founding sold out: hide founding, activate pro
         if (sr) sr.textContent = '';
         if (foundingCard) foundingCard.style.display = 'none';
-        if (proCard) { proCard.style.opacity = '1'; proCard.style.pointerEvents = 'auto'; }
     }
 }
 
@@ -917,8 +915,14 @@ function submitSignup() {
 function renderStats(d) {
     var exchanges = d.exchange_count || 54;
     var trades = d.trade_count || 46800;
-    // Sharpe: null => show "--" (API failure or no data), never fabricate a number
-    var sharpe = (d.sharpe_30d !== null && d.sharpe_30d !== undefined) ? d.sharpe_30d : null;
+    // Prefer pricing.sharpe_30d so the gauge matches the Sharpe used to compute the price.
+    // Top-level d.sharpe_30d has been observed diverging from pricing's value (e.g. 7.67
+    // vs 3.44 on the same response, 2026-04-29) — the b8b510e fix that unified them
+    // appears to have regressed server-side. Reading pricing's value here keeps the page
+    // internally consistent (gauge and price agree) until the server is investigated.
+    var sharpe = (d.pricing && d.pricing.sharpe_30d !== null && d.pricing.sharpe_30d !== undefined)
+        ? d.pricing.sharpe_30d
+        : ((d.sharpe_30d !== null && d.sharpe_30d !== undefined) ? d.sharpe_30d : null);
     var wr = d.win_rate || 44;
     // Counters
     animateCounter(document.getElementById('exchangeCount'), exchanges, 2000);
