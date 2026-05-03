@@ -129,6 +129,12 @@
         .sharpe-sparkline { display: block; margin: 4px auto 0; }
         .sharpe-sparkline-note { font-size: 0.62em; color: #555; margin-top: 2px; font-style: italic; }
 
+        /* T-bill hurdle badge + foundation basis explainer (audit transparency) */
+        .tbill-badge { display: none; margin: 6px auto 0; padding: 3px 9px; font-size: 0.62em; color: #c9a96e; background: rgba(212,160,23,0.08); border: 1px solid rgba(212,160,23,0.25); border-radius: 10px; letter-spacing: 0.3px; cursor: help; max-width: 220px; text-align: center; line-height: 1.3; }
+        .tbill-badge.open { display: inline-block; }
+        .foundation-basis { display: none; max-width: 560px; margin: 8px auto 0; font-size: 0.7em; color: #777; font-style: italic; line-height: 1.55; text-align: center; padding: 0 18px; }
+        .foundation-basis.open { display: block; }
+
         /* --- Signup modal (geofence + residence + T&C) --- */
         .signup-overlay { display: none; position: fixed; inset: 0; background: rgba(5,5,10,0.85); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
         .signup-overlay.open { display: flex; }
@@ -249,6 +255,7 @@
             <polyline id="sharpeSparklinePath" fill="none" stroke="#d4a017" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points=""/>
         </svg>
         <div class="sharpe-sparkline-note" id="sharpeSparklineNote" style="display:none;">rolling data coming soon</div>
+        <div class="tbill-badge" id="tbillBadge" title="">Below T-bill hurdle &middot; conservative armament profile</div>
     </div>
 
     <!-- Sortino Gauge -->
@@ -302,6 +309,7 @@
         <p class="methodology-blend">Headline Sharpe is capital-weighted blend of per-asset Sharpes. Stocks annualize 252d/yr, Forex 260d/yr, Crypto 365d/yr.</p>
         <p class="methodology-divisor" id="methodologyDivisor">Loading methodology details...</p>
     </div>
+    <p class="foundation-basis" id="foundationBasis"></p>
 </div>
 
 <div class="commitment-row">
@@ -964,6 +972,33 @@ function renderStats(d) {
         document.getElementById('sharpeLabel').textContent = sharpeLabel;
     }
 
+    // Audit transparency: T-bill hurdle badge + foundation_basis explainer
+    // Read from top-level OR foundation_sharpe_30d nested (server may serve either path).
+    var fnd = d.foundation_sharpe_30d || {};
+    var belowTbill = (d.below_tbill_hurdle === true) || (fnd.below_tbill_hurdle === true);
+    var tbillMsg = d.tbill_hurdle_message || fnd.tbill_hurdle_message || fnd.note_on_value || '';
+    var foundationBasis = d.foundation_basis || fnd.foundation_basis || fnd.excluded_reason || '';
+    var badge = document.getElementById('tbillBadge');
+    if (badge) {
+        if (belowTbill) {
+            badge.classList.add('open');
+            if (tbillMsg) badge.setAttribute('title', tbillMsg);
+        } else {
+            badge.classList.remove('open');
+            badge.removeAttribute('title');
+        }
+    }
+    var basisEl = document.getElementById('foundationBasis');
+    if (basisEl) {
+        if (foundationBasis) {
+            basisEl.textContent = foundationBasis;
+            basisEl.classList.add('open');
+        } else {
+            basisEl.classList.remove('open');
+            basisEl.textContent = '';
+        }
+    }
+
     // Sortino gauge (suppressed if < 5 loss days)
     var sortino = d.sortino_30d;
     var nLosses = d.n_losses || 0;
@@ -996,7 +1031,7 @@ function renderStats(d) {
 
     // Re-translate dynamic labels if language was detected
     if (_detectedLang && _detectedLang !== 'en') {
-        ['sharpeLabel', 'sortinoLabel', 'wrLabel'].forEach(function(id) {
+        ['sharpeLabel', 'sortinoLabel', 'wrLabel', 'tbillBadge', 'foundationBasis'].forEach(function(id) {
             var el = document.getElementById(id);
             if (!el || !el.textContent.trim()) return;
             // Skip explicitly protected elements (brand/product names, literal tokens)
@@ -1110,7 +1145,7 @@ function translateElement(el, lang) {
 
 function translatePage(lang) {
     // Collect all translatable elements
-    var selector = 'h1, h2, h3, p, a, span, th, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3, .commitment-card h3, .commitment-card .explainer, .commitment-card .small-note, .countdown-label, .oos-live-label, .methodology-link, .methodology-blend, .methodology-divisor, .sharpe-sparkline-note';
+    var selector = 'h1, h2, h3, p, a, span, th, .stat-label, .gauge-label, .gauge-sublabel, .donut-sublabel, .ring-sublabel, .cta-sub, .seats, .trust-line, .hero-tagline, .pricing-card h3, .price-note, .feature, .badge, .pricing-formula .formula-note, .protection-card .title, .protection-card .desc, .price-protection h3, .trial-title, .trial-desc, .edge-gauge-title, .edge-gauge-subtitle, .edge-gauge-p1, .edge-gauge-p2, .edge-gauge-p3, .commitment-card h3, .commitment-card .explainer, .commitment-card .small-note, .countdown-label, .oos-live-label, .methodology-link, .methodology-blend, .methodology-divisor, .sharpe-sparkline-note, .tbill-badge, .foundation-basis';
     var all = document.querySelectorAll(selector);
     // Top-level filter: keep only elements whose ancestors are NOT in the match set.
     // Prevents double-translating <li><b>X</b></li> (both li AND b match the selector).
